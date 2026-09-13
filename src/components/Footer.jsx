@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { APP_CONFIG } from '../config/appConfig';
 import PlayStoreButton from './PlayStoreButton';
+import ApkDownloadButton from './ApkDownloadButton';
 
 export default function Footer() {
   return (
@@ -84,7 +85,10 @@ export default function Footer() {
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
               Built specifically for Android. Experience career intelligence in your pocket.
             </p>
-            <PlayStoreButton size="sm" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
+              <ApkDownloadButton size="sm" />
+              <PlayStoreButton size="sm" />
+            </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
               {APP_CONFIG.minAndroidVersion}
             </div>

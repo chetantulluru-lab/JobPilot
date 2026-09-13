@@ -244,6 +244,92 @@
   background: var(--orange-50);
 }
 
+/* Direct APK Download Button */
+.btn-apk {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-display);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-align: left;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.btn-apk-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-apk-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-apk-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.btn-apk-sub {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+.btn-apk-primary {
+  background: linear-gradient(135deg, #FF7724 0%, #FF5A00 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: var(--shadow-orange-sm);
+}
+
+.btn-apk-primary:hover {
+  background: linear-gradient(135deg, #FF8838 0%, #E64E00 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-orange-lg);
+  color: #FFFFFF;
+}
+
+.btn-apk-dark {
+  background: #0F172A;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+}
+
+.btn-apk-dark:hover {
+  background: #1E293B;
+  border-color: var(--orange-400);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -5px rgba(15, 23, 42, 0.35), 0 0 25px rgba(255, 106, 0, 0.2);
+  color: #FFFFFF;
+}
+
+.btn-apk-sm {
+  padding: 8px 16px;
+  gap: 10px;
+}
+.btn-apk-sm .btn-apk-title { font-size: 0.875rem; }
+.btn-apk-sm .btn-apk-sub { font-size: 0.625rem; }
+
+.btn-apk-lg {
+  padding: 14px 28px;
+  gap: 16px;
+}
+.btn-apk-lg .btn-apk-title { font-size: 1.125rem; }
+.btn-apk-lg .btn-apk-sub { font-size: 0.75rem; }
+
 .btn-playstore {
   display: inline-flex;
   align-items: center;
@@ -256,6 +342,8 @@
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
   transition: all var(--transition-normal);
   text-align: left;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .btn-playstore:hover {
@@ -280,6 +368,23 @@
   letter-spacing: -0.01em;
   display: block;
   line-height: 1.1;
+}
+
+@media (max-width: 480px) {
+  .btn-playstore {
+    padding: 10px 20px;
+    gap: 10px;
+  }
+  .playstore-title {
+    font-size: 0.9375rem;
+  }
+  .btn-apk {
+    padding: 10px 20px;
+    gap: 10px;
+  }
+  .btn-apk-title {
+    font-size: 0.9375rem;
+  }
 }
 
 /* ==========================================================================
@@ -477,36 +582,64 @@
   100% { transform: translateY(-6px); }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .floating-card-3, .floating-card-5 {
     display: none;
   }
   .ai-orb-container {
-    max-width: 340px;
+    max-width: 330px;
   }
-  .ai-orb-core-wrapper {
-    width: 180px;
-    height: 180px;
+  .ai-orb-ring-2 {
+    width: 310px;
+    height: 310px;
   }
-  .ai-orb-sphere {
-    width: 130px;
-    height: 130px;
-  }
-  .ai-orb-ring-1 { width: 240px; height: 240px; }
-  .ai-orb-ring-2 { width: 310px; height: 310px; }
 }
 
-@media (max-width: 400px) {
-  .ai-orb-container {
-    max-width: 270px;
+@media (max-width: 640px) {
+  .floating-card-3, .floating-card-4, .floating-card-5 {
+    display: none;
   }
-  .ai-orb-ring-1 { width: 190px; height: 190px; }
-  .ai-orb-ring-2 { width: 240px; height: 240px; }
-  .floating-card-1 { right: -4px; font-size: 0.75rem; padding: 6px 10px; }
-  .floating-card-2 { left: -4px; font-size: 0.75rem; padding: 6px 10px; }
-  .floating-card-4 { display: none; }
-  .btn-playstore { padding: 10px 18px; }
-  .playstore-title { font-size: 0.9375rem; }
+  .floating-card-1 {
+    right: 0;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  .floating-card-2 {
+    left: 0;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  .ai-orb-container {
+    max-width: 290px;
+  }
+  .ai-orb-core-wrapper {
+    width: 150px;
+    height: 150px;
+  }
+  .ai-orb-sphere {
+    width: 110px;
+    height: 110px;
+  }
+  .ai-orb-ring-1 { width: 200px; height: 200px; }
+  .ai-orb-ring-2 { width: 260px; height: 260px; }
+}
+
+@media (max-width: 380px) {
+  .ai-orb-container {
+    max-width: 240px;
+  }
+  .ai-orb-core-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+  .ai-orb-sphere {
+    width: 85px;
+    height: 85px;
+  }
+  .ai-orb-ring-1 { width: 160px; height: 160px; }
+  .ai-orb-ring-2 { width: 210px; height: 210px; }
+  .floating-card-1 { right: -4px; font-size: 0.6875rem; padding: 4px 8px; }
+  .floating-card-2 { left: -4px; font-size: 0.6875rem; padding: 4px 8px; }
 }
 
 /* ==========================================================================
@@ -525,12 +658,24 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 120%;
-  height: 110%;
+  width: 100%;
+  height: 100%;
   background: radial-gradient(ellipse, rgba(255, 106, 0, 0.22) 0%, rgba(255, 140, 50, 0.08) 50%, transparent 75%);
-  filter: blur(50px);
+  filter: blur(40px);
   pointer-events: none;
   z-index: 0;
+}
+
+@media (max-width: 480px) {
+  .phone-mockup-outer {
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 360px) {
+  .phone-mockup-outer {
+    max-width: 270px;
+  }
 }
 
 .phone-frame {
@@ -716,6 +861,21 @@
   border-radius: var(--radius-xl);
   padding: 32px;
   box-shadow: 0 16px 40px -10px rgba(15, 23, 42, 0.08), 0 0 30px rgba(255, 106, 0, 0.08);
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .job-match-card-main {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+@media (max-width: 360px) {
+  .job-match-card-main {
+    padding: 16px 12px;
+  }
 }
 
 .match-score-badge-large {
@@ -997,3 +1157,75 @@
   font-size: 0.875rem;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   RESPONSIVE GRID & CARD UTILITIES
+   ========================================================================== */
+.grid-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .grid-hero {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+  }
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (min-width: 860px) {
+  .grid-2col {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 48px;
+  }
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .grid-cards {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 28px;
+  }
+}
+
+.grid-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .grid-features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-panel-elevated {
+    border-radius: var(--radius-lg);
+  }
+  .glass-panel {
+    border-radius: var(--radius-md);
+  }
+}
+

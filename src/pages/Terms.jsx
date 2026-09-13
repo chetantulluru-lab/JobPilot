@@ -106,7 +106,7 @@ export default function Terms() {
             <strong>Important Employment Disclaimer:</strong> JobPilot does not guarantee interviews, employment, offers, or successful applications. JobPilot is an AI and natural language processing tool designed to assist with career organization and compatibility insights.
           </div>
 
-          <GlassCard elevated padding="40px">
+          <GlassCard elevated padding="clamp(20px, 4vw, 40px)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
               {sections.map((sec, idx) => (
                 <div key={idx} style={{ borderBottom: idx < sections.length - 1 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none', paddingBottom: '24px' }}>

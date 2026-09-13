@@ -96,7 +96,7 @@ export default function Privacy() {
             <strong>Note on Project Stage:</strong> This is a project-stage privacy policy template structured for transparency and user clarity. Prior to full public production deployment, it will be reviewed and finalized by legal counsel in accordance with applicable data protection regulations.
           </div>
 
-          <GlassCard elevated padding="40px">
+          <GlassCard elevated padding="clamp(20px, 4vw, 40px)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
               {sections.map((sec, idx) => (
                 <div key={idx} style={{ borderBottom: idx < sections.length - 1 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none', paddingBottom: '24px' }}>

@@ -54,13 +54,22 @@ htmlcov/
 backend/uploads/
 backend/storage/
 
-# Android Build Artifacts
+# Android Build Artifacts & Signing Secrets
 android/.gradle/
 android/build/
 android/app/build/
 android/local.properties
+android/keystore.properties
+*.jks
+*.keystore
 *.apk
 *.aab
+
+# Whitelist website downloadable release APK
+!public/downloads/
+!public/downloads/**
+!public/downloads/*.apk
+
 
 # Editor directories and files
 .vscode/*

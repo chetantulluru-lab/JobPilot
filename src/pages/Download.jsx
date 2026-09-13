@@ -1,5 +1,6 @@
-import { Smartphone, CheckCircle2, Compass } from 'lucide-react';
+import { Smartphone, CheckCircle2, Compass, ShieldCheck } from 'lucide-react';
 import PlayStoreButton from '../components/PlayStoreButton';
+import ApkDownloadButton from '../components/ApkDownloadButton';
 import PhoneMockup from '../components/PhoneMockup';
 import QRPlaceholder from '../components/QRPlaceholder';
 import SectionHeading from '../components/SectionHeading';
@@ -20,7 +21,7 @@ export default function Download() {
     { label: 'Platform', value: 'Android 11.0+ (Red Velvet Cake / API 30+)' },
     { label: 'Architecture', value: 'Optimized for ARM64 & modern Android devices' },
     { label: 'Category', value: 'Productivity & Career Guidance' },
-    { label: 'Distribution', value: 'Official Google Play Store' },
+    { label: 'Distribution', value: 'Direct APK Release (Google Play listing coming soon)' },
   ];
 
   return (
@@ -29,30 +30,24 @@ export default function Download() {
         <GlowBackground variant="top" />
 
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '64px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="grid-2col" style={{ gap: '48px', alignItems: 'center' }}>
             {/* Download Content Left */}
             <div>
               {/* Android 11+ Badge */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
                 <span className="badge badge-orange">
                   <Smartphone size={14} />
                   <span>Android 11+</span>
                 </span>
                 <span className="badge badge-glass">
-                  <span>Official Release</span>
+                  <ShieldCheck size={14} />
+                  <span>Signed Release APK</span>
                 </span>
               </div>
 
               <h1
                 style={{
-                  fontSize: 'clamp(2.5rem, 4.5vw, 3.75rem)',
+                  fontSize: 'clamp(2.25rem, 4.5vw, 3.75rem)',
                   fontWeight: '800',
                   letterSpacing: '-0.035em',
                   lineHeight: '1.1',
@@ -84,16 +79,22 @@ export default function Download() {
                   marginBottom: '36px',
                 }}
               >
+                <ApkDownloadButton
+                  size="lg"
+                  label="Download APK"
+                  subtext="Direct Install • Android 11+ (44 MB)"
+                />
+
                 <PlayStoreButton />
 
                 <Button
                   to="/how-it-works"
                   variant="secondary"
-                  size="lg"
+                  size="md"
                   icon={<Compass size={18} />}
                   iconPosition="left"
                 >
-                  Learn How JobPilot Works
+                  See How It Works
                 </Button>
               </div>
 
@@ -127,21 +128,22 @@ export default function Download() {
 
               {/* QR Code & Scan To Download Section */}
               <GlassCard
-                padding="20px"
+                padding="clamp(16px, 3vw, 20px)"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '24px',
+                  gap: 'clamp(14px, 3vw, 24px)',
                   maxWidth: '440px',
+                  flexWrap: 'wrap',
                 }}
               >
-                <QRPlaceholder size={110} caption="Scan to download" />
-                <div>
+                <QRPlaceholder size={100} caption="Scan for APK" />
+                <div style={{ flex: '1 1 200px' }}>
                   <div style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                    Scan with your Android camera
+                    Scan with your phone camera
                   </div>
                   <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                    Point your phone camera to open the JobPilot listing on Google Play directly.
+                    Scan this code to immediately download the signed JobPilot APK directly to your Android phone.
                   </p>
                 </div>
               </GlassCard>
@@ -173,11 +175,11 @@ export default function Download() {
               subtitle="JobPilot is engineered specifically for modern Android environments with efficient background sync and offline-friendly profile viewing."
             />
 
-            <GlassCard elevated padding="32px">
+            <GlassCard elevated padding="clamp(20px, 4vw, 32px)">
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
                   gap: '24px',
                 }}
               >

@@ -49,7 +49,7 @@ function NotFound() {
   return (
     <div className="section" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center' }}>
       <div className="container" style={{ textAlign: 'center' }}>
-        <GlassCard elevated padding="48px" style={{ maxWidth: '520px', margin: '0 auto' }}>
+        <GlassCard elevated padding="clamp(24px, 5vw, 48px)" style={{ maxWidth: '520px', margin: '0 auto' }}>
           <div style={{ fontSize: '3rem', fontWeight: '800', color: 'var(--orange-500)', marginBottom: '12px' }}>
             404
           </div>

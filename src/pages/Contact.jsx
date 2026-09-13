@@ -59,17 +59,10 @@ export default function Contact() {
             subtitle="Have a question about JobPilot, feedback on the Android app, or an inquiry regarding our NLP technology? We'd love to hear from you."
           />
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '32px',
-              alignItems: 'start',
-            }}
-          >
+          <div className="grid-2col" style={{ alignItems: 'start', gap: '32px' }}>
             {/* Contact Options / Channels */}
             <div>
-              <GlassCard padding="32px" elevated style={{ marginBottom: '24px' }}>
+              <GlassCard padding="clamp(20px, 4vw, 32px)" elevated style={{ marginBottom: '24px' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '16px' }}>
                   Inquiry Channels
                 </h3>
@@ -135,7 +128,7 @@ export default function Contact() {
             </div>
 
             {/* Contact Form UI */}
-            <GlassCard elevated padding="36px">
+            <GlassCard elevated padding="clamp(20px, 4vw, 36px)">
               {submitted ? (
                 <div style={{ textAlign: 'center', padding: '40px 10px' }}>
                   <div

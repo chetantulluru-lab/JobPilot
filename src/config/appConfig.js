@@ -16,6 +16,11 @@ export const APP_CONFIG = {
   version: '1.0.0-phase1a',
   minAndroidVersion: 'Android 11+ (API Level 30)',
 
+  // Centralized Direct APK Download configuration
+  APK_DOWNLOAD_URL: '/downloads/JobPilot.apk',
+  APK_FILENAME: 'JobPilot.apk',
+  APK_FILE_SIZE: '44 MB',
+
   // Centralized Play Store configuration
   // Safe placeholder until official Google Play Store listing is live
   PLAY_STORE_URL: '#',

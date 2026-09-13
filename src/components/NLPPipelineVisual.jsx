@@ -139,7 +139,7 @@ export default function NLPPipelineVisual({ className = '' }) {
         elevated
         style={{
           marginTop: '28px',
-          padding: '30px',
+          padding: 'clamp(18px, 4vw, 30px)',
           border: '1px solid rgba(255, 106, 0, 0.2)',
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 249, 242, 0.85) 100%)',
         }}
@@ -230,7 +230,7 @@ export default function NLPPipelineVisual({ className = '' }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
           gap: '16px',
           marginTop: '28px',
         }}

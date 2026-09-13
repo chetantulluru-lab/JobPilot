@@ -2,6 +2,7 @@ import React from 'react';
 import SectionHeading from '../components/SectionHeading';
 import StepCard from '../components/StepCard';
 import PlayStoreButton from '../components/PlayStoreButton';
+import ApkDownloadButton from '../components/ApkDownloadButton';
 import GlowBackground from '../components/GlowBackground';
 import GlassCard from '../components/GlassCard';
 import { HOW_IT_WORKS_STEPS } from '../data/steps';
@@ -46,7 +47,7 @@ export default function HowItWorks() {
       >
         <div className="container">
           <div style={{ maxWidth: '820px', margin: '0 auto', textAlign: 'center' }}>
-            <GlassCard elevated padding="40px">
+            <GlassCard elevated padding="clamp(24px, 5vw, 40px)">
               <span className="badge badge-orange" style={{ marginBottom: '14px' }}>
                 ✦ Continuous Optimization
               </span>
@@ -56,7 +57,8 @@ export default function HowItWorks() {
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '24px' }}>
                 Completed a new project? Added a certification? Learned Docker or GraphQL? Update your JobPilot profile once and see your match scores dynamically recalculate across all active opportunities.
               </p>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <ApkDownloadButton size="md" />
                 <PlayStoreButton />
               </div>
             </GlassCard>

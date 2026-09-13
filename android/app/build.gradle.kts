@@ -1,7 +1,21 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val localPropertiesFile = rootProject.file("local.properties")
+
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    } else if (localPropertiesFile.exists()) {
+        load(FileInputStream(localPropertiesFile))
+    }
 }
 
 android {
@@ -21,6 +35,34 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keystoreProperties.getProperty("RELEASE_STORE_FILE")
+                ?: System.getenv("RELEASE_STORE_FILE")
+                ?: "jobpilot-release.jks"
+            val storePassword = keystoreProperties.getProperty("RELEASE_STORE_PASSWORD")
+                ?: System.getenv("RELEASE_STORE_PASSWORD")
+            val keyAlias = keystoreProperties.getProperty("RELEASE_KEY_ALIAS")
+                ?: System.getenv("RELEASE_KEY_ALIAS")
+                ?: "jobpilot"
+            val keyPassword = keystoreProperties.getProperty("RELEASE_KEY_PASSWORD")
+                ?: System.getenv("RELEASE_KEY_PASSWORD")
+
+            val storeFileObj = if (File(storeFilePath).isAbsolute) {
+                File(storeFilePath)
+            } else {
+                rootProject.file(storeFilePath)
+            }
+
+            if (storeFileObj.exists() && !storePassword.isNullOrBlank()) {
+                this.storeFile = storeFileObj
+                this.storePassword = storePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword ?: storePassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -28,11 +70,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"
         }
     }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -45,7 +89,9 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
 
     packaging {
         resources {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Menu, X, ArrowRight, Smartphone } from 'lucide-react';
 import Button from './Button';
+import ApkDownloadButton from './ApkDownloadButton';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -135,15 +136,16 @@ export default function Navbar() {
         </ul>
 
         <div className="mobile-nav-actions">
+          <ApkDownloadButton size="md" style={{ width: '100%', justifyContent: 'center' }} />
           <Button
             to="/download"
-            variant="primary"
-            size="lg"
+            variant="secondary"
+            size="md"
             icon={<Smartphone size={18} />}
             iconPosition="left"
             style={{ width: '100%' }}
           >
-            Get the Android App
+            Download Overview
           </Button>
         </div>
       </div>

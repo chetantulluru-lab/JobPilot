@@ -140,10 +140,10 @@ export default function JobMatchCard({ className = '' }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '20px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+          gap: '16px',
           background: 'rgba(255, 255, 255, 0.7)',
-          padding: '20px',
+          padding: 'clamp(14px, 3vw, 20px)',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid rgba(226, 232, 240, 0.8)',
           marginBottom: '20px',

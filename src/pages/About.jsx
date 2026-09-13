@@ -2,6 +2,7 @@ import SectionHeading from '../components/SectionHeading';
 import GlassCard from '../components/GlassCard';
 import GlowBackground from '../components/GlowBackground';
 import PlayStoreButton from '../components/PlayStoreButton';
+import ApkDownloadButton from '../components/ApkDownloadButton';
 
 export default function About() {
   const problems = [
@@ -45,14 +46,7 @@ export default function About() {
       {/* The Problem Section */}
       <section className="section" style={{ paddingTop: '0', paddingBottom: '70px' }}>
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '40px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="grid-2col">
             <div>
               <span className="badge badge-orange" style={{ marginBottom: '14px' }}>
                 The Friction in Job Hunting
@@ -68,7 +62,7 @@ export default function About() {
               </p>
             </div>
 
-            <GlassCard elevated padding="32px">
+            <GlassCard elevated padding="clamp(20px, 4vw, 32px)">
               <h4 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '16px', color: 'var(--text-primary)' }}>
                 The Repetitive Hurdles Candidates Face:
               </h4>
@@ -142,7 +136,7 @@ export default function About() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
                 gap: '20px',
                 textAlign: 'left',
               }}
@@ -173,7 +167,7 @@ export default function About() {
       <section className="section" style={{ paddingBottom: '90px' }}>
         <div className="container">
           <div style={{ maxWidth: '780px', margin: '0 auto' }}>
-            <GlassCard padding="32px">
+            <GlassCard padding="clamp(20px, 4vw, 32px)">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                 <span className="badge badge-glass">Project Principles</span>
               </div>
@@ -183,7 +177,8 @@ export default function About() {
               <p style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '20px' }}>
                 JobPilot is designed as an AI and natural language processing career assistant. We do not guarantee job interviews, employment offers, or automated acceptance. Our goal is to empower users with clear data, semantic matching insights, and organized workflows so they can put their best foot forward.
               </p>
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <ApkDownloadButton size="sm" />
                 <PlayStoreButton size="sm" />
               </div>
             </GlassCard>

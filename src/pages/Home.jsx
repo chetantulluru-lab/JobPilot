@@ -13,13 +13,13 @@ import {
 import { APP_CONFIG } from '../config/appConfig';
 import Button from '../components/Button';
 import PlayStoreButton from '../components/PlayStoreButton';
+import ApkDownloadButton from '../components/ApkDownloadButton';
 import AIOrb from '../components/AIOrb';
 import PhoneMockup from '../components/PhoneMockup';
 import JobMatchCard from '../components/JobMatchCard';
 import NLPPipelineVisual from '../components/NLPPipelineVisual';
 import SectionHeading from '../components/SectionHeading';
 import GlassCard from '../components/GlassCard';
-import QRPlaceholder from '../components/QRPlaceholder';
 import GlowBackground from '../components/GlowBackground';
 import { STUDENT_CHALLENGES } from '../data/features';
 
@@ -50,14 +50,7 @@ export default function Home() {
         <GlowBackground variant="top" />
 
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '48px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="grid-hero">
             {/* Left Hero Copy */}
             <div style={{ zIndex: 1 }}>
               <div style={{ marginBottom: '18px' }}>
@@ -252,14 +245,7 @@ export default function Home() {
           ==================================================================== */}
       <section className="section">
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '48px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="grid-2col">
             <div>
               <SectionHeading
                 align="left"
@@ -372,14 +358,7 @@ export default function Home() {
         <GlowBackground variant="top" />
 
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '56px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="grid-2col">
             {/* Phone Mockup Left */}
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <PhoneMockup />
@@ -394,7 +373,7 @@ export default function Home() {
 
               <h2
                 style={{
-                  fontSize: 'clamp(2.25rem, 3.8vw, 3rem)',
+                  fontSize: 'clamp(2rem, 3.8vw, 3rem)',
                   fontWeight: '800',
                   letterSpacing: '-0.03em',
                   lineHeight: '1.15',
@@ -443,24 +422,27 @@ export default function Home() {
                 <span>Available for Android 11+</span>
               </div>
 
-              {/* Play Store Download & QR Code Callout */}
+              {/* Direct APK Download & Play Store Callout */}
               <div
                 style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: '24px',
+                  gap: '16px',
                   alignItems: 'center',
                 }}
               >
                 <div>
-                  <PlayStoreButton />
+                  <ApkDownloadButton size="md" />
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                    Free for students • Instant activation
+                    Free for students • Instant APK install
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <QRPlaceholder size={90} caption="Scan to download" />
+                <div>
+                  <PlayStoreButton />
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                    Official Play Store (Coming Soon)
+                  </div>
                 </div>
               </div>
             </div>
@@ -477,7 +459,7 @@ export default function Home() {
             elevated
             glow
             style={{
-              padding: '64px 32px',
+              padding: 'clamp(32px, 5vw, 64px) clamp(20px, 4vw, 32px)',
               textAlign: 'center',
               position: 'relative',
               overflow: 'hidden',
@@ -510,7 +492,7 @@ export default function Home() {
               Transform your resume into structured intelligence and navigate your career path with clarity and confidence.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <PlayStoreButton />
+              <ApkDownloadButton size="lg" />
               <Button to="/features" variant="secondary" size="lg">
                 Explore All Features
               </Button>

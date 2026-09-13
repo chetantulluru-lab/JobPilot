@@ -3,6 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 import SectionHeading from '../components/SectionHeading';
 import FeatureCard from '../components/FeatureCard';
 import PlayStoreButton from '../components/PlayStoreButton';
+import ApkDownloadButton from '../components/ApkDownloadButton';
 import GlowBackground from '../components/GlowBackground';
 import GlassCard from '../components/GlassCard';
 import { FEATURES } from '../data/features';
@@ -26,13 +27,7 @@ export default function Features() {
       {/* Feature Cards Grid */}
       <section className="section" style={{ paddingTop: '0', paddingBottom: '80px' }}>
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '28px',
-            }}
-          >
+          <div className="grid-features">
             {FEATURES.map((feature) => (
               <FeatureCard key={feature.id} feature={feature} />
             ))}
@@ -49,7 +44,7 @@ export default function Features() {
       >
         <div className="container">
           <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-            <GlassCard elevated padding="40px">
+            <GlassCard elevated padding="clamp(20px, 4vw, 40px)">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <span className="badge badge-orange">
                   <ShieldCheck size={14} />
@@ -65,7 +60,7 @@ export default function Features() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
                   gap: '16px',
                   borderTop: '1px solid rgba(226, 232, 240, 0.8)',
                   paddingTop: '20px',
@@ -108,7 +103,7 @@ export default function Features() {
             elevated
             glow
             style={{
-              padding: '48px 32px',
+              padding: 'clamp(32px, 5vw, 48px) clamp(16px, 4vw, 32px)',
               textAlign: 'center',
               background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF7ED 100%)',
               border: '1px solid rgba(255, 106, 0, 0.2)',
@@ -120,7 +115,8 @@ export default function Features() {
             <p style={{ color: 'var(--text-secondary)', maxWidth: '560px', margin: '0 auto 28px' }}>
               Download JobPilot to start building your verified career profile and explore matching roles right away.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <ApkDownloadButton size="md" />
               <PlayStoreButton />
             </div>
           </GlassCard>

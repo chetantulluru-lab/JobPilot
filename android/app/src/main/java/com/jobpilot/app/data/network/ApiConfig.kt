@@ -1,5 +1,7 @@
 package com.jobpilot.app.data.network
 
+import com.jobpilot.app.BuildConfig
+
 /**
  * Centralized API Base URL Configuration for JobPilot Android Client.
  *
@@ -16,9 +18,12 @@ object ApiConfig {
     // Local loopback (for unit tests / desktop JVM testing)
     const val DEV_LOCAL_BASE_URL = "http://localhost:8000/api/v1/"
 
-    // Production URL placeholder
-    const val PROD_BASE_URL = "https://api.jobpilot.app/api/v1/"
+    // Production URL (Deployed on Render)
+    const val PROD_BASE_URL = "https://jobpilot-backend-e97f.onrender.com/api/v1/"
 
-    // Active Base URL used by Retrofit
-    var BASE_URL: String = DEV_EMULATOR_BASE_URL
+    // Active Base URL used by Retrofit & all API network repositories:
+    // In Release builds: automatically uses PROD_BASE_URL (Render backend)
+    // In Debug builds: defaults to DEV_EMULATOR_BASE_URL (http://10.0.2.2:8000/api/v1/)
+    var BASE_URL: String = if (BuildConfig.DEBUG) DEV_EMULATOR_BASE_URL else PROD_BASE_URL
 }
+
