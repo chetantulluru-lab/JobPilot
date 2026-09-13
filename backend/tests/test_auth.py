@@ -1,0 +1,73 @@
+import uuid
+
+
+def test_user_registration(client):
+    unique_email = f"test_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    payload = {
+        "email": unique_email,
+        "password": "SecurePassword123",
+        "full_name": "Test Engineer"
+    }
+    response = client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["email"] == unique_email.lower()
+    assert data["full_name"] == "Test Engineer"
+    assert "hashed_password" not in data  # Never leak password hashes!
+
+
+def test_user_duplicate_registration(client):
+    unique_email = f"dup_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    payload = {
+        "email": unique_email,
+        "password": "SecurePassword123",
+        "full_name": "Test Engineer"
+    }
+    res1 = client.post("/api/v1/auth/register", json=payload)
+    assert res1.status_code == 201
+
+    res2 = client.post("/api/v1/auth/register", json=payload)
+    assert res2.status_code == 409
+    assert "already exists" in res2.json()["detail"]
+
+
+def test_user_login_success(client):
+    unique_email = f"login_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    client.post(
+        "/api/v1/auth/register",
+        json={"email": unique_email, "password": "MyPassword123", "full_name": "Login Test"}
+    )
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": unique_email, "password": "MyPassword123"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["token_type"] == "bearer"
+
+
+def test_user_login_invalid_password(client):
+    unique_email = f"wrong_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    client.post(
+        "/api/v1/auth/register",
+        json={"email": unique_email, "password": "MyPassword123", "full_name": "Login Test"}
+    )
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": unique_email, "password": "WrongPassword"}
+    )
+    assert response.status_code == 401
+
+
+def test_protected_me_endpoint(client, user_a_headers):
+    # Without token -> 401
+    res_unauth = client.get("/api/v1/auth/me")
+    assert res_unauth.status_code == 401
+
+    # With valid bearer token -> 200
+    res_auth = client.get("/api/v1/auth/me", headers=user_a_headers)
+    assert res_auth.status_code == 200
+    data = res_auth.json()
+    assert data["email"] == "user_a_test@jobpilot.io"

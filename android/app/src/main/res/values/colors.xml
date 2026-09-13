@@ -1,0 +1,8 @@
+<resources>
+    <color name="jobpilot_orange_primary">#FF6A00</color>
+    <color name="jobpilot_orange_dark">#E65500</color>
+    <color name="jobpilot_orange_light">#FFF4EB</color>
+    <color name="jobpilot_bg_light">#FFFDFB</color>
+    <color name="jobpilot_text_primary">#0F172A</color>
+    <color name="jobpilot_text_secondary">#475569</color>
+</resources>

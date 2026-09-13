@@ -1,0 +1,35 @@
+# Local environment variables & secrets - NEVER COMMIT
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.coverage.*
+
+# Uploaded User Files (Resumes, Temp files)
+uploads/
+storage/
+temp/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db

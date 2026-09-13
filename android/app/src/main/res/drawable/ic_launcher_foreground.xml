@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Ambient Ring -->
+    <path
+        android:fillColor="#33FF6A00"
+        android:pathData="M54,54m-34,0a34,34 0,1 1,68 0a34,34 0,1 1,-68 0" />
+    <!-- Secondary Outer Ring -->
+    <path
+        android:strokeColor="#80FF8533"
+        android:strokeWidth="1.5"
+        android:pathData="M54,54m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0" />
+    <!-- Main Glowing Orb Core -->
+    <path
+        android:fillColor="#FF6A00"
+        android:pathData="M54,54m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+    <!-- Inner Core Highlight -->
+    <path
+        android:fillColor="#FFFF8533"
+        android:pathData="M51,48m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+    <!-- Central AI Sparkle ✦ -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,41 L56.5,50.5 L66,53 L56.5,55.5 L54,65 L51.5,55.5 L42,53 L51.5,50.5 Z" />
+    <!-- Small Orbiting Particle Dots -->
+    <path
+        android:fillColor="#FF7A00"
+        android:pathData="M69,38m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0" />
+    <path
+        android:fillColor="#FFA866"
+        android:pathData="M37,68m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+</vector>
