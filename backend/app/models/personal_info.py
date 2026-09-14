@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -17,6 +17,10 @@ class PersonalInfo(Base):
     current_role = Column(String(255), nullable=True)
     bio = Column(String(2000), nullable=True)
     avatar_url = Column(String(500), nullable=True)
+    age = Column(Integer, nullable=True)
+    college = Column(String(255), nullable=True)
+    degree = Column(String(100), nullable=True)
+    branch = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 

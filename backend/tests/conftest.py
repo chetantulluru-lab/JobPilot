@@ -19,6 +19,16 @@ def client():
 
 
 @pytest.fixture
+def db():
+    """Provides a direct database session for testing assertions."""
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+@pytest.fixture
 def user_a_headers(client):
     """Registers and authenticates User A, returning Authorization headers."""
     email = "user_a_test@jobpilot.io"
@@ -63,6 +73,12 @@ def mock_openrouter_http(monkeypatch):
     orig_post = httpx.Client.post
 
     def fake_post(self, url, *args, **kwargs):
+        if "api.resend.com" in str(url):
+            resp = MagicMock()
+            resp.status_code = 200
+            resp.json.return_value = {"id": "resend_test_mock_12345"}
+            return resp
+
         if "openrouter.ai" in str(url):
             payload = kwargs.get("json", {})
             messages = payload.get("messages", [])

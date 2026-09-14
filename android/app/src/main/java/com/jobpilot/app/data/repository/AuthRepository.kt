@@ -15,6 +15,8 @@ interface AuthRepository {
     suspend fun startRegistration(fullName: String, email: String, password: String): Result<String>
     suspend fun verifyRegistrationOtp(email: String, otp: String): Result<User>
     suspend fun sendPasswordReset(email: String): Result<Unit>
+    suspend fun startForgotPassword(email: String): Result<String>
+    suspend fun verifyForgotPassword(email: String, otp: String, newPassword: String): Result<Unit>
     suspend fun logout()
     fun hasActiveSession(): Boolean
     fun isOnboardingCompleted(): Boolean
@@ -92,6 +94,16 @@ class MockAuthRepository : AuthRepository {
         } else {
             Result.failure(IllegalArgumentException("Please enter a valid email address."))
         }
+    }
+
+    override suspend fun startForgotPassword(email: String): Result<String> {
+        delay(400)
+        return Result.success("Password reset code sent to $email")
+    }
+
+    override suspend fun verifyForgotPassword(email: String, otp: String, newPassword: String): Result<Unit> {
+        delay(400)
+        return Result.success(Unit)
     }
 
     override suspend fun logout() {

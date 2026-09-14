@@ -14,7 +14,11 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import AuthService
 
-from app.schemas.otp import RegisterStartRequest, RegisterStartResponse, RegisterVerifyRequest
+from app.schemas.otp import (
+    RegisterStartRequest, RegisterStartResponse, RegisterVerifyRequest,
+    ForgotPasswordStartRequest, ForgotPasswordStartResponse,
+    ForgotPasswordVerifyRequest, ForgotPasswordVerifyResponse
+)
 from app.services.otp_service import OtpService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -37,6 +41,23 @@ def register_verify(req: RegisterVerifyRequest, db: Session = Depends(get_db)):
     initializes a clean empty Career Profile, and returns JWT auth tokens.
     """
     return OtpService.verify_and_register(db, req)
+
+
+@router.post("/forgot-password/start", response_model=ForgotPasswordStartResponse, status_code=status.HTTP_200_OK)
+def forgot_password_start(req: ForgotPasswordStartRequest, db: Session = Depends(get_db)):
+    """
+    Step 1 of Password Reset: Validates email, creates 6-digit hashed OTP,
+    and dispatches code via Resend.
+    """
+    return OtpService.start_password_reset(db, req)
+
+
+@router.post("/forgot-password/verify", response_model=ForgotPasswordVerifyResponse, status_code=status.HTTP_200_OK)
+def forgot_password_verify(req: ForgotPasswordVerifyRequest, db: Session = Depends(get_db)):
+    """
+    Step 2 of Password Reset: Verifies 6-digit OTP and safely resets password.
+    """
+    return OtpService.verify_and_reset_password(db, req)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

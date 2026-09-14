@@ -1,10 +1,7 @@
 package com.jobpilot.app.data.repository
 
 import com.jobpilot.app.data.mock.MockDataProvider
-import com.jobpilot.app.data.model.CareerProfile
-import com.jobpilot.app.data.model.Resume
-import com.jobpilot.app.data.model.ResumeParsedData
-import com.jobpilot.app.data.model.ResumeTemplateType
+import com.jobpilot.app.data.model.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +17,8 @@ interface ResumeRepository {
     suspend fun createResume(title: String, templateType: ResumeTemplateType, profile: CareerProfile): Resume
     suspend fun tailorResumeForJob(resumeId: String, jobTitle: String): Resume
     suspend fun exportPdfToFile(resumeId: String, destFile: java.io.File): Result<java.io.File>
+    suspend fun analyzeResume(resumeId: String): Result<ResumeAnalysis>
+    suspend fun getResumeAnalysis(resumeId: String): Result<ResumeAnalysis>
 }
 
 class MockResumeRepository : ResumeRepository {
@@ -102,6 +101,28 @@ class MockResumeRepository : ResumeRepository {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun analyzeResume(resumeId: String): Result<ResumeAnalysis> {
+        delay(600)
+        return Result.success(
+            ResumeAnalysis(
+                resumeId = resumeId,
+                atsScore = 78,
+                label = "AI-Powered ATS-Style Analysis",
+                summary = "Strong technical foundation with clear impact metrics.",
+                strengths = listOf("Clear project descriptions", "Relevant skills highlighted"),
+                weaknesses = listOf("Add quantifiable achievements to experience section"),
+                missingSkills = listOf("Docker", "CI/CD"),
+                contentImprovements = listOf("Use active verbs for achievements"),
+                formattingNotes = listOf("Standard single-column format recommended"),
+                disclaimer = "Informational guidance based on industry standards. JobPilot makes no employment or interview guarantees."
+            )
+        )
+    }
+
+    override suspend fun getResumeAnalysis(resumeId: String): Result<ResumeAnalysis> {
+        return analyzeResume(resumeId)
     }
 }
 

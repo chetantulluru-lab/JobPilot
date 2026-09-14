@@ -20,6 +20,7 @@ class Resume(Base):
     parsed_data_json = Column(Text, nullable=True)     # Extracted sections, skills, experience
     missing_fields_json = Column(Text, nullable=True)  # Detected missing items
     audit_json = Column(Text, nullable=True)           # Detailed audit (missing, uncertain, score)
+    analysis_json = Column(Text, nullable=True)        # Cached AI ATS-style analysis
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

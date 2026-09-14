@@ -120,6 +120,45 @@ class AuthViewModel(
         }
     }
 
+    fun startForgotPassword(email: String, onOtpSent: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = authRepository.startForgotPassword(email)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    successMessage = result.getOrNull() ?: "Password reset code sent to $email"
+                )
+                onOtpSent()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to send reset code"
+                )
+            }
+        }
+    }
+
+    fun verifyForgotPassword(email: String, otp: String, newPassword: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = authRepository.verifyForgotPassword(email, otp, newPassword)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = null,
+                    successMessage = "Password updated successfully. Please sign in."
+                )
+                onSuccess()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to reset password"
+                )
+            }
+        }
+    }
+
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
             authRepository.logout()

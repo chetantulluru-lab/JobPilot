@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Work
@@ -16,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,9 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.jobpilot.app.data.AppContainer
 import com.jobpilot.app.ui.screens.applications.ApplicationDetailScreen
-import com.jobpilot.app.ui.screens.assistant.AICareerAssistantScreen
-
 import com.jobpilot.app.ui.screens.applications.ApplicationListScreen
+import com.jobpilot.app.ui.screens.assistant.AICareerAssistantScreen
 import com.jobpilot.app.ui.screens.auth.ForgotPasswordScreen
 import com.jobpilot.app.ui.screens.auth.LoginScreen
 import com.jobpilot.app.ui.screens.auth.RegisterScreen
@@ -41,18 +40,23 @@ import com.jobpilot.app.ui.screens.jobs.JobDetailScreen
 import com.jobpilot.app.ui.screens.jobs.JobListScreen
 import com.jobpilot.app.ui.screens.jobs.SkillGapDetailScreen
 import com.jobpilot.app.ui.screens.notifications.NotificationCenterScreen
+import com.jobpilot.app.ui.screens.onboarding.CareerProfileOnboardingScreen
 import com.jobpilot.app.ui.screens.onboarding.OnboardingScreen
 import com.jobpilot.app.ui.screens.profile.ProfileScreen
 import com.jobpilot.app.ui.screens.profile.SmartCompletionScreen
 import com.jobpilot.app.ui.screens.resume.ResumeBuilderScreen
 import com.jobpilot.app.ui.screens.resume.ResumeHubScreen
 import com.jobpilot.app.ui.screens.resume.ResumeUploadFlowScreen
+import com.jobpilot.app.ui.screens.roadmap.DayLearningScreen
+import com.jobpilot.app.ui.screens.roadmap.RoadmapCreateScreen
+import com.jobpilot.app.ui.screens.roadmap.RoadmapDetailScreen
+import com.jobpilot.app.ui.screens.roadmap.RoadmapHubScreen
 import com.jobpilot.app.ui.screens.settings.ConnectedAccountsScreen
 import com.jobpilot.app.ui.screens.settings.SettingsScreen
 import com.jobpilot.app.ui.screens.splash.SplashScreen
 import com.jobpilot.app.ui.theme.BgWarmWhite
-import com.jobpilot.app.ui.theme.Orange500
 import com.jobpilot.app.ui.theme.Orange50
+import com.jobpilot.app.ui.theme.Orange500
 import com.jobpilot.app.ui.theme.Slate400
 import com.jobpilot.app.ui.viewmodel.*
 
@@ -74,6 +78,9 @@ fun JobPilotNavGraph(
         factory = JobPilotViewModelFactory(container)
     )
     val dashboardViewModel: DashboardViewModel = viewModel(
+        factory = JobPilotViewModelFactory(container)
+    )
+    val roadmapViewModel: RoadmapViewModel = viewModel(
         factory = JobPilotViewModelFactory(container)
     )
     val profileViewModel: ProfileViewModel = viewModel(
@@ -98,14 +105,13 @@ fun JobPilotNavGraph(
         factory = JobPilotViewModelFactory(container)
     )
 
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // MVP 5-Tab Navigation: 1. Home, 2. Roadmap, 3. Resume, 4. Profile, 5. Settings
     val bottomNavItems = listOf(
-        BottomNavItem("Dashboard", Screen.Dashboard.route, Icons.Default.Dashboard),
-        BottomNavItem("Jobs", Screen.JobList.route, Icons.Default.Work),
-        BottomNavItem("Applications", Screen.ApplicationList.route, Icons.Default.Assignment),
+        BottomNavItem("Home", Screen.Dashboard.route, Icons.Default.Home),
+        BottomNavItem("Roadmap", Screen.RoadmapHub.route, Icons.Default.Explore),
         BottomNavItem("Resume", Screen.ResumeHub.route, Icons.Default.Description),
         BottomNavItem("Profile", Screen.Profile.route, Icons.Default.Person),
         BottomNavItem("Settings", Screen.Settings.route, Icons.Default.Settings)
@@ -221,7 +227,7 @@ fun JobPilotNavGraph(
                 RegisterScreen(
                     viewModel = authViewModel,
                     onRegisterSuccess = {
-                        navController.navigate(Screen.Dashboard.route) {
+                        navController.navigate(Screen.CareerProfileOnboarding.route) {
                             popUpTo(Screen.Register.route) { inclusive = true }
                         }
                     },
@@ -231,7 +237,7 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 5. Auth: Forgot Password
+            // 5. Auth: Forgot Password (2-Step OTP)
             composable(Screen.ForgotPassword.route) {
                 ForgotPasswordScreen(
                     viewModel = authViewModel,
@@ -241,45 +247,98 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 6. Dashboard
+            // 6. Career Profile Onboarding (Next -> Next: Personal -> Education -> Optional Resume)
+            composable(Screen.CareerProfileOnboarding.route) {
+                CareerProfileOnboardingScreen(
+                    profileViewModel = profileViewModel,
+                    onFinishToHome = {
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.CareerProfileOnboarding.route) { inclusive = true }
+                        }
+                    },
+                    onUploadResume = {
+                        navController.navigate(Screen.ResumeUpload.route)
+                    },
+                    onCreateResume = {
+                        navController.navigate(Screen.ResumeBuilder.route)
+                    }
+                )
+            }
+
+            // 7. Tab 1: Dashboard / Home
             composable(Screen.Dashboard.route) {
                 DashboardScreen(
                     viewModel = dashboardViewModel,
-                    onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
-                    onNavigateToSmartCompletion = { navController.navigate(Screen.SmartCompletion.route) },
-                    onNavigateToJobs = { navController.navigate(Screen.JobList.route) },
-                    onNavigateToJobDetail = { jobId ->
-                        navController.navigate(Screen.JobDetail.createRoute(jobId))
+                    onNavigateToRoadmaps = { navController.navigate(Screen.RoadmapHub.route) },
+                    onNavigateToRoadmapDetail = { roadmapId ->
+                        navController.navigate(Screen.RoadmapDetail.createRoute(roadmapId))
                     },
-                    onNavigateToApplications = { navController.navigate(Screen.ApplicationList.route) },
-                    onNavigateToApplicationDetail = { appId ->
-                        navController.navigate(Screen.ApplicationDetail.createRoute(appId))
-                    },
+                    onCreateRoadmap = { navController.navigate(Screen.RoadmapCreate.route) },
                     onNavigateToResume = { navController.navigate(Screen.ResumeHub.route) },
-                    onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+                    onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
                     onNavigateToAssistant = { navController.navigate(Screen.AIAssistant.route) }
                 )
             }
 
-
-            // 7. Profile
-            composable(Screen.Profile.route) {
-                ProfileScreen(
-                    viewModel = profileViewModel,
-                    onNavigateToSmartCompletion = { navController.navigate(Screen.SmartCompletion.route) }
+            // 8. Tab 2: Roadmap Hub
+            composable(Screen.RoadmapHub.route) {
+                RoadmapHubScreen(
+                    viewModel = roadmapViewModel,
+                    onCreateRoadmap = { navController.navigate(Screen.RoadmapCreate.route) },
+                    onSelectRoadmap = { id ->
+                        navController.navigate(Screen.RoadmapDetail.createRoute(id))
+                    }
                 )
             }
 
-            // 8. Smart Completion
-            composable(Screen.SmartCompletion.route) {
-                SmartCompletionScreen(
-                    viewModel = profileViewModel,
+            // 9. Roadmap Create Screen
+            composable(Screen.RoadmapCreate.route) {
+                RoadmapCreateScreen(
+                    viewModel = roadmapViewModel,
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToConnectedAccounts = { navController.navigate(Screen.ConnectedAccounts.route) }
+                    onRoadmapCreated = { id ->
+                        navController.navigate(Screen.RoadmapDetail.createRoute(id)) {
+                            popUpTo(Screen.RoadmapCreate.route) { inclusive = true }
+                        }
+                    }
                 )
             }
 
-            // 9. Resume Hub
+            // 10. Roadmap Detail Screen
+            composable(
+                route = Screen.RoadmapDetail.route,
+                arguments = listOf(navArgument("roadmapId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val roadmapId = backStackEntry.arguments?.getString("roadmapId") ?: ""
+                RoadmapDetailScreen(
+                    roadmapId = roadmapId,
+                    viewModel = roadmapViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onOpenDay = { rId, dId ->
+                        navController.navigate(Screen.DayLearning.createRoute(rId, dId))
+                    }
+                )
+            }
+
+            // 11. Day Learning Screen
+            composable(
+                route = Screen.DayLearning.route,
+                arguments = listOf(
+                    navArgument("roadmapId") { type = NavType.StringType },
+                    navArgument("dayId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val roadmapId = backStackEntry.arguments?.getString("roadmapId") ?: ""
+                val dayId = backStackEntry.arguments?.getString("dayId") ?: ""
+                DayLearningScreen(
+                    roadmapId = roadmapId,
+                    dayId = dayId,
+                    viewModel = roadmapViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // 12. Tab 3: Resume Hub
             composable(Screen.ResumeHub.route) {
                 ResumeHubScreen(
                     viewModel = resumeViewModel,
@@ -288,7 +347,7 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 10. Resume Upload Flow
+            // 13. Resume Upload Flow
             composable(Screen.ResumeUpload.route) {
                 ResumeUploadFlowScreen(
                     viewModel = resumeViewModel,
@@ -297,7 +356,7 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 11. Resume Builder
+            // 14. Resume Builder
             composable(Screen.ResumeBuilder.route) {
                 ResumeBuilderScreen(
                     viewModel = resumeViewModel,
@@ -305,7 +364,38 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 12. Job List
+            // 15. Tab 4: Profile
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onNavigateToSmartCompletion = { navController.navigate(Screen.SmartCompletion.route) }
+                )
+            }
+
+            // 16. Smart Completion
+            composable(Screen.SmartCompletion.route) {
+                SmartCompletionScreen(
+                    viewModel = profileViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToConnectedAccounts = { navController.navigate(Screen.ConnectedAccounts.route) }
+                )
+            }
+
+            // 17. Tab 5: Settings
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    authViewModel = authViewModel,
+                    onLogout = {
+                        authViewModel.logout {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Dashboard.route) { inclusive = true }
+                            }
+                        }
+                    }
+                )
+            }
+
+            // 18. Secondary Screens (Isolated from Bottom Tabs)
             composable(Screen.JobList.route) {
                 JobListScreen(
                     viewModel = jobViewModel,
@@ -315,7 +405,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 13. Job Detail
             composable(
                 route = Screen.JobDetail.route,
                 arguments = listOf(navArgument("jobId") { type = NavType.StringType })
@@ -331,7 +420,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 14. Skill Gap Detail
             composable(
                 route = Screen.SkillGapDetail.route,
                 arguments = listOf(navArgument("jobId") { type = NavType.StringType })
@@ -344,7 +432,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 15. Application List
             composable(Screen.ApplicationList.route) {
                 ApplicationListScreen(
                     viewModel = applicationViewModel,
@@ -354,7 +441,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 16. Application Detail
             composable(
                 route = Screen.ApplicationDetail.route,
                 arguments = listOf(navArgument("appId") { type = NavType.StringType })
@@ -367,7 +453,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 17. Notification Center
             composable(Screen.Notifications.route) {
                 NotificationCenterScreen(
                     viewModel = notificationViewModel,
@@ -378,22 +463,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 18. Settings
-            composable(Screen.Settings.route) {
-                SettingsScreen(
-                    authViewModel = authViewModel,
-                    onNavigateToConnectedAccounts = {
-                        navController.navigate(Screen.ConnectedAccounts.route)
-                    },
-                    onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
-            }
-
-            // 19. Connected Accounts
             composable(Screen.ConnectedAccounts.route) {
                 ConnectedAccountsScreen(
                     viewModel = connectedAccountsViewModel,
@@ -401,7 +470,6 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 20. AI Career Coach Assistant
             composable(Screen.AIAssistant.route) {
                 AICareerAssistantScreen(
                     viewModel = assistantViewModel,
@@ -411,4 +479,3 @@ fun JobPilotNavGraph(
         }
     }
 }
-

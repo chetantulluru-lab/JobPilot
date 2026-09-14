@@ -23,6 +23,12 @@ interface JobPilotApiService {
     @POST("auth/register/verify")
     suspend fun registerVerify(@Body req: RegisterVerifyRequestDto): Response<TokenResponseDto>
 
+    @POST("auth/forgot-password/start")
+    suspend fun forgotPasswordStart(@Body req: ForgotPasswordStartRequestDto): Response<ForgotPasswordStartResponseDto>
+
+    @POST("auth/forgot-password/verify")
+    suspend fun forgotPasswordVerify(@Body req: ForgotPasswordVerifyRequestDto): Response<ForgotPasswordVerifyResponseDto>
+
     @GET("auth/me")
     suspend fun getMe(): Response<UserDto>
 
@@ -50,6 +56,16 @@ interface JobPilotApiService {
 
     @DELETE("profile/projects/{id}")
     suspend fun deleteProject(@Path("id") id: String): Response<Unit>
+
+    @Multipart
+    @POST("profile/photo")
+    suspend fun uploadProfilePhoto(@Part file: MultipartBody.Part): Response<Map<String, String>>
+
+    @DELETE("profile/photo")
+    suspend fun deleteProfilePhoto(): Response<Unit>
+
+    @PUT("profile/personal-info")
+    suspend fun updatePersonalInfo(@Body req: PersonalInfoUpdateRequestDto): Response<PersonalInfoDto>
 
     // --- Jobs ---
     @GET("jobs")
@@ -111,6 +127,12 @@ interface JobPilotApiService {
 
     @POST("resumes/{id}/confirm")
     suspend fun confirmResume(@Path("id") id: String): Response<ConfirmResumeResponseDto>
+
+    @POST("resumes/{id}/analyze")
+    suspend fun analyzeResume(@Path("id") id: String): Response<ResumeAnalysisResponseDto>
+
+    @GET("resumes/{id}/analysis")
+    suspend fun getResumeAnalysis(@Path("id") id: String): Response<ResumeAnalysisResponseDto>
 
     // --- AI Assistant ---
     @GET("assistant/conversations")
@@ -201,5 +223,33 @@ interface JobPilotApiService {
 
     @PUT("notifications/mark-all-read")
     suspend fun markAllNotificationsRead(): Response<Unit>
+
+    // --- Roadmaps ---
+    @GET("roadmaps/suggestions")
+    suspend fun getRoadmapSuggestions(@Query("query") query: String): Response<RoadmapSuggestionResponseDto>
+
+    @POST("roadmaps/generate")
+    suspend fun generateRoadmap(@Body req: RoadmapGenerateRequestDto): Response<RoadmapDetailResponseDto>
+
+    @GET("roadmaps")
+    suspend fun getRoadmaps(): Response<List<RoadmapSummaryResponseDto>>
+
+    @GET("roadmaps/{id}")
+    suspend fun getRoadmapById(@Path("id") id: String): Response<RoadmapDetailResponseDto>
+
+    @POST("roadmaps/days/{day_id}/complete")
+    suspend fun completeRoadmapDay(@Path("day_id") dayId: String): Response<DayCompleteResponseDto>
+
+    @GET("roadmaps/phases/{phase_id}/resources")
+    suspend fun getPhaseResources(
+        @Path("phase_id") phaseId: String,
+        @Query("language") language: String? = null
+    ): Response<List<RoadmapResourceResponseDto>>
+
+    @POST("roadmaps/{id}/add-skills-to-resume")
+    suspend fun addSkillsToResume(@Path("id") id: String): Response<AddSkillsToResumeResponseDto>
+
+    @DELETE("roadmaps/{id}")
+    suspend fun deleteRoadmap(@Path("id") id: String): Response<Unit>
 }
 

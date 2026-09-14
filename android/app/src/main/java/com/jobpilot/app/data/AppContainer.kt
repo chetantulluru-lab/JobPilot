@@ -19,6 +19,7 @@ interface AppContainer {
     val notificationRepository: NotificationRepository
     val connectedAccountRepository: ConnectedAccountRepository
     val assistantRepository: AssistantRepository
+    val roadmapRepository: RoadmapRepository
     val tokenManager: TokenManager?
     val apiService: JobPilotApiService?
 }
@@ -102,6 +103,15 @@ class DefaultAppContainer(private val context: Context? = null) : AppContainer {
             NetworkAssistantRepository(service)
         } else {
             MockAssistantRepository()
+        }
+    }
+
+    override val roadmapRepository: RoadmapRepository by lazy {
+        val service = apiService
+        if (service != null) {
+            NetworkRoadmapRepository(service)
+        } else {
+            MockRoadmapRepository()
         }
     }
 }

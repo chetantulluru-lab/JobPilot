@@ -40,6 +40,8 @@ val GapOrange = Color(0xFFC2410C)
 val GapOrangeBg = Color(0xFFFFF7ED)
 val InfoBlue = Color(0xFF0284C7)
 val InfoBlueBg = Color(0xFFF0F9FF)
+val ErrorRed = Color(0xFFEF4444)
+val ErrorRedBg = Color(0xFFFEF2F2)
 
 // Glass Borders & Glow
 val BorderGlass = Color(0x33FF6A00)

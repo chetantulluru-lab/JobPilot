@@ -91,12 +91,31 @@ data class ProjectDto(
     @SerializedName("end_date") val endDate: String? = null
 )
 
+data class PersonalInfoDto(
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("full_name") val fullName: String? = null,
+    @SerializedName("email") val email: String? = null,
+    @SerializedName("phone") val phone: String? = null,
+    @SerializedName("location") val location: String? = null,
+    @SerializedName("current_role") val currentRole: String? = null,
+    @SerializedName("bio") val bio: String? = null,
+    @SerializedName("avatar_url") val avatarUrl: String? = null,
+    @SerializedName("age") val age: Int? = null,
+    @SerializedName("college") val college: String? = null,
+    @SerializedName("degree") val degree: String? = null,
+    @SerializedName("branch") val branch: String? = null
+)
+
 data class CareerProfileDto(
     @SerializedName("id") val id: String,
     @SerializedName("user_id") val userId: String,
     @SerializedName("headline") val headline: String? = null,
     @SerializedName("summary") val summary: String? = null,
-    @SerializedName("profile_strength") val profileStrength: Int = 50,
+    @SerializedName("profile_strength") val profileStrength: Int = 0,
+    @SerializedName("current_streak") val currentStreak: Int = 0,
+    @SerializedName("longest_streak") val longestStreak: Int = 0,
+    @SerializedName("last_activity_date") val lastActivityDate: String? = null,
+    @SerializedName("personal_info") val personalInfo: PersonalInfoDto? = null,
     @SerializedName("education") val education: List<EducationDto> = emptyList(),
     @SerializedName("skills") val skills: List<SkillDto> = emptyList(),
     @SerializedName("experience") val experience: List<ExperienceDto> = emptyList(),
@@ -522,4 +541,156 @@ data class NotificationDto(
     @SerializedName("deep_link") val deepLink: String? = null,
     @SerializedName("created_at") val createdAt: String
 )
+
+// --- Forgot Password DTOs ---
+data class ForgotPasswordStartRequestDto(
+    @SerializedName("email") val email: String
+)
+
+data class ForgotPasswordStartResponseDto(
+    @SerializedName("status") val status: String,
+    @SerializedName("message") val message: String,
+    @SerializedName("email") val email: String
+)
+
+data class ForgotPasswordVerifyRequestDto(
+    @SerializedName("email") val email: String,
+    @SerializedName("otp") val otp: String,
+    @SerializedName("new_password") val newPassword: String
+)
+
+data class ForgotPasswordVerifyResponseDto(
+    @SerializedName("status") val status: String,
+    @SerializedName("message") val message: String
+)
+
+// --- Personal Info Update DTO ---
+data class PersonalInfoUpdateRequestDto(
+    @SerializedName("full_name") val fullName: String? = null,
+    @SerializedName("age") val age: Int? = null,
+    @SerializedName("college") val college: String? = null,
+    @SerializedName("degree") val degree: String? = null,
+    @SerializedName("branch") val branch: String? = null,
+    @SerializedName("phone") val phone: String? = null,
+    @SerializedName("location") val location: String? = null,
+    @SerializedName("bio") val bio: String? = null
+)
+
+// --- ATS Resume Analysis DTOs ---
+data class ResumeAnalysisResponseDto(
+    @SerializedName("resume_id") val resumeId: String,
+    @SerializedName("ats_score") val atsScore: Int,
+    @SerializedName("label") val label: String = "AI-Powered ATS-Style Analysis",
+    @SerializedName("summary") val summary: String,
+    @SerializedName("strengths") val strengths: List<String> = emptyList(),
+    @SerializedName("weaknesses") val weaknesses: List<String> = emptyList(),
+    @SerializedName("missing_skills") val missingSkills: List<String> = emptyList(),
+    @SerializedName("content_improvements") val contentImprovements: List<String> = emptyList(),
+    @SerializedName("formatting_notes") val formattingNotes: List<String> = emptyList(),
+    @SerializedName("disclaimer") val disclaimer: String = "Informational guidance based on industry standards. JobPilot makes no employment or interview guarantees."
+)
+
+// --- Roadmap DTOs ---
+data class RoadmapSuggestionResponseDto(
+    @SerializedName("query") val query: String,
+    @SerializedName("suggestions") val suggestions: List<String> = emptyList()
+)
+
+data class RoadmapGenerateRequestDto(
+    @SerializedName("goal") val goal: String,
+    @SerializedName("duration") val duration: String = "6 Months"
+)
+
+data class PracticeTaskDto(
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("expected_output") val expectedOutput: String? = null
+)
+
+data class RoadmapResourceResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("day_id") val dayId: String? = null,
+    @SerializedName("phase_id") val phaseId: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("url") val url: String,
+    @SerializedName("language") val language: String,
+    @SerializedName("resource_type") val resourceType: String,
+    @SerializedName("source") val source: String
+)
+
+data class RoadmapDayResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("roadmap_id") val roadmapId: String,
+    @SerializedName("phase_id") val phaseId: String,
+    @SerializedName("day_number") val dayNumber: Int,
+    @SerializedName("topic") val topic: String,
+    @SerializedName("learning_objective") val learningObjective: String? = null,
+    @SerializedName("subtopics") val subtopics: List<String> = emptyList(),
+    @SerializedName("practice_tasks") val practiceTasks: List<PracticeTaskDto> = emptyList(),
+    @SerializedName("is_completed") val isCompleted: Boolean = false,
+    @SerializedName("completed_at") val completedAt: String? = null
+)
+
+data class RoadmapPhaseResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("roadmap_id") val roadmapId: String,
+    @SerializedName("phase_number") val phaseNumber: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("is_unlocked") val isUnlocked: Boolean = false,
+    @SerializedName("is_completed") val isCompleted: Boolean = false,
+    @SerializedName("project_title") val projectTitle: String? = null,
+    @SerializedName("project_description") val projectDescription: String? = null,
+    @SerializedName("days") val days: List<RoadmapDayResponseDto> = emptyList(),
+    @SerializedName("resources") val resources: List<RoadmapResourceResponseDto> = emptyList()
+)
+
+data class RoadmapDetailResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("user_id") val userId: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("goal") val goal: String,
+    @SerializedName("duration") val duration: String,
+    @SerializedName("total_days") val totalDays: Int,
+    @SerializedName("completed_days") val completedDays: Int,
+    @SerializedName("progress_percentage") val progressPercentage: Int,
+    @SerializedName("is_completed") val isCompleted: Boolean,
+    @SerializedName("skills_learned") val skillsLearned: List<String> = emptyList(),
+    @SerializedName("phases") val phases: List<RoadmapPhaseResponseDto> = emptyList(),
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String
+)
+
+data class RoadmapSummaryResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("user_id") val userId: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("goal") val goal: String,
+    @SerializedName("duration") val duration: String,
+    @SerializedName("total_days") val totalDays: Int,
+    @SerializedName("completed_days") val completedDays: Int,
+    @SerializedName("progress_percentage") val progressPercentage: Int,
+    @SerializedName("is_completed") val isCompleted: Boolean,
+    @SerializedName("current_phase_title") val currentPhaseTitle: String? = null,
+    @SerializedName("current_day_topic") val currentDayTopic: String? = null,
+    @SerializedName("created_at") val createdAt: String
+)
+
+data class DayCompleteResponseDto(
+    @SerializedName("is_completed") val isCompleted: Boolean,
+    @SerializedName("progress_percentage") val progressPercentage: Int,
+    @SerializedName("completed_days") val completedDays: Int,
+    @SerializedName("total_days") val totalDays: Int,
+    @SerializedName("phase_unlocked") val phaseUnlocked: Boolean,
+    @SerializedName("roadmap_completed") val roadmapCompleted: Boolean,
+    @SerializedName("current_streak") val currentStreak: Int,
+    @SerializedName("skills_learned") val skillsLearned: List<String> = emptyList()
+)
+
+data class AddSkillsToResumeResponseDto(
+    @SerializedName("status") val status: String,
+    @SerializedName("message") val message: String,
+    @SerializedName("added_skills") val addedSkills: List<String> = emptyList()
+)
+
 

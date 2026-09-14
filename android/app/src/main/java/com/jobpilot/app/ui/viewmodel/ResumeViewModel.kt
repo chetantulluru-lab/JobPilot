@@ -17,7 +17,10 @@ data class ResumeUiState(
     val isGenerating: Boolean = false,
     val parsedResumeData: ResumeParsedData? = null,
     val currentBuildingResume: Resume? = null,
-    val exportPdfSuccessMessage: String? = null
+    val exportPdfSuccessMessage: String? = null,
+    val analysis: ResumeAnalysis? = null,
+    val isAnalyzing: Boolean = false,
+    val analysisError: String? = null
 )
 
 class ResumeViewModel(
@@ -135,5 +138,28 @@ class ResumeViewModel(
 
     fun clearPdfMessage() {
         _uiState.value = _uiState.value.copy(exportPdfSuccessMessage = null)
+    }
+
+    fun analyzeResume(resumeId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isAnalyzing = true, analysisError = null)
+            val result = resumeRepository.analyzeResume(resumeId)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isAnalyzing = false,
+                    analysis = result.getOrNull(),
+                    analysisError = null
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isAnalyzing = false,
+                    analysisError = result.exceptionOrNull()?.message ?: "Failed to analyze resume"
+                )
+            }
+        }
+    }
+
+    fun clearAnalysis() {
+        _uiState.value = _uiState.value.copy(analysis = null, analysisError = null)
     }
 }

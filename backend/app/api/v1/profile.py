@@ -1,5 +1,9 @@
+import os
+import io
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import FileResponse
+from PIL import Image
 from sqlalchemy.orm import Session
 from app.core.dependencies import get_db, get_current_user
 from app.models.user import User
@@ -234,3 +238,91 @@ def set_job_preference(
 ):
     """Configure target roles, locations, and salary range."""
     return ProfileService.set_job_preference(db, current_user.id, pref_in)
+
+
+# --- Profile Photo ---
+@router.post("/photo", response_model=PersonalInfoResponse)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Upload a profile photo. Validates format (JPEG/PNG), file size (<= 5MB),
+    resizes to max 512x512 with safe compression, and saves to storage.
+    """
+    allowed_types = ["image/jpeg", "image/jpg", "image/png"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image format. Only JPG and PNG are supported."
+        )
+
+    # Read binary stream and enforce 5MB limit
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size exceeds the 5MB limit."
+        )
+
+    try:
+        image = Image.open(io.BytesIO(contents))
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+        image.thumbnail((512, 512))
+
+        storage_dir = os.path.join("storage", "profiles")
+        os.makedirs(storage_dir, exist_ok=True)
+        file_path = os.path.join(storage_dir, f"{current_user.id}.jpg")
+        image.save(file_path, "JPEG", quality=85)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unable to process image: {str(e)}"
+        )
+
+    avatar_url = f"/api/v1/profile/photo/{current_user.id}"
+    info = ProfileService.update_personal_info(
+        db, current_user.id,
+        PersonalInfoCreate(
+            full_name=current_user.full_name,
+            email=current_user.email,
+            avatar_url=avatar_url
+        )
+    )
+    return info
+
+
+@router.get("/photo/{user_id}")
+def get_profile_photo(user_id: str):
+    """Serves the uploaded profile photo."""
+    file_path = os.path.join("storage", "profiles", f"{user_id}.jpg")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile photo not found.")
+    return FileResponse(file_path, media_type="image/jpeg")
+
+
+@router.delete("/photo", response_model=PersonalInfoResponse)
+def delete_profile_photo(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Removes the profile photo."""
+    file_path = os.path.join("storage", "profiles", f"{current_user.id}.jpg")
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
+
+    info = ProfileService.update_personal_info(
+        db, current_user.id,
+        PersonalInfoCreate(
+            full_name=current_user.full_name,
+            email=current_user.email,
+            avatar_url=None
+        )
+    )
+    return info
+

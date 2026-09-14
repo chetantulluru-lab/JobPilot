@@ -11,6 +11,9 @@ interface ProfileRepository {
     val profileStream: Flow<CareerProfile>
     fun getProfile(): CareerProfile
     suspend fun updatePersonalInfo(personalInfo: PersonalInfo)
+    suspend fun uploadProfilePhoto(bytes: ByteArray, filename: String): Result<String>
+    suspend fun deleteProfilePhoto(): Result<Unit>
+    suspend fun refreshProfile(): Result<CareerProfile>
     suspend fun addEducation(education: Education)
     suspend fun removeEducation(educationId: String)
     suspend fun addSkill(skill: Skill)
@@ -32,6 +35,19 @@ class MockProfileRepository : ProfileRepository {
 
     override suspend fun updatePersonalInfo(personalInfo: PersonalInfo) {
         _profile.update { it.copy(personalInfo = personalInfo) }
+    }
+
+    override suspend fun uploadProfilePhoto(bytes: ByteArray, filename: String): Result<String> {
+        return Result.success("https://placeholder.dev/avatar.jpg")
+    }
+
+    override suspend fun deleteProfilePhoto(): Result<Unit> {
+        _profile.update { it.copy(personalInfo = it.personalInfo.copy(avatarUrl = null)) }
+        return Result.success(Unit)
+    }
+
+    override suspend fun refreshProfile(): Result<CareerProfile> {
+        return Result.success(_profile.value)
     }
 
     override suspend fun addEducation(education: Education) {

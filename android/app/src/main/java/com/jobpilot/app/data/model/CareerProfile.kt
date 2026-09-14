@@ -11,7 +11,10 @@ data class CareerProfile(
     val certifications: List<Certification> = emptyList(),
     val socialProfiles: List<SocialProfile> = emptyList(),
     val jobPreferences: JobPreference,
-    val profileStrengthScore: Int = 86
+    val profileStrengthScore: Int = 0,
+    val currentStreak: Int = 0,
+    val longestStreak: Int = 0,
+    val lastActivityDate: String? = null
 ) {
     companion object {
         fun empty(fullName: String = "", email: String = ""): CareerProfile = CareerProfile(
@@ -38,7 +41,9 @@ data class CareerProfile(
                 salaryExpectation = "",
                 preferredTechnologies = emptyList()
             ),
-            profileStrengthScore = 0
+            profileStrengthScore = 0,
+            currentStreak = 0,
+            longestStreak = 0
         )
     }
 }
@@ -48,7 +53,12 @@ data class PersonalInfo(
     val email: String,
     val phone: String,
     val location: String,
-    val professionalSummary: String
+    val professionalSummary: String,
+    val age: Int? = null,
+    val college: String? = null,
+    val degree: String? = null,
+    val branch: String? = null,
+    val avatarUrl: String? = null
 )
 
 data class Education(

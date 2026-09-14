@@ -122,3 +122,17 @@ class ConfirmResumeResponse(BaseModel):
     profile_id: str
     profile_strength: int
     confirmed_items_count: Dict[str, int]
+
+
+class ResumeAnalysisResponse(BaseModel):
+    resume_id: str
+    ats_score: int
+    label: str = "AI-Powered ATS-Style Analysis"
+    summary: str
+    strengths: List[str] = []
+    weaknesses: List[str] = []
+    missing_skills: List[str] = []
+    content_improvements: List[str] = []
+    formatting_notes: List[str] = []
+    disclaimer: str = "Informational guidance based on industry standards. JobPilot makes no employment or interview guarantees."
+

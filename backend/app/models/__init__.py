@@ -18,6 +18,7 @@ from app.models.ai_assistant import AIConversation, AIMessage
 from app.models.saved_resume import SavedResume
 from app.models.career_tools import CoverLetter, RecruiterMessage
 from app.models.otp import EmailOtp
+from app.models.roadmap import Roadmap, RoadmapPhase, RoadmapDay, RoadmapResource, LearningActivity
 
 __all__ = [
     "User",
@@ -46,4 +47,9 @@ __all__ = [
     "CoverLetter",
     "RecruiterMessage",
     "EmailOtp",
+    "Roadmap",
+    "RoadmapPhase",
+    "RoadmapDay",
+    "RoadmapResource",
+    "LearningActivity",
 ]

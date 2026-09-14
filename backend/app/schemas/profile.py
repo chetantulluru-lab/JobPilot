@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -12,6 +12,10 @@ class PersonalInfoBase(BaseModel):
     current_role: Optional[str] = None
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
+    age: Optional[int] = None
+    college: Optional[str] = None
+    degree: Optional[str] = None
+    branch: Optional[str] = None
 
 
 class PersonalInfoCreate(PersonalInfoBase):
@@ -204,7 +208,10 @@ class CareerProfileResponse(BaseModel):
     user_id: str
     headline: Optional[str] = None
     summary: Optional[str] = None
-    profile_strength: int = 50
+    profile_strength: int = 0
+    current_streak: int = 0
+    longest_streak: int = 0
+    last_activity_date: Optional[date] = None
     personal_info: Optional[PersonalInfoResponse] = None
     education: List[EducationResponse] = []
     skills: List[SkillResponse] = []

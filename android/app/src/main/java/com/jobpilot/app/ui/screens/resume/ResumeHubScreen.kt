@@ -4,14 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.ResumeViewModel
@@ -169,8 +174,13 @@ fun ResumeHubScreen(
                             )
                         }
 
-                        IconButton(onClick = { viewModel.exportPdf(resume.id) }) {
-                            Icon(Icons.Default.Download, contentDescription = "Export PDF", tint = Orange500)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(onClick = { viewModel.analyzeResume(resume.id) }) {
+                                Icon(Icons.Default.Analytics, contentDescription = "ATS Score", tint = Orange500)
+                            }
+                            IconButton(onClick = { viewModel.exportPdf(resume.id) }) {
+                                Icon(Icons.Default.Download, contentDescription = "Export PDF", tint = Slate600)
+                            }
                         }
                     }
                 }
@@ -187,6 +197,96 @@ fun ResumeHubScreen(
                     }
                 }
             }
+        }
+
+        // ATS Analysis Result Dialog
+        if (uiState.isAnalyzing) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Analyzing Resume...") },
+                text = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(color = Orange500)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text("Evaluating ATS keyword alignment & structure...")
+                    }
+                },
+                confirmButton = { }
+            )
+        }
+
+        uiState.analysis?.let { analysis ->
+            AlertDialog(
+                onDismissRequest = { viewModel.clearAnalysis() },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("ATS Resume Score", fontWeight = FontWeight.Bold)
+                        Box(
+                            modifier = Modifier
+                                .clip(JobPilotShapes.small)
+                                .background(if (analysis.atsScore >= 75) SuccessGreen.copy(alpha = 0.15f) else Orange50)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "${analysis.atsScore}/100",
+                                color = if (analysis.atsScore >= 75) SuccessGreen else Orange600,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp)
+                            .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(text = analysis.summary, style = MaterialTheme.typography.bodyMedium, color = Slate700)
+
+                        if (analysis.strengths.isNotEmpty()) {
+                            Text(text = "Key Strengths:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = SuccessGreen)
+                            analysis.strengths.forEach { Text("• $it", fontSize = 12.sp, color = Slate600) }
+                        }
+
+                        if (analysis.missingSkills.isNotEmpty()) {
+                            Text(text = "Missing Recommended Skills:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Orange600)
+                            analysis.missingSkills.forEach { Text("• $it", fontSize = 12.sp, color = Slate600) }
+                        }
+
+                        if (analysis.contentImprovements.isNotEmpty()) {
+                            Text(text = "Content Improvements:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Slate800)
+                            analysis.contentImprovements.forEach { Text("• $it", fontSize = 12.sp, color = Slate600) }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = analysis.disclaimer,
+                            fontSize = 10.sp,
+                            color = Slate400,
+                            lineHeight = 14.sp
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { viewModel.clearAnalysis() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                    ) {
+                        Text("Close", color = Color.White)
+                    }
+                }
+            )
         }
     }
 }

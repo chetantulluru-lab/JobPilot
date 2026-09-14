@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.resume import Resume
 from app.schemas.resume import (
     ResumeResponse, MissingFieldsAuditResponse, ExtractedResumeData,
-    ExtractedResumeResponse, ConfirmResumeResponse
+    ExtractedResumeResponse, ConfirmResumeResponse, ResumeAnalysisResponse
 )
 from app.services.resume_service import ResumeService
 
@@ -196,3 +196,28 @@ def delete_resume(
     db.delete(resume)
     db.commit()
     return None
+
+
+@router.post("/{resume_id}/analyze", response_model=ResumeAnalysisResponse)
+def analyze_resume(
+    resume_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Executes an AI-powered ATS-style analysis on an uploaded resume.
+    Returns score (0-100), strengths, weak areas, and content improvements.
+    Caches analysis permanently in PostgreSQL.
+    """
+    return ResumeService.analyze_resume(db, current_user.id, resume_id)
+
+
+@router.get("/{resume_id}/analysis", response_model=ResumeAnalysisResponse)
+def get_resume_analysis(
+    resume_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Retrieves cached ATS analysis for an uploaded resume."""
+    return ResumeService.get_resume_analysis(db, current_user.id, resume_id)
+

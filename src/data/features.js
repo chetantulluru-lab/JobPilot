@@ -1,105 +1,103 @@
 export const FEATURES = [
   {
-    id: 'resume-intelligence',
-    title: 'AI Resume Intelligence',
+    id: 'career-roadmaps',
+    title: 'AI Career Roadmaps',
     description:
-      'Upload your resume and let JobPilot transform your unstructured career information into a clear, normalized digital profile.',
-    badge: 'NLP Parsing',
-    icon: 'FileText',
+      'Generate personalized, day-by-day learning roadmaps tailored to your target role, tech stack, and duration (3, 6, or 12 months).',
+    badge: 'Structured Learning',
+    icon: 'Target',
     highlights: [
-      'Automatic entity recognition for skills & tools',
-      'Chronological education and experience breakdown',
-      'Format-agnostic extraction (PDF, DOCX, text)',
+      'Instant autocomplete suggestions for target careers & tech',
+      'Day-by-day curriculum with objectives and concept breakdowns',
+      'Deterministic progress tracking and milestone celebration',
     ],
   },
   {
-    id: 'job-matching',
-    title: 'Smart Job Matching',
+    id: 'hands-on-practice',
+    title: 'Hands-on Practice & Projects',
     description:
-      'Compare your skills and experience with real-world job requirements and identify opportunities that genuinely fit your background.',
-    badge: 'Semantic Alignment',
-    icon: 'Target',
+      'Master practical engineering skills with coding tasks, expected outputs, and end-of-phase capstone projects.',
+    badge: 'Applied Engineering',
+    icon: 'Sparkles',
     highlights: [
-      'Multi-dimensional compatibility scoring',
-      'Transparent skill alignment breakdown',
-      'Context-aware relevance calculation',
+      'Daily hands-on practice programs with expected outputs',
+      'Phase capstone projects demonstrating real-world competence',
+      'Progressive phase unlocking as you complete daily goals',
+    ],
+  },
+  {
+    id: 'multilingual-resources',
+    title: 'Multilingual Learning Hub',
+    description:
+      'Learn in the language you understand best. Toggle seamlessly between curated tutorials and video resources in English, Telugu, and Hindi.',
+    badge: 'English • తెలుగు • हिन्दी',
+    icon: 'TrendingUp',
+    highlights: [
+      'One-tap switching across English, Telugu, and Hindi tabs',
+      'Curated video lessons from verified technical creators',
+      'Direct, high-quality documentation and guides without broken links',
+    ],
+  },
+  {
+    id: 'resume-intelligence',
+    title: 'AI Resume & ATS Analysis',
+    description:
+      'Upload PDF/DOCX resumes for instant NLP entity extraction and receive comprehensive ATS-style scorecards with improvement tips.',
+    badge: 'ATS Scorecard',
+    icon: 'FileText',
+    highlights: [
+      'Accurate NLP parsing of education, skills, and projects',
+      'AI ATS scoring with strength and weakness diagnostics',
+      'Actionable keyword and formatting optimization guidance',
+    ],
+  },
+  {
+    id: 'streak-tracking',
+    title: 'Daily Streaks & Consistency',
+    description:
+      'Stay disciplined and build momentum with automated streak tracking (🔥) that records every completed learning day.',
+    badge: 'Habit Building',
+    icon: 'Kanban',
+    highlights: [
+      'Visual daily streak counter that celebrates consistency',
+      'Deterministic streak calculation without fake mock counters',
+      'Automated phase unlocking upon completing prerequisite days',
     ],
   },
   {
     id: 'career-profile',
-    title: 'Personalized Career Profile',
+    title: 'Unified Profile & Skill Transfer',
     description:
-      'Keep education, skills, projects, certifications, and experience organized in one cohesive, always-accessible mobile hub.',
-    badge: 'Single Source of Truth',
+      'Maintain your verified academic identity, profile photo, and transfer roadmap achievements directly into your ATS resume with one click.',
+    badge: 'Career Knowledge Base',
     icon: 'UserCheck',
     highlights: [
-      'Structured technical & soft skill taxonomy',
-      'Portfolio & GitHub project showcase',
-      'Verified academic milestone logs',
-    ],
-  },
-  {
-    id: 'career-insights',
-    title: 'AI Career Insights',
-    description:
-      'Understand where your profile is strong and where you can improve to become a more competitive candidate.',
-    badge: 'Skill Gap Diagnosis',
-    icon: 'TrendingUp',
-    highlights: [
-      'Pinpoint missing skills for target roles',
-      'Profile strength meter with targeted tips',
-      'Actionable suggestions for project depth',
-    ],
-  },
-  {
-    id: 'application-assistance',
-    title: 'Application Assistance',
-    description:
-      'Prepare for job applications faster using pre-aligned information directly from your verified career profile.',
-    badge: 'Workflow Streamlining',
-    icon: 'Sparkles',
-    disclaimer:
-      'JobPilot is designed to assist with application workflows, with automation depending on supported platforms and user authorization.',
-    highlights: [
-      'Tailored response generation assistance',
-      'Key requirement checklists per role',
-      'User-supervised submission guidance',
-    ],
-  },
-  {
-    id: 'application-tracking',
-    title: 'Application Tracking',
-    description:
-      'Keep your job search organized and monitor application status from first interest through interviews and decisions.',
-    badge: 'Pipeline Management',
-    icon: 'Kanban',
-    highlights: [
-      'Interactive pipeline view (Applied, Interview, Offer)',
-      'Follow-up reminders and key dates',
-      'Historical match score performance records',
+      'Academic records: college, degree, branch, and age details',
+      'Native profile photo upload with automated thumbnailing',
+      'One-tap skill transfer from completed roadmaps into your resume',
     ],
   },
 ];
 
 export const STUDENT_CHALLENGES = [
   {
-    problem: 'Multiple fragmented resume versions',
-    solution: 'One dynamic, structured career profile that updates once and adapts everywhere.',
+    problem: 'No clear roadmap for becoming industry-ready',
+    solution: 'AI-generated, day-by-day curriculums with realistic milestones for 3, 6, or 12 months.',
   },
   {
-    problem: 'Skills scattered across projects, classes & repos',
-    solution: 'Automated entity parsing extracts and verifies all technical proficiencies.',
+    problem: 'Overwhelmed by random YouTube tutorials in mixed languages',
+    solution: 'Curated, topic-specific videos and articles organized neatly by English, Telugu, and Hindi.',
   },
   {
-    problem: 'Opaque and dense job descriptions',
-    solution: 'Semantic breakdown highlights must-haves, nice-to-haves, and actual gaps.',
+    problem: 'Passive video watching without hands-on coding practice',
+    solution: 'Every learning day includes practical coding tasks, expected outputs, and phase projects.',
   },
   {
-    problem: 'Evaluating hundreds of internship listings manually',
-    solution: 'Intelligent match scores bubble up high-relevance roles instantly.',
+    problem: 'Resumes getting rejected by automated ATS screeners',
+    solution: 'AI ATS-style analysis scores your resume and pinpoints exact missing skills and improvements.',
   },
   {
-    problem: 'Losing track of applications and deadlines',
-    solution: 'Built-in tracking keeps every submission, date, and status in your pocket.',
+    problem: 'Losing motivation and dropping out halfway',
+    solution: 'Daily streak tracking and progressive phase unlocking turn long-term learning into daily wins.',
   },
 ];

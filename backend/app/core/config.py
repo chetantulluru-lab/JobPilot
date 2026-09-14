@@ -62,9 +62,19 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: Optional[str] = None
 
-    # OpenRouter / DeepSeek Free Tier Integration
+    # OpenRouter Integration (3 Keys for Resilience & Load Distribution)
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "deepseek/deepseek-r1-0528:free"
+    OPENROUTER_API_KEY_1: Optional[str] = None
+    OPENROUTER_API_KEY_2: Optional[str] = None
+    OPENROUTER_API_KEY_3: Optional[str] = None
+    OPENROUTER_MODEL: str = "deepseek/deepseek-r1-0528"
+
+    # Resend Email OTP (Registration & Forgot Password)
+    RESEND_API_KEY: Optional[str] = None
+    RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
+
+    # Production Deployment Base URL
+    API_BASE_URL: str = "https://jobpilot-backend-e97f.onrender.com"
 
     FIREBASE_PROJECT_ID: Optional[str] = None
     FIREBASE_PRIVATE_KEY: Optional[str] = None

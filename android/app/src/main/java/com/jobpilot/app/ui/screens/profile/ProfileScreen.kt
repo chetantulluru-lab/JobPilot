@@ -18,14 +18,34 @@ import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.ProfileViewModel
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onNavigateToSmartCompletion: () -> Unit
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val profile = uiState.profile
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val bytes = context.contentResolver.openInputStream(uri)?.readBytes()
+            if (bytes != null) {
+                viewModel.uploadProfilePhoto(bytes, "profile_photo.jpg")
+            }
+        }
+    }
 
     var showAddSkillDialog by remember { mutableStateOf(false) }
     var showEditPersonalDialog by remember { mutableStateOf(false) }
@@ -100,29 +120,135 @@ fun ProfileScreen(
 
                 GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = profile.personalInfo.fullName,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Slate900
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${profile.personalInfo.email} • ${profile.personalInfo.phone}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Slate500
-                        )
-                        Text(
-                            text = profile.personalInfo.location,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Slate500
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(Orange100),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val initials = profile.personalInfo.fullName
+                                    .split(" ")
+                                    .filter { it.isNotBlank() }
+                                    .take(2)
+                                    .map { it.first().uppercase() }
+                                    .joinToString("")
+                                Text(
+                                    text = initials.ifEmpty { "JP" },
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Orange600
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = profile.personalInfo.fullName.ifBlank { "Candidate" },
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Slate900
+                                )
+                                if (profile.personalInfo.age != null) {
+                                    Text(
+                                        text = "Age: ${profile.personalInfo.age}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Slate600
+                                    )
+                                }
+                                Text(
+                                    text = profile.personalInfo.email,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Slate500
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = profile.personalInfo.professionalSummary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Slate700,
-                            lineHeight = 20.sp
-                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    photoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                                shape = JobPilotShapes.small,
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(vertical = 6.dp)
+                            ) {
+                                Icon(Icons.Default.PhotoCamera, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Upload Photo", fontSize = 12.sp)
+                            }
+
+                            if (!profile.personalInfo.avatarUrl.isNullOrBlank()) {
+                                OutlinedButton(
+                                    onClick = { viewModel.deleteProfilePhoto() },
+                                    shape = JobPilotShapes.small,
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                                    contentPadding = PaddingValues(vertical = 6.dp)
+                                ) {
+                                    Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Remove", fontSize = 12.sp)
+                                }
+                            }
+                        }
+
+                        if (!profile.personalInfo.college.isNullOrBlank() || !profile.personalInfo.degree.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Divider(color = Slate200)
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = "Academics:",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Slate500
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "${profile.personalInfo.degree ?: ""} - ${profile.personalInfo.branch ?: ""}".trim().trim('-').trim(),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Slate800
+                            )
+                            if (!profile.personalInfo.college.isNullOrBlank()) {
+                                Text(
+                                    text = profile.personalInfo.college ?: "",
+                                    fontSize = 12.sp,
+                                    color = Slate600
+                                )
+                            }
+                        }
+
+                        if (profile.personalInfo.phone.isNotBlank() || profile.personalInfo.location.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = listOf(profile.personalInfo.phone, profile.personalInfo.location).filter { it.isNotBlank() }.joinToString(" • "),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Slate500
+                            )
+                        }
+
+                        if (profile.personalInfo.professionalSummary.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = profile.personalInfo.professionalSummary,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Slate700,
+                                lineHeight = 20.sp
+                            )
+                        }
                     }
                 }
             }
@@ -281,6 +407,11 @@ fun ProfileScreen(
     // Edit Personal Info Dialog
     if (showEditPersonalDialog) {
         var name by remember { mutableStateOf(profile.personalInfo.fullName) }
+        var ageText by remember { mutableStateOf(profile.personalInfo.age?.toString() ?: "") }
+        var college by remember { mutableStateOf(profile.personalInfo.college ?: "") }
+        var degree by remember { mutableStateOf(profile.personalInfo.degree ?: "") }
+        var branch by remember { mutableStateOf(profile.personalInfo.branch ?: "") }
+        var phone by remember { mutableStateOf(profile.personalInfo.phone) }
         var location by remember { mutableStateOf(profile.personalInfo.location) }
         var summary by remember { mutableStateOf(profile.personalInfo.professionalSummary) }
 
@@ -288,8 +419,16 @@ fun ProfileScreen(
             onDismissRequest = { showEditPersonalDialog = false },
             title = { Text("Edit Personal Information") },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())
+                ) {
                     OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") })
+                    OutlinedTextField(value = ageText, onValueChange = { ageText = it }, label = { Text("Age") })
+                    OutlinedTextField(value = college, onValueChange = { college = it }, label = { Text("College / University") })
+                    OutlinedTextField(value = degree, onValueChange = { degree = it }, label = { Text("Degree (e.g. B.Tech)") })
+                    OutlinedTextField(value = branch, onValueChange = { branch = it }, label = { Text("Branch (e.g. CSE)") })
+                    OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone") })
                     OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Location") })
                     OutlinedTextField(value = summary, onValueChange = { summary = it }, label = { Text("Summary") }, maxLines = 4)
                 }
@@ -299,9 +438,14 @@ fun ProfileScreen(
                     onClick = {
                         viewModel.updatePersonalInfo(
                             profile.personalInfo.copy(
-                                fullName = name,
-                                location = location,
-                                professionalSummary = summary
+                                fullName = name.trim(),
+                                age = ageText.toIntOrNull(),
+                                college = college.trim().ifEmpty { null },
+                                degree = degree.trim().ifEmpty { null },
+                                branch = branch.trim().ifEmpty { null },
+                                phone = phone.trim(),
+                                location = location.trim(),
+                                professionalSummary = summary.trim()
                             )
                         )
                         showEditPersonalDialog = false

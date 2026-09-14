@@ -22,8 +22,9 @@ object ApiConfig {
     const val PROD_BASE_URL = "https://jobpilot-backend-e97f.onrender.com/api/v1/"
 
     // Active Base URL used by Retrofit & all API network repositories:
-    // In Release builds: automatically uses PROD_BASE_URL (Render backend)
+    // In Release builds: strictly hard-wired to PROD_BASE_URL (Render backend)
     // In Debug builds: defaults to DEV_EMULATOR_BASE_URL (http://10.0.2.2:8000/api/v1/)
-    var BASE_URL: String = if (BuildConfig.DEBUG) DEV_EMULATOR_BASE_URL else PROD_BASE_URL
+    val BASE_URL: String
+        get() = if (BuildConfig.DEBUG) DEV_EMULATOR_BASE_URL else PROD_BASE_URL
 }
 

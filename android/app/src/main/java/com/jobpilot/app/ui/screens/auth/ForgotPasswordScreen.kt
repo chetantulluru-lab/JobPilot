@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jobpilot.app.ui.components.AIOrb
@@ -21,7 +22,14 @@ fun ForgotPasswordScreen(
     onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var email by remember { mutableStateOf("chetan@example.com") }
+    var email by remember { mutableStateOf("") }
+    var otp by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var step by remember { mutableIntStateOf(1) } // 1: Request OTP, 2: Verify & Reset
+
+    LaunchedEffect(Unit) {
+        viewModel.clearMessages()
+    }
 
     Column(
         modifier = Modifier
@@ -36,7 +44,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Reset Password",
+            text = if (step == 1) "Reset Password" else "Enter Verification Code",
             style = MaterialTheme.typography.headlineLarge,
             color = Slate900,
             textAlign = TextAlign.Center
@@ -45,7 +53,10 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Enter your registered email to receive recovery instructions",
+            text = if (step == 1)
+                "Enter your registered email to receive a 6-digit verification code"
+            else
+                "We sent a 6-digit code to $email",
             style = MaterialTheme.typography.bodyMedium,
             color = Slate500,
             textAlign = TextAlign.Center
@@ -58,42 +69,107 @@ fun ForgotPasswordScreen(
             backgroundColor = BgWhite
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email Address") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = JobPilotShapes.medium,
-                    singleLine = true
-                )
-
-                if (uiState.errorMessage != null) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = uiState.errorMessage ?: "",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                if (step == 1) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it.trim() },
+                        label = { Text("Email Address") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = JobPilotShapes.medium,
+                        singleLine = true
                     )
-                }
 
-                if (uiState.successMessage != null) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = uiState.successMessage ?: "",
-                        color = SuccessGreen,
-                        style = MaterialTheme.typography.bodySmall
+                    if (uiState.errorMessage != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = uiState.errorMessage ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    JobPilotButton(
+                        text = if (uiState.isLoading) "Sending code..." else "Send Verification Code",
+                        onClick = {
+                            if (email.isNotBlank() && email.contains("@")) {
+                                viewModel.startForgotPassword(email) {
+                                    step = 2
+                                }
+                            }
+                        },
+                        enabled = !uiState.isLoading && email.isNotBlank()
                     )
+                } else {
+                    OutlinedTextField(
+                        value = otp,
+                        onValueChange = { if (it.length <= 6) otp = it.trim() },
+                        label = { Text("6-Digit OTP Code") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = JobPilotShapes.medium,
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it },
+                        label = { Text("New Password (min 6 chars)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation(),
+                        shape = JobPilotShapes.medium,
+                        singleLine = true
+                    )
+
+                    if (uiState.errorMessage != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = uiState.errorMessage ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    if (uiState.successMessage != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = uiState.successMessage ?: "",
+                            color = SuccessGreen,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    JobPilotButton(
+                        text = if (uiState.isLoading) "Updating Password..." else "Reset Password",
+                        onClick = {
+                            if (otp.length == 6 && newPassword.length >= 6) {
+                                viewModel.verifyForgotPassword(email, otp, newPassword) {
+                                    onNavigateBack()
+                                }
+                            }
+                        },
+                        enabled = !uiState.isLoading && otp.length == 6 && newPassword.length >= 6
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    TextButton(
+                        onClick = {
+                            viewModel.startForgotPassword(email) {}
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            text = "Resend Code",
+                            color = Orange500,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                JobPilotButton(
-                    text = if (uiState.isLoading) "Sending..." else "Send Recovery Link",
-                    onClick = {
-                        viewModel.forgotPassword(email)
-                    },
-                    enabled = !uiState.isLoading
-                )
             }
         }
 

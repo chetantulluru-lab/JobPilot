@@ -124,6 +124,48 @@ class ProfileViewModel(
         }
     }
 
+    fun uploadProfilePhoto(bytes: ByteArray, filename: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSaving = true)
+            val result = profileRepository.uploadProfilePhoto(bytes, filename)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    feedbackMessage = "Profile photo updated"
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    feedbackMessage = result.exceptionOrNull()?.message ?: "Failed to upload photo"
+                )
+            }
+        }
+    }
+
+    fun deleteProfilePhoto() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSaving = true)
+            val result = profileRepository.deleteProfilePhoto()
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    feedbackMessage = "Profile photo removed"
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    feedbackMessage = "Failed to remove photo"
+                )
+            }
+        }
+    }
+
+    fun refreshProfile() {
+        viewModelScope.launch {
+            profileRepository.refreshProfile()
+        }
+    }
+
     fun clearFeedback() {
         _uiState.value = _uiState.value.copy(feedbackMessage = null)
     }

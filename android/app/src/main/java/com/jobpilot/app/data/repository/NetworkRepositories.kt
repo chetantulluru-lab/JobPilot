@@ -214,6 +214,40 @@ class NetworkAuthRepository(
         return mockFallback.sendPasswordReset(email)
     }
 
+    override suspend fun startForgotPassword(email: String): Result<String> {
+        return try {
+            val response = apiService.forgotPasswordStart(
+                ForgotPasswordStartRequestDto(email = email)
+            )
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.message)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Failed to send reset code"
+                Result.failure(IllegalArgumentException(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "startForgotPassword network error: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server."))
+        }
+    }
+
+    override suspend fun verifyForgotPassword(email: String, otp: String, newPassword: String): Result<Unit> {
+        return try {
+            val response = apiService.forgotPasswordVerify(
+                ForgotPasswordVerifyRequestDto(email = email, otp = otp, newPassword = newPassword)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Failed to reset password"
+                Result.failure(IllegalArgumentException(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "verifyForgotPassword network error: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server."))
+        }
+    }
+
     override suspend fun logout() {
         tokenManager.clearTokens()
         _currentUser.value = null
@@ -347,88 +381,176 @@ class NetworkProfileRepository(
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getProfile()
-                if (response.isSuccessful && response.body() != null) {
-                    val dto = response.body()!!
-                    val mappedEducation = dto.education.map { edu ->
-                        Education(
-                            id = edu.id ?: java.util.UUID.randomUUID().toString(),
-                            degree = edu.degree,
-                            college = edu.institution,
-                            branch = edu.fieldOfStudy ?: "",
-                            startDate = edu.startYear?.toString() ?: "",
-                            endDate = edu.endYear?.toString() ?: "",
-                            grade = edu.gradeOrCgpa ?: ""
-                        )
-                    }
-
-                    val mappedSkills = dto.skills.map { s ->
-                        val cat = when (s.category?.uppercase()) {
-                            "PROGRAMMING_LANGUAGE" -> SkillCategory.PROGRAMMING_LANGUAGE
-                            "FRAMEWORK" -> SkillCategory.FRAMEWORK
-                            "DATABASE" -> SkillCategory.DATABASE
-                            "TOOL" -> SkillCategory.TOOL
-                            "CLOUD" -> SkillCategory.CLOUD
-                            else -> SkillCategory.OTHER
-                        }
-                        Skill(
-                            id = s.id ?: java.util.UUID.randomUUID().toString(),
-                            name = s.name,
-                            category = cat,
-                            proficiencyLevel = s.proficiency ?: "Proficient"
-                        )
-                    }
-
-                    val mappedExperience = dto.experience.map { exp ->
-                        Experience(
-                            id = exp.id ?: java.util.UUID.randomUUID().toString(),
-                            company = exp.company,
-                            role = exp.title,
-                            startDate = exp.startDate ?: "",
-                            endDate = exp.endDate ?: "",
-                            description = exp.description ?: "",
-                            technologies = emptyList()
-                        )
-                    }
-
-                    val mappedProjects = dto.projects.map { p ->
-                        Project(
-                            id = p.id ?: java.util.UUID.randomUUID().toString(),
-                            name = p.title,
-                            description = p.description ?: "",
-                            technologies = p.techStack?.split(",")?.map { t -> t.trim() }?.filter { t -> t.isNotEmpty() } ?: emptyList(),
-                            startDate = "",
-                            endDate = "",
-                            githubUrl = p.githubUrl,
-                            liveUrl = p.liveUrl
-                        )
-                    }
-
-                    val current = _profile.value
-                    _profile.value = current.copy(
-                        id = dto.id,
-                        userId = dto.userId,
-                        personalInfo = current.personalInfo.copy(
-                            professionalSummary = dto.summary ?: current.personalInfo.professionalSummary
-                        ),
-                        education = mappedEducation,
-                        skills = mappedSkills,
-                        experience = mappedExperience,
-                        projects = mappedProjects,
-                        profileStrengthScore = dto.profileStrength
-                    )
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Backend unreachable for profile: ${e.message}")
-            }
+            refreshProfile()
         }
+    }
+
+    private fun mapDtoToCareerProfile(dto: CareerProfileDto): CareerProfile {
+        val pi = dto.personalInfo
+        val personalInfo = PersonalInfo(
+            fullName = pi?.fullName ?: "",
+            email = pi?.email ?: "",
+            phone = pi?.phone ?: "",
+            location = pi?.location ?: "",
+            professionalSummary = pi?.bio ?: (dto.summary ?: ""),
+            age = pi?.age,
+            college = pi?.college,
+            degree = pi?.degree,
+            branch = pi?.branch,
+            avatarUrl = pi?.avatarUrl
+        )
+
+        val mappedEducation = dto.education.map { edu ->
+            Education(
+                id = edu.id ?: java.util.UUID.randomUUID().toString(),
+                degree = edu.degree,
+                college = edu.institution,
+                branch = edu.fieldOfStudy ?: "",
+                startDate = edu.startYear?.toString() ?: "",
+                endDate = edu.endYear?.toString() ?: "",
+                grade = edu.gradeOrCgpa ?: ""
+            )
+        }
+
+        val mappedSkills = dto.skills.map { s ->
+            val cat = when (s.category?.uppercase()) {
+                "PROGRAMMING_LANGUAGE" -> SkillCategory.PROGRAMMING_LANGUAGE
+                "FRAMEWORK" -> SkillCategory.FRAMEWORK
+                "DATABASE" -> SkillCategory.DATABASE
+                "TOOL" -> SkillCategory.TOOL
+                "CLOUD" -> SkillCategory.CLOUD
+                else -> SkillCategory.OTHER
+            }
+            Skill(
+                id = s.id ?: java.util.UUID.randomUUID().toString(),
+                name = s.name,
+                category = cat,
+                proficiencyLevel = s.proficiency ?: "Proficient"
+            )
+        }
+
+        val mappedExperience = dto.experience.map { exp ->
+            Experience(
+                id = exp.id ?: java.util.UUID.randomUUID().toString(),
+                company = exp.company,
+                role = exp.title,
+                startDate = exp.startDate ?: "",
+                endDate = exp.endDate ?: "",
+                description = exp.description ?: "",
+                technologies = emptyList()
+            )
+        }
+
+        val mappedProjects = dto.projects.map { p ->
+            Project(
+                id = p.id ?: java.util.UUID.randomUUID().toString(),
+                name = p.title,
+                description = p.description ?: "",
+                technologies = p.techStack?.split(",")?.map { t -> t.trim() }?.filter { t -> t.isNotEmpty() } ?: emptyList(),
+                startDate = "",
+                endDate = "",
+                githubUrl = p.githubUrl,
+                liveUrl = p.liveUrl
+            )
+        }
+
+        return CareerProfile(
+            id = dto.id,
+            userId = dto.userId,
+            personalInfo = personalInfo,
+            education = mappedEducation,
+            skills = mappedSkills,
+            experience = mappedExperience,
+            projects = mappedProjects,
+            profileStrengthScore = dto.profileStrength,
+            currentStreak = dto.currentStreak,
+            longestStreak = dto.longestStreak,
+            lastActivityDate = dto.lastActivityDate,
+            jobPreferences = JobPreference(
+                targetRoles = emptyList(),
+                preferredLocations = emptyList(),
+                workMode = "Remote",
+                employmentType = "Full-time",
+                salaryExpectation = "",
+                preferredTechnologies = emptyList()
+            )
+        )
     }
 
     override fun getProfile(): CareerProfile = _profile.value
 
+    override suspend fun refreshProfile(): Result<CareerProfile> {
+        return try {
+            val response = apiService.getProfile()
+            if (response.isSuccessful && response.body() != null) {
+                val profile = mapDtoToCareerProfile(response.body()!!)
+                _profile.value = profile
+                Result.success(profile)
+            } else {
+                Result.success(_profile.value)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "refreshProfile error: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updatePersonalInfo(personalInfo: PersonalInfo) {
         _profile.update { it.copy(personalInfo = personalInfo) }
+        try {
+            apiService.updatePersonalInfo(
+                PersonalInfoUpdateRequestDto(
+                    fullName = personalInfo.fullName,
+                    age = personalInfo.age,
+                    college = personalInfo.college,
+                    degree = personalInfo.degree,
+                    branch = personalInfo.branch,
+                    phone = personalInfo.phone,
+                    location = personalInfo.location,
+                    bio = personalInfo.professionalSummary
+                )
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync updatePersonalInfo: ${e.message}")
+        }
+    }
+
+    override suspend fun uploadProfilePhoto(bytes: ByteArray, filename: String): Result<String> {
+        return try {
+            val reqFile = bytes.toRequestBody("image/*".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("file", filename, reqFile)
+            val response = apiService.uploadProfilePhoto(part)
+            if (response.isSuccessful && response.body() != null) {
+                val avatarUrl = response.body()!!["avatar_url"] ?: ""
+                _profile.update {
+                    it.copy(personalInfo = it.personalInfo.copy(avatarUrl = avatarUrl))
+                }
+                Result.success(avatarUrl)
+            } else {
+                val error = response.errorBody()?.string() ?: "Failed to upload photo"
+                Result.failure(Exception(error))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "uploadProfilePhoto error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteProfilePhoto(): Result<Unit> {
+        return try {
+            val response = apiService.deleteProfilePhoto()
+            if (response.isSuccessful) {
+                _profile.update {
+                    it.copy(personalInfo = it.personalInfo.copy(avatarUrl = null))
+                }
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to delete photo"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "deleteProfilePhoto error: ${e.message}", e)
+            Result.failure(e)
+        }
     }
 
     override suspend fun addEducation(education: Education) {
@@ -880,6 +1002,64 @@ class NetworkResumeRepository(
                 Log.w(TAG, "exportPdfToFile network failure, falling back: ${e.message}")
                 mockFallback.exportPdfToFile(resumeId, destFile)
             }
+        }
+    }
+
+    override suspend fun analyzeResume(resumeId: String): Result<ResumeAnalysis> {
+        return try {
+            val response = apiService.analyzeResume(resumeId)
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    ResumeAnalysis(
+                        resumeId = dto.resumeId,
+                        atsScore = dto.atsScore,
+                        label = dto.label,
+                        summary = dto.summary,
+                        strengths = dto.strengths,
+                        weaknesses = dto.weaknesses,
+                        missingSkills = dto.missingSkills,
+                        contentImprovements = dto.contentImprovements,
+                        formattingNotes = dto.formattingNotes,
+                        disclaimer = dto.disclaimer
+                    )
+                )
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Failed to analyze resume"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "analyzeResume error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getResumeAnalysis(resumeId: String): Result<ResumeAnalysis> {
+        return try {
+            val response = apiService.getResumeAnalysis(resumeId)
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    ResumeAnalysis(
+                        resumeId = dto.resumeId,
+                        atsScore = dto.atsScore,
+                        label = dto.label,
+                        summary = dto.summary,
+                        strengths = dto.strengths,
+                        weaknesses = dto.weaknesses,
+                        missingSkills = dto.missingSkills,
+                        contentImprovements = dto.contentImprovements,
+                        formattingNotes = dto.formattingNotes,
+                        disclaimer = dto.disclaimer
+                    )
+                )
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Analysis not found"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getResumeAnalysis error: ${e.message}", e)
+            Result.failure(e)
         }
     }
 }

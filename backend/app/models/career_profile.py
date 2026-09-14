@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from datetime import datetime, timezone, date
+from sqlalchemy import Column, String, Integer, DateTime, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -12,7 +12,10 @@ class CareerProfile(Base):
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     headline = Column(String(255), nullable=True)
     summary = Column(String(2000), nullable=True)
-    profile_strength = Column(Integer, default=50, nullable=False)  # 0 to 100%
+    profile_strength = Column(Integer, default=0, nullable=False)  # 0 to 100%
+    current_streak = Column(Integer, default=0, nullable=False)
+    longest_streak = Column(Integer, default=0, nullable=False)
+    last_activity_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 

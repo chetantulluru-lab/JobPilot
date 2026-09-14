@@ -14,6 +14,9 @@ class AIMessagePayload:
     content: str
 
 
+AIMessage = AIMessagePayload
+
+
 @dataclass
 class AIRequest:
     messages: List[AIMessagePayload]

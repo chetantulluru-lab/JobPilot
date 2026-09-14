@@ -60,3 +60,16 @@ data class MissingField(
     val reason: String,
     val suggestedAction: String
 )
+
+data class ResumeAnalysis(
+    val resumeId: String,
+    val atsScore: Int,
+    val label: String = "AI-Powered ATS-Style Analysis",
+    val summary: String,
+    val strengths: List<String> = emptyList(),
+    val weaknesses: List<String> = emptyList(),
+    val missingSkills: List<String> = emptyList(),
+    val contentImprovements: List<String> = emptyList(),
+    val formattingNotes: List<String> = emptyList(),
+    val disclaimer: String = "Informational guidance based on industry standards. JobPilot makes no employment or interview guarantees."
+)

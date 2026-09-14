@@ -16,8 +16,13 @@ class JobPilotViewModelFactory(
             modelClass.isAssignableFrom(DashboardViewModel::class.java) -> {
                 DashboardViewModel(
                     container.profileRepository,
-                    container.jobRepository,
-                    container.applicationRepository
+                    container.roadmapRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(RoadmapViewModel::class.java) -> {
+                RoadmapViewModel(
+                    container.roadmapRepository,
+                    container.profileRepository
                 ) as T
             }
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
