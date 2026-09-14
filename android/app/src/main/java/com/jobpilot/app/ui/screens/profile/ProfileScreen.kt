@@ -25,6 +25,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import com.jobpilot.app.data.network.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,6 +127,13 @@ fun ProfileScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val avatarUrl = profile.personalInfo.avatarUrl
+                            val fullAvatarUrl = remember(avatarUrl) {
+                                if (avatarUrl.isNullOrBlank()) null
+                                else if (avatarUrl.startsWith("http")) avatarUrl
+                                else ApiConfig.BASE_URL.removeSuffix("/api/v1/").removeSuffix("/") + avatarUrl
+                            }
+
                             Box(
                                 modifier = Modifier
                                     .size(64.dp)
@@ -131,18 +141,27 @@ fun ProfileScreen(
                                     .background(Orange100),
                                 contentAlignment = Alignment.Center
                             ) {
-                                val initials = profile.personalInfo.fullName
-                                    .split(" ")
-                                    .filter { it.isNotBlank() }
-                                    .take(2)
-                                    .map { it.first().uppercase() }
-                                    .joinToString("")
-                                Text(
-                                    text = initials.ifEmpty { "JP" },
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Orange600
-                                )
+                                if (!fullAvatarUrl.isNullOrBlank()) {
+                                    AsyncImage(
+                                        model = fullAvatarUrl,
+                                        contentDescription = "Profile Photo",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    val initials = profile.personalInfo.fullName
+                                        .split(" ")
+                                        .filter { it.isNotBlank() }
+                                        .take(2)
+                                        .map { it.first().uppercase() }
+                                        .joinToString("")
+                                    Text(
+                                        text = initials.ifEmpty { "JP" },
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Orange600
+                                    )
+                                }
                             }
 
                             Spacer(modifier = Modifier.width(16.dp))

@@ -10,6 +10,7 @@ from app.schemas.auth import (
     TokenRefresh,
     UserResponse,
     ForgotPasswordRequest,
+    ResetPasswordWithKeystoneRequest,
     MessageResponse
 )
 from app.services.auth_service import AuthService
@@ -116,11 +117,18 @@ def refresh_token(refresh_in: TokenRefresh, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/forgot-password", response_model=MessageResponse)
-def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """Initiate password recovery. Generates a secure reset procedure simulation."""
-    # We do not leak whether user exists
+@router.post("/reset-password-keystone", response_model=MessageResponse)
+@router.post("/forgot-password/reset", response_model=MessageResponse)
+def reset_password_with_keystone(req: ResetPasswordWithKeystoneRequest, db: Session = Depends(get_db)):
+    """Reset password immediately using the user's secret Security Keystone chosen at registration."""
+    AuthService.reset_password_with_keystone(
+        db=db,
+        email=req.email,
+        keystone=req.keystone,
+        new_password=req.new_password
+    )
     return MessageResponse(
         status="success",
-        message="If this email is registered, password reset instructions have been dispatched."
+        message="Password has been successfully reset. You can now log in."
     )
+

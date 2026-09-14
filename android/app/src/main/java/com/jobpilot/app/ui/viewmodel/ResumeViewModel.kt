@@ -116,8 +116,18 @@ class ResumeViewModel(
 
     fun exportPdf(resumeId: String, destFile: java.io.File? = null) {
         viewModelScope.launch {
+            val realId = if (resumeId == "current" || resumeId.isBlank()) {
+                _uiState.value.currentBuildingResume?.id
+                    ?: _uiState.value.resumes.firstOrNull()?.id
+                    ?: run {
+                        val profile = profileRepository.getProfile()
+                        val created = resumeRepository.createResume("My Professional Resume", _uiState.value.selectedTemplate, profile)
+                        created.id
+                    }
+            } else resumeId
+
             if (destFile != null) {
-                val result = resumeRepository.exportPdfToFile(resumeId, destFile)
+                val result = resumeRepository.exportPdfToFile(realId, destFile)
                 if (result.isSuccess) {
                     _uiState.value = _uiState.value.copy(
                         exportPdfSuccessMessage = "Resume exported successfully to ${destFile.name} (${destFile.length()} bytes, ATS-compliant)."

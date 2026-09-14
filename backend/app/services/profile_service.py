@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from app.models.user import User
 from app.models.career_profile import CareerProfile
 from app.models.personal_info import PersonalInfo
 from app.models.education import Education
@@ -78,16 +79,26 @@ class ProfileService:
 
     # --- Personal Info ---
     @classmethod
-    def update_personal_info(cls, db: Session, user_id: str, info_in: PersonalInfoCreate) -> PersonalInfo:
+    def update_personal_info(cls, db: Session, user_id: str, info_in: Any) -> PersonalInfo:
         profile = cls.get_or_create_profile(db, user_id)
+        user = db.query(User).filter(User.id == user_id).first()
         personal_info = db.query(PersonalInfo).filter(PersonalInfo.profile_id == profile.id).first()
+        
+        data = info_in.model_dump(exclude_unset=True) if hasattr(info_in, "model_dump") else dict(info_in)
+
         if not personal_info:
-            personal_info = PersonalInfo(profile_id=profile.id, **info_in.model_dump())
+            full_name = data.get("full_name") or (user.full_name if user else "Candidate")
+            email = data.get("email") or (user.email if user else "")
+            init_data = {k: v for k, v in data.items() if v is not None}
+            init_data["full_name"] = full_name
+            init_data["email"] = email
+            personal_info = PersonalInfo(profile_id=profile.id, **init_data)
             db.add(personal_info)
         else:
-            for field, val in info_in.model_dump(exclude_unset=True).items():
-                setattr(personal_info, field, val)
-        
+            for field, val in data.items():
+                if val is not None and hasattr(personal_info, field):
+                    setattr(personal_info, field, val)
+
         profile.profile_strength = cls.calculate_profile_strength(profile)
         db.commit()
         db.refresh(personal_info)

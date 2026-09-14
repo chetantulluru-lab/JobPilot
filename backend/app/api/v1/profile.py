@@ -11,6 +11,7 @@ from app.schemas.profile import (
     CareerProfileResponse,
     CareerProfileUpdate,
     PersonalInfoCreate,
+    PersonalInfoUpdate,
     PersonalInfoResponse,
     EducationCreate,
     EducationUpdate,
@@ -56,7 +57,7 @@ def update_profile_summary(
 
 @router.put("/personal-info", response_model=PersonalInfoResponse)
 def update_personal_info(
-    info_in: PersonalInfoCreate,
+    info_in: PersonalInfoUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):

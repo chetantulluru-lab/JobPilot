@@ -4,6 +4,7 @@ Coordinates prompt generation, LLM invocation via OpenRouter, anti-hallucination
 and seamless deterministic fallbacks when AI is offline or rate-limited.
 """
 
+import re
 import json
 import logging
 from typing import Dict, List, Optional, Any

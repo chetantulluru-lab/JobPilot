@@ -7,6 +7,7 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
     full_name: str = Field(..., min_length=2, max_length=100)
+    keystone: Optional[str] = Field(default="jobpilot", min_length=3, max_length=100, description="Secret security word used to reset password")
 
 
 class UserLogin(BaseModel):
@@ -38,6 +39,12 @@ class UserResponse(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
+
+class ResetPasswordWithKeystoneRequest(BaseModel):
+    email: EmailStr
+    keystone: str = Field(..., min_length=3, max_length=100)
+    new_password: str = Field(..., min_length=6, description="New password must be at least 6 characters")
 
 
 class MessageResponse(BaseModel):

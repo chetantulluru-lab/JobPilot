@@ -23,9 +23,8 @@ fun ForgotPasswordScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var email by remember { mutableStateOf("") }
-    var otp by remember { mutableStateOf("") }
+    var keystone by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
-    var step by remember { mutableIntStateOf(1) } // 1: Request OTP, 2: Verify & Reset
 
     LaunchedEffect(Unit) {
         viewModel.clearMessages()
@@ -44,7 +43,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = if (step == 1) "Reset Password" else "Enter Verification Code",
+            text = "Reset Password",
             style = MaterialTheme.typography.headlineLarge,
             color = Slate900,
             textAlign = TextAlign.Center
@@ -53,10 +52,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = if (step == 1)
-                "Enter your registered email to receive a 6-digit verification code"
-            else
-                "We sent a 6-digit code to $email",
+            text = "Verify your identity using your secret Security Keystone",
             style = MaterialTheme.typography.bodyMedium,
             color = Slate500,
             textAlign = TextAlign.Center
@@ -69,117 +65,85 @@ fun ForgotPasswordScreen(
             backgroundColor = BgWhite
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (step == 1) {
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it.trim() },
-                        label = { Text("Email Address") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it.trim() },
+                    label = { Text("Registered Email Address") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
 
-                    if (uiState.errorMessage != null) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = uiState.errorMessage ?: "",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
+                Spacer(modifier = Modifier.height(14.dp))
+
+                OutlinedTextField(
+                    value = keystone,
+                    onValueChange = { keystone = it.trim() },
+                    label = { Text("Security Keystone (Secret Word)") },
+                    placeholder = { Text("Word entered during registration") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text("New Password (min 6 characters)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
+
+                if (uiState.errorMessage != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = uiState.errorMessage ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                if (uiState.successMessage != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = uiState.successMessage ?: "",
+                        color = SuccessGreen,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                JobPilotButton(
+                    text = if (uiState.isLoading) "Resetting Password..." else "Reset Password",
+                    onClick = {
+                        viewModel.resetPasswordWithKeystone(
+                            email = email,
+                            keystone = keystone,
+                            newPassword = newPassword,
+                            onSuccess = onNavigateBack
                         )
-                    }
+                    },
+                    enabled = !uiState.isLoading &&
+                        email.isNotBlank() &&
+                        email.contains("@") &&
+                        keystone.isNotBlank() &&
+                        newPassword.length >= 6
+                )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Sending code..." else "Send Verification Code",
-                        onClick = {
-                            if (email.isNotBlank() && email.contains("@")) {
-                                viewModel.startForgotPassword(email) {
-                                    step = 2
-                                }
-                            }
-                        },
-                        enabled = !uiState.isLoading && email.isNotBlank()
-                    )
-                } else {
-                    OutlinedTextField(
-                        value = otp,
-                        onValueChange = { if (it.length <= 6) otp = it.trim() },
-                        label = { Text("6-Digit OTP Code") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = newPassword,
-                        onValueChange = { newPassword = it },
-                        label = { Text("New Password (min 6 chars)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        visualTransformation = PasswordVisualTransformation(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
-
-                    if (uiState.errorMessage != null) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = uiState.errorMessage ?: "",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-
-                    if (uiState.successMessage != null) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = uiState.successMessage ?: "",
-                            color = SuccessGreen,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Updating Password..." else "Reset Password",
-                        onClick = {
-                            if (otp.length == 6 && newPassword.length >= 6) {
-                                viewModel.verifyForgotPassword(email, otp, newPassword) {
-                                    onNavigateBack()
-                                }
-                            }
-                        },
-                        enabled = !uiState.isLoading && otp.length == 6 && newPassword.length >= 6
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    TextButton(
-                        onClick = {
-                            viewModel.startForgotPassword(email) {}
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(
-                            text = "Resend Code",
-                            color = Orange500,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+                TextButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Back to Sign In", color = Slate600)
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "← Back to Sign In",
-            style = JobPilotTypography.labelLarge,
-            color = Orange500,
-            modifier = Modifier.clickable { onNavigateBack() }
-        )
     }
 }

@@ -340,6 +340,7 @@ def tailor_resume_for_job(
     )
 
 
+@router.get("/{resume_id}/export-pdf")
 @router.post("/{resume_id}/export-pdf")
 def export_resume_pdf(
     resume_id: str,

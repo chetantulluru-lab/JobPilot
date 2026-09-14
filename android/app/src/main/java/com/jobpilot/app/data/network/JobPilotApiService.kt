@@ -29,6 +29,10 @@ interface JobPilotApiService {
     @POST("auth/forgot-password/verify")
     suspend fun forgotPasswordVerify(@Body req: ForgotPasswordVerifyRequestDto): Response<ForgotPasswordVerifyResponseDto>
 
+    @POST("auth/reset-password-keystone")
+    suspend fun resetPasswordWithKeystone(@Body req: ResetPasswordKeystoneDto): Response<MessageResponseDto>
+
+
     @GET("auth/me")
     suspend fun getMe(): Response<UserDto>
 
@@ -59,7 +63,7 @@ interface JobPilotApiService {
 
     @Multipart
     @POST("profile/photo")
-    suspend fun uploadProfilePhoto(@Part file: MultipartBody.Part): Response<Map<String, String>>
+    suspend fun uploadProfilePhoto(@Part file: MultipartBody.Part): Response<PersonalInfoDto>
 
     @DELETE("profile/photo")
     suspend fun deleteProfilePhoto(): Response<Unit>

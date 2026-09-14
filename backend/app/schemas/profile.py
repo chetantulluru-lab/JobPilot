@@ -22,6 +22,21 @@ class PersonalInfoCreate(PersonalInfoBase):
     pass
 
 
+class PersonalInfoUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    current_role: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+    age: Optional[int] = None
+    college: Optional[str] = None
+    degree: Optional[str] = None
+    branch: Optional[str] = None
+
+
+
 class PersonalInfoResponse(PersonalInfoBase):
     model_config = ConfigDict(from_attributes=True)
 

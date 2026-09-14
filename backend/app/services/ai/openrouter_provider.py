@@ -128,7 +128,7 @@ class OpenRouterProvider(AIProvider):
                 headers.update(request.extra_headers)
 
             try:
-                with httpx.Client(timeout=35.0) as client:
+                with httpx.Client(timeout=90.0) as client:
                     response = client.post(
                         self.OPENROUTER_URL,
                         json=payload,

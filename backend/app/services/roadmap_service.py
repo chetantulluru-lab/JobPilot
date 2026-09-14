@@ -127,7 +127,7 @@ class RoadmapService:
             f'    }}\n'
             f'  ]\n'
             f"}}\n"
-            f"Output ONLY the JSON object. Do not enclose in markdown code fences. Do not output reasoning."
+            f"Output ONLY the JSON object starting with {{ and ending with }}. Keep internal reasoning under 2 sentences."
         )
 
         validated_structure: Optional[LLMRoadmapStructure] = None
@@ -139,21 +139,20 @@ class RoadmapService:
                 ai_req = AIRequest(
                     messages=[AIMessage(role="user", content=prompt)],
                     temperature=0.2,
-                    max_tokens=3500
+                    max_tokens=5000
                 )
                 ai_resp = ai_service.provider.generate_chat_completion(ai_req)
                 content = ai_resp.content.strip()
 
-                # Clean markdown wrapper if present
-                if content.startswith("```"):
-                    lines = content.splitlines()
-                    if lines[0].startswith("```"):
-                        lines = lines[1:]
-                    if lines and lines[-1].startswith("```"):
-                        lines = lines[:-1]
-                    content = "\n".join(lines).strip()
+                # Extract JSON from potential reasoning, explanation or code fences
+                start_idx = content.find("{")
+                end_idx = content.rfind("}")
+                if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                    json_str = content[start_idx:end_idx + 1].strip()
+                else:
+                    json_str = content
 
-                raw_json = json.loads(content)
+                raw_json = json.loads(json_str)
                 validated_structure = LLMRoadmapStructure.model_validate(raw_json)
             elif is_testing:
                 # Controlled test fixture allowed ONLY during automated unit testing

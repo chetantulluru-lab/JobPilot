@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jobpilot.app.ui.components.AIOrb
 import com.jobpilot.app.ui.components.GlassCard
 import com.jobpilot.app.ui.components.JobPilotButton
@@ -28,8 +29,7 @@ fun RegisterScreen(
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isOtpStep by remember { mutableStateOf(false) }
-    var otpCode by remember { mutableStateOf("") }
+    var keystone by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -45,7 +45,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = if (isOtpStep) "Verify Your Email" else "Create Your Profile",
+            text = "Create Your Profile",
             style = MaterialTheme.typography.headlineLarge,
             color = Slate900,
             textAlign = TextAlign.Center
@@ -54,7 +54,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = if (isOtpStep) "Enter the 6-digit verification code sent to $email" else "Begin your AI-piloted career journey",
+            text = "Begin your AI-piloted career journey",
             style = MaterialTheme.typography.bodyMedium,
             color = Slate500,
             textAlign = TextAlign.Center
@@ -67,58 +67,56 @@ fun RegisterScreen(
             backgroundColor = BgWhite
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (!isOtpStep) {
-                    OutlinedTextField(
-                        value = fullName,
-                        onValueChange = { fullName = it },
-                        label = { Text("Full Name") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
+                OutlinedTextField(
+                    value = fullName,
+                    onValueChange = { fullName = it },
+                    label = { Text("Full Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = { Text("College / Personal Email") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("College / Personal Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password (min 6 characters)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true
-                    )
-                } else {
-                    OutlinedTextField(
-                        value = otpCode,
-                        onValueChange = { if (it.length <= 6) otpCode = it },
-                        label = { Text("6-Digit Verification Code") },
-                        placeholder = { Text("123456") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password (min 6 characters)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true
+                )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                    TextButton(
-                        onClick = { isOtpStep = false },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Edit registration details", color = Orange600, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+                OutlinedTextField(
+                    value = keystone,
+                    onValueChange = { keystone = it },
+                    label = { Text("Security Keystone (Secret Recovery Word)") },
+                    placeholder = { Text("e.g. secret word, nickname, or pet") },
+                    supportingText = {
+                        Text(
+                            text = "Used to reset password if you ever forget it. Save this word!",
+                            fontSize = 11.sp,
+                            color = Slate500
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = true
+                )
 
                 if (uiState.errorMessage != null) {
                     Spacer(modifier = Modifier.height(10.dp))
@@ -129,40 +127,25 @@ fun RegisterScreen(
                     )
                 }
 
-                if (uiState.successMessage != null && isOtpStep) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = uiState.successMessage ?: "",
-                        color = SuccessGreen,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (!isOtpStep) {
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Sending code..." else "Send Verification Code",
-                        onClick = {
-                            if (fullName.isNotBlank() && email.isNotBlank() && password.length >= 6) {
-                                viewModel.startRegistration(fullName.trim(), email.trim(), password) {
-                                    isOtpStep = true
-                                }
-                            } else {
-                                viewModel.register(fullName.trim(), email.trim(), password, onRegisterSuccess)
-                            }
-                        },
-                        enabled = !uiState.isLoading && fullName.isNotBlank() && email.isNotBlank() && password.isNotBlank()
-                    )
-                } else {
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Verifying..." else "Verify & Create Account",
-                        onClick = {
-                            viewModel.verifyRegistrationOtp(email.trim(), otpCode.trim(), onRegisterSuccess)
-                        },
-                        enabled = !uiState.isLoading && otpCode.length >= 6
-                    )
-                }
+                JobPilotButton(
+                    text = if (uiState.isLoading) "Creating Account..." else "Create Account",
+                    onClick = {
+                        viewModel.register(
+                            fullName = fullName.trim(),
+                            email = email.trim(),
+                            password = password,
+                            keystone = keystone.trim(),
+                            onSuccess = onRegisterSuccess
+                        )
+                    },
+                    enabled = !uiState.isLoading &&
+                        fullName.isNotBlank() &&
+                        email.isNotBlank() &&
+                        password.length >= 6 &&
+                        keystone.trim().length >= 3
+                )
             }
         }
 

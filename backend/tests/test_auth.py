@@ -88,3 +88,40 @@ def test_swagger_oauth2_token_endpoint(client):
     data = res.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+
+
+def test_keystone_registration_and_reset(client):
+    unique_email = f"keystone_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    # 1. Register with custom keystone
+    reg_payload = {
+        "email": unique_email,
+        "password": "OldPassword123",
+        "full_name": "Keystone Tester",
+        "keystone": "mysecretkeystone"
+    }
+    reg_res = client.post("/api/v1/auth/register", json=reg_payload)
+    assert reg_res.status_code == 201
+
+    # 2. Reset password with wrong keystone -> should fail (400)
+    fail_res = client.post(
+        "/api/v1/auth/reset-password-keystone",
+        json={"email": unique_email, "keystone": "wrongkey", "new_password": "NewPassword123"}
+    )
+    assert fail_res.status_code == 400
+
+    # 3. Reset password with correct keystone -> should succeed (200)
+    ok_res = client.post(
+        "/api/v1/auth/reset-password-keystone",
+        json={"email": unique_email, "keystone": "mysecretkeystone", "new_password": "NewPassword123"}
+    )
+    assert ok_res.status_code == 200
+    assert ok_res.json()["status"] == "success"
+
+    # 4. Login with new password -> should succeed (200)
+    login_res = client.post(
+        "/api/v1/auth/login",
+        json={"email": unique_email, "password": "NewPassword123"}
+    )
+    assert login_res.status_code == 200
+    assert "access_token" in login_res.json()
+

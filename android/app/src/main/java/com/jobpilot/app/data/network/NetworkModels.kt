@@ -11,7 +11,18 @@ data class LoginRequestDto(
 data class RegisterRequestDto(
     @SerializedName("email") val email: String,
     @SerializedName("password") val password: String,
-    @SerializedName("full_name") val fullName: String
+    @SerializedName("full_name") val fullName: String,
+    @SerializedName("keystone") val keystone: String = "jobpilot"
+)
+
+data class ResetPasswordKeystoneDto(
+    @SerializedName("email") val email: String,
+    @SerializedName("keystone") val keystone: String,
+    @SerializedName("new_password") val newPassword: String
+)
+
+data class MessageResponseDto(
+    @SerializedName("message") val message: String = ""
 )
 
 data class TokenResponseDto(
@@ -567,6 +578,7 @@ data class ForgotPasswordVerifyResponseDto(
 // --- Personal Info Update DTO ---
 data class PersonalInfoUpdateRequestDto(
     @SerializedName("full_name") val fullName: String? = null,
+    @SerializedName("email") val email: String? = null,
     @SerializedName("age") val age: Int? = null,
     @SerializedName("college") val college: String? = null,
     @SerializedName("degree") val degree: String? = null,

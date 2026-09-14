@@ -136,10 +136,10 @@ class NetworkAuthRepository(
         }
     }
 
-    override suspend fun register(fullName: String, email: String, password: String): Result<User> {
+    override suspend fun register(fullName: String, email: String, password: String, keystone: String): Result<User> {
         return try {
             val response = apiService.register(
-                RegisterRequestDto(fullName = fullName, email = email, password = password)
+                RegisterRequestDto(fullName = fullName, email = email, password = password, keystone = keystone)
             )
             if (response.isSuccessful && response.body() != null) {
                 // Automatically log in after registration
@@ -152,6 +152,23 @@ class NetworkAuthRepository(
             }
         } catch (e: Exception) {
             Log.w(TAG, "Network error during register: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server. Please check your internet connection."))
+        }
+    }
+
+    override suspend fun resetPasswordWithKeystone(email: String, keystone: String, newPassword: String): Result<Unit> {
+        return try {
+            val response = apiService.resetPasswordWithKeystone(
+                ResetPasswordKeystoneDto(email = email, keystone = keystone, newPassword = newPassword)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Failed to reset password"
+                Result.failure(IllegalArgumentException(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "resetPasswordWithKeystone error: ${e.message}")
             Result.failure(java.io.IOException("Unable to connect to server. Please check your internet connection."))
         }
     }
@@ -501,6 +518,7 @@ class NetworkProfileRepository(
             apiService.updatePersonalInfo(
                 PersonalInfoUpdateRequestDto(
                     fullName = personalInfo.fullName,
+                    email = personalInfo.email,
                     age = personalInfo.age,
                     college = personalInfo.college,
                     degree = personalInfo.degree,
@@ -521,7 +539,7 @@ class NetworkProfileRepository(
             val part = MultipartBody.Part.createFormData("file", filename, reqFile)
             val response = apiService.uploadProfilePhoto(part)
             if (response.isSuccessful && response.body() != null) {
-                val avatarUrl = response.body()!!["avatar_url"] ?: ""
+                val avatarUrl = response.body()?.avatarUrl ?: ""
                 _profile.update {
                     it.copy(personalInfo = it.personalInfo.copy(avatarUrl = avatarUrl))
                 }

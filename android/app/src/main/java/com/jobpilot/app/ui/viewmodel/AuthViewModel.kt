@@ -43,10 +43,10 @@ class AuthViewModel(
         }
     }
 
-    fun register(fullName: String, email: String, password: String, onSuccess: () -> Unit) {
+    fun register(fullName: String, email: String, password: String, keystone: String = "jobpilot", onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            val result = authRepository.register(fullName, email, password)
+            val result = authRepository.register(fullName, email, password, keystone)
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
                     currentUser = result.getOrNull(),
@@ -58,6 +58,26 @@ class AuthViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = result.exceptionOrNull()?.message ?: "Registration failed"
+                )
+            }
+        }
+    }
+
+    fun resetPasswordWithKeystone(email: String, keystone: String, newPassword: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = authRepository.resetPasswordWithKeystone(email, keystone, newPassword)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = null,
+                    successMessage = "Password reset successfully. You can now log in."
+                )
+                onSuccess()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to reset password"
                 )
             }
         }

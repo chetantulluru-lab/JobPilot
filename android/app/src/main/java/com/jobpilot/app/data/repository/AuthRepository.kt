@@ -11,7 +11,8 @@ interface AuthRepository {
     val currentUserStream: Flow<User?>
     fun getCurrentUser(): User?
     suspend fun login(email: String, password: String): Result<User>
-    suspend fun register(fullName: String, email: String, password: String): Result<User>
+    suspend fun register(fullName: String, email: String, password: String, keystone: String = "jobpilot"): Result<User>
+    suspend fun resetPasswordWithKeystone(email: String, keystone: String, newPassword: String): Result<Unit>
     suspend fun startRegistration(fullName: String, email: String, password: String): Result<String>
     suspend fun verifyRegistrationOtp(email: String, otp: String): Result<User>
     suspend fun sendPasswordReset(email: String): Result<Unit>
@@ -54,7 +55,7 @@ class MockAuthRepository : AuthRepository {
         }
     }
 
-    override suspend fun register(fullName: String, email: String, password: String): Result<User> {
+    override suspend fun register(fullName: String, email: String, password: String, keystone: String): Result<User> {
         delay(600)
         return if (fullName.isNotBlank() && email.isNotBlank() && password.length >= 6) {
             val user = User(
@@ -67,6 +68,15 @@ class MockAuthRepository : AuthRepository {
             Result.success(user)
         } else {
             Result.failure(IllegalArgumentException("Please fill in all fields with valid information."))
+        }
+    }
+
+    override suspend fun resetPasswordWithKeystone(email: String, keystone: String, newPassword: String): Result<Unit> {
+        delay(400)
+        return if (email.isNotBlank() && keystone.isNotBlank() && newPassword.length >= 6) {
+            Result.success(Unit)
+        } else {
+            Result.failure(IllegalArgumentException("Invalid email, keystone, or password."))
         }
     }
 

@@ -6,6 +6,7 @@ from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.resume import Resume
+from app.models.saved_resume import SavedResume
 from app.models.career_profile import CareerProfile
 from app.models.personal_info import PersonalInfo
 from app.models.social_profile import SocialProfile
@@ -431,24 +432,40 @@ class ResumeService:
             Resume.id == resume_id,
             Resume.user_id == user_id
         ).first()
+
+        saved_resume = None
         if not resume:
+            saved_resume = db.query(SavedResume).filter(
+                SavedResume.id == resume_id,
+                SavedResume.user_id == user_id
+            ).first()
+
+        if not resume and not saved_resume:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found.")
 
         # If already analyzed, return cached analysis immediately (Token protection)
-        if resume.analysis_json:
+        if resume and resume.analysis_json:
             try:
                 cached = json.loads(resume.analysis_json)
                 return ResumeAnalysisResponse(**cached)
             except Exception:
                 pass
 
-        # Parse structured data
-        parsed_data = json.loads(resume.parsed_data_json) if resume.parsed_data_json else {}
-        skills = parsed_data.get("skills", [])
-        education = parsed_data.get("education", [])
-        experience = parsed_data.get("experience", [])
-        projects = parsed_data.get("projects", [])
-        personal_info = parsed_data.get("personal_info", {})
+        if resume:
+            # Parse structured data from uploaded resume
+            parsed_data = json.loads(resume.parsed_data_json) if resume.parsed_data_json else {}
+            skills = parsed_data.get("skills", [])
+            education = parsed_data.get("education", [])
+            experience = parsed_data.get("experience", [])
+            projects = parsed_data.get("projects", [])
+            personal_info = parsed_data.get("personal_info", {})
+        else:
+            # Extract from SavedResume
+            skills = saved_resume.skills_json or []
+            education = saved_resume.education_json or []
+            experience = saved_resume.experience_json or []
+            projects = saved_resume.projects_json or []
+            personal_info = saved_resume.contact_json or {}
 
         # Compute deterministic baseline ATS score
         score = 0
@@ -457,7 +474,7 @@ class ResumeService:
         improvements = []
 
         # 1. Contact Info (max 15)
-        if personal_info.get("email") and personal_info.get("name"):
+        if personal_info.get("email") and (personal_info.get("name") or personal_info.get("full_name")):
             score += 15
             strengths.append("Clear candidate contact information and header.")
         else:
@@ -467,7 +484,8 @@ class ResumeService:
         # 2. Education (max 20)
         if education:
             score += 20
-            strengths.append(f"Documented academic background ({education[0].get('degree', 'Degree')}).")
+            deg = education[0].get("degree", "Degree") if isinstance(education[0], dict) else "Degree"
+            strengths.append(f"Documented academic background ({deg}).")
         else:
             weaknesses.append("No academic degree or institution detected.")
             improvements.append("Add college name, degree, and graduation dates.")
@@ -518,7 +536,7 @@ class ResumeService:
         ]
 
         result = ResumeAnalysisResponse(
-            resume_id=resume.id,
+            resume_id=resume_id,
             ats_score=score,
             label="AI-Powered ATS-Style Analysis",
             summary=summary,
@@ -530,9 +548,10 @@ class ResumeService:
             disclaimer="Informational guidance based on industry standards. JobPilot makes no employment or interview guarantees."
         )
 
-        # Cache in PostgreSQL
-        resume.analysis_json = json.dumps(result.model_dump())
-        db.commit()
+        # Cache in PostgreSQL if uploaded resume
+        if resume:
+            resume.analysis_json = json.dumps(result.model_dump())
+            db.commit()
 
         return result
 
