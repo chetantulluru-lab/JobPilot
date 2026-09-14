@@ -174,7 +174,12 @@ fun JobPilotNavGraph(
             composable(Screen.Splash.route) {
                 SplashScreen(
                     onTimeout = {
-                        navController.navigate(Screen.Onboarding.route) {
+                        val destination = when {
+                            authViewModel.hasActiveSession() -> Screen.Dashboard.route
+                            authViewModel.isOnboardingCompleted() -> Screen.Login.route
+                            else -> Screen.Onboarding.route
+                        }
+                        navController.navigate(destination) {
                             popUpTo(Screen.Splash.route) { inclusive = true }
                         }
                     }
@@ -185,6 +190,7 @@ fun JobPilotNavGraph(
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(
                     onFinished = {
+                        authViewModel.setOnboardingCompleted(true)
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Onboarding.route) { inclusive = true }
                         }

@@ -89,6 +89,12 @@ class AuthViewModel(
         }
     }
 
+    fun hasActiveSession(): Boolean = authRepository.hasActiveSession()
+
+    fun isOnboardingCompleted(): Boolean = authRepository.isOnboardingCompleted()
+
+    fun setOnboardingCompleted(completed: Boolean) = authRepository.setOnboardingCompleted(completed)
+
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
     }

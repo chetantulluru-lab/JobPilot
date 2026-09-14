@@ -18,6 +18,9 @@ interface JobPilotApiService {
     @GET("auth/me")
     suspend fun getMe(): Response<UserDto>
 
+    @POST("auth/refresh")
+    suspend fun refreshToken(@Body req: TokenRefreshRequestDto): Response<TokenResponseDto>
+
     // --- Profile ---
     @GET("profile")
     suspend fun getProfile(): Response<CareerProfileDto>

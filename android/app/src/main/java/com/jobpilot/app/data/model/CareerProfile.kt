@@ -12,7 +12,36 @@ data class CareerProfile(
     val socialProfiles: List<SocialProfile> = emptyList(),
     val jobPreferences: JobPreference,
     val profileStrengthScore: Int = 86
-)
+) {
+    companion object {
+        fun empty(fullName: String = "", email: String = ""): CareerProfile = CareerProfile(
+            id = "",
+            userId = "",
+            personalInfo = PersonalInfo(
+                fullName = fullName,
+                email = email,
+                phone = "",
+                location = "",
+                professionalSummary = ""
+            ),
+            education = emptyList(),
+            skills = emptyList(),
+            experience = emptyList(),
+            projects = emptyList(),
+            certifications = emptyList(),
+            socialProfiles = emptyList(),
+            jobPreferences = JobPreference(
+                targetRoles = emptyList(),
+                preferredLocations = emptyList(),
+                workMode = "Remote",
+                employmentType = "Full-time",
+                salaryExpectation = "",
+                preferredTechnologies = emptyList()
+            ),
+            profileStrengthScore = 0
+        )
+    }
+}
 
 data class PersonalInfo(
     val fullName: String,

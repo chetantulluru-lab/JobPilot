@@ -19,8 +19,8 @@ class OpenRouterProvider(AIProvider):
     OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
     def __init__(self, api_key: Optional[str] = None, default_model: Optional[str] = None):
-        self._api_key = api_key or settings.OPENROUTER_API_KEY
-        self._default_model = default_model or settings.OPENROUTER_MODEL or "deepseek/deepseek-r1-0528:free"
+        self._api_key = api_key if api_key is not None else settings.OPENROUTER_API_KEY
+        self._default_model = default_model if default_model is not None else (settings.OPENROUTER_MODEL or "deepseek/deepseek-r1-0528:free")
 
     @property
     def provider_name(self) -> str:
@@ -92,6 +92,10 @@ class OpenRouterProvider(AIProvider):
 
             raw_content = choices[0].get("message", {}).get("content", "")
             clean_content = self._strip_reasoning_tags(raw_content)
+
+            if not clean_content:
+                logger.warning("OpenRouter response was empty after stripping reasoning tags.")
+                raise RuntimeError("Empty response from AI model (token limit reached during reasoning).")
 
             usage = data.get("usage", {})
             tokens_used = usage.get("total_tokens")

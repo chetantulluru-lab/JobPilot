@@ -28,11 +28,11 @@ class NetworkAuthRepository(
     private val mockFallback: MockAuthRepository = MockAuthRepository()
 ) : AuthRepository {
 
-    private val _currentUser = MutableStateFlow<User?>(MockDataProvider.currentUser)
+    private val _currentUser = MutableStateFlow<User?>(null)
     override val currentUserStream: Flow<User?> = _currentUser.asStateFlow()
 
     init {
-        // If a token exists locally, try to refresh user details from the backend
+        // If a token exists locally, restore or refresh user details from the backend
         if (tokenManager.hasToken()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -43,17 +43,55 @@ class NetworkAuthRepository(
                             id = dto.id,
                             fullName = dto.fullName,
                             email = dto.email,
-                            profileStrength = 85
+                            profileStrength = 0
                         )
+                    } else if (response.code() == 401) {
+                        // Access token expired, attempt refresh
+                        val refreshToken = tokenManager.getRefreshToken()
+                        if (!refreshToken.isNullOrBlank()) {
+                            val refreshResponse = apiService.refreshToken(TokenRefreshRequestDto(refreshToken))
+                            if (refreshResponse.isSuccessful && refreshResponse.body() != null) {
+                                val tokenDto = refreshResponse.body()!!
+                                tokenManager.saveTokens(tokenDto.accessToken, tokenDto.refreshToken)
+                                val retryMe = apiService.getMe()
+                                if (retryMe.isSuccessful && retryMe.body() != null) {
+                                    val dto = retryMe.body()!!
+                                    _currentUser.value = User(
+                                        id = dto.id,
+                                        fullName = dto.fullName,
+                                        email = dto.email,
+                                        profileStrength = 0
+                                    )
+                                }
+                            } else {
+                                tokenManager.clearTokens()
+                                _currentUser.value = null
+                            }
+                        } else {
+                            tokenManager.clearTokens()
+                            _currentUser.value = null
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.w(TAG, "Offline or server unreachable, using cached/mock session: ${e.message}")
+                    Log.w(TAG, "Offline or server unreachable, session check deferred: ${e.message}")
                 }
             }
         }
     }
 
     override fun getCurrentUser(): User? = _currentUser.value
+
+    override fun hasActiveSession(): Boolean {
+        return tokenManager.hasToken()
+    }
+
+    override fun isOnboardingCompleted(): Boolean {
+        return tokenManager.isOnboardingCompleted()
+    }
+
+    override fun setOnboardingCompleted(completed: Boolean) {
+        tokenManager.setOnboardingCompleted(completed)
+    }
 
     override suspend fun login(email: String, password: String): Result<User> {
         return try {
@@ -62,7 +100,7 @@ class NetworkAuthRepository(
                 val tokenDto = response.body()!!
                 tokenManager.saveTokens(tokenDto.accessToken, tokenDto.refreshToken)
 
-                // Fetch full user profile
+                // Fetch real user profile
                 val meResponse = apiService.getMe()
                 val user = if (meResponse.isSuccessful && meResponse.body() != null) {
                     val meDto = meResponse.body()!!
@@ -70,14 +108,14 @@ class NetworkAuthRepository(
                         id = meDto.id,
                         fullName = meDto.fullName,
                         email = meDto.email,
-                        profileStrength = 85
+                        profileStrength = 0
                     )
                 } else {
                     User(
-                        id = "user-local",
+                        id = "user-real",
                         fullName = email.substringBefore("@").replaceFirstChar { it.uppercase() },
                         email = email,
-                        profileStrength = 80
+                        profileStrength = 0
                     )
                 }
                 _currentUser.value = user
@@ -85,12 +123,12 @@ class NetworkAuthRepository(
             } else if (response.code() == 401 || response.code() == 400) {
                 Result.failure(IllegalArgumentException("Invalid email or password"))
             } else {
-                // Fallback to mock login if backend responds with other error
-                mockFallback.login(email, password).onSuccess { _currentUser.value = it }
+                val errorMsg = response.errorBody()?.string() ?: "Login failed (${response.code()})"
+                Result.failure(IllegalArgumentException(errorMsg))
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Backend unreachable during login, falling back to mock: ${e.message}")
-            mockFallback.login(email, password).onSuccess { _currentUser.value = it }
+            Log.w(TAG, "Network error during login: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server. Please check your internet connection."))
         }
     }
 
@@ -102,14 +140,15 @@ class NetworkAuthRepository(
             if (response.isSuccessful && response.body() != null) {
                 // Automatically log in after registration
                 login(email, password)
-            } else if (response.code() == 400) {
-                Result.failure(IllegalArgumentException("Email is already registered"))
+            } else if (response.code() == 400 || response.code() == 409) {
+                Result.failure(IllegalArgumentException("An account with this email already exists"))
             } else {
-                mockFallback.register(fullName, email, password).onSuccess { _currentUser.value = it }
+                val errorMsg = response.errorBody()?.string() ?: "Registration failed (${response.code()})"
+                Result.failure(IllegalArgumentException(errorMsg))
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Backend unreachable during register, falling back to mock: ${e.message}")
-            mockFallback.register(fullName, email, password).onSuccess { _currentUser.value = it }
+            Log.w(TAG, "Network error during register: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server. Please check your internet connection."))
         }
     }
 
@@ -120,7 +159,6 @@ class NetworkAuthRepository(
     override suspend fun logout() {
         tokenManager.clearTokens()
         _currentUser.value = null
-        mockFallback.logout()
     }
 }
 
@@ -214,7 +252,7 @@ class NetworkProfileRepository(
     private val mockFallback: MockProfileRepository = MockProfileRepository()
 ) : ProfileRepository {
 
-    private val _profile = MutableStateFlow(MockDataProvider.currentProfile)
+    private val _profile = MutableStateFlow(CareerProfile.empty())
     override val profileStream: Flow<CareerProfile> = _profile.asStateFlow()
 
     init {
@@ -223,8 +261,71 @@ class NetworkProfileRepository(
                 val response = apiService.getProfile()
                 if (response.isSuccessful && response.body() != null) {
                     val dto = response.body()!!
+                    val mappedEducation = dto.education.map { edu ->
+                        Education(
+                            id = edu.id ?: java.util.UUID.randomUUID().toString(),
+                            degree = edu.degree,
+                            college = edu.institution,
+                            branch = edu.fieldOfStudy ?: "",
+                            startDate = edu.startYear?.toString() ?: "",
+                            endDate = edu.endYear?.toString() ?: "",
+                            grade = edu.gradeOrCgpa ?: ""
+                        )
+                    }
+
+                    val mappedSkills = dto.skills.map { s ->
+                        val cat = when (s.category?.uppercase()) {
+                            "PROGRAMMING_LANGUAGE" -> SkillCategory.PROGRAMMING_LANGUAGE
+                            "FRAMEWORK" -> SkillCategory.FRAMEWORK
+                            "DATABASE" -> SkillCategory.DATABASE
+                            "TOOL" -> SkillCategory.TOOL
+                            "CLOUD" -> SkillCategory.CLOUD
+                            else -> SkillCategory.OTHER
+                        }
+                        Skill(
+                            id = s.id ?: java.util.UUID.randomUUID().toString(),
+                            name = s.name,
+                            category = cat,
+                            proficiencyLevel = s.proficiency ?: "Proficient"
+                        )
+                    }
+
+                    val mappedExperience = dto.experience.map { exp ->
+                        Experience(
+                            id = exp.id ?: java.util.UUID.randomUUID().toString(),
+                            company = exp.company,
+                            role = exp.title,
+                            startDate = exp.startDate ?: "",
+                            endDate = exp.endDate ?: "",
+                            description = exp.description ?: "",
+                            technologies = emptyList()
+                        )
+                    }
+
+                    val mappedProjects = dto.projects.map { p ->
+                        Project(
+                            id = p.id ?: java.util.UUID.randomUUID().toString(),
+                            name = p.title,
+                            description = p.description ?: "",
+                            technologies = p.techStack?.split(",")?.map { t -> t.trim() }?.filter { t -> t.isNotEmpty() } ?: emptyList(),
+                            startDate = "",
+                            endDate = "",
+                            githubUrl = p.githubUrl,
+                            liveUrl = p.liveUrl
+                        )
+                    }
+
                     val current = _profile.value
                     _profile.value = current.copy(
+                        id = dto.id,
+                        userId = dto.userId,
+                        personalInfo = current.personalInfo.copy(
+                            professionalSummary = dto.summary ?: current.personalInfo.professionalSummary
+                        ),
+                        education = mappedEducation,
+                        skills = mappedSkills,
+                        experience = mappedExperience,
+                        projects = mappedProjects,
                         profileStrengthScore = dto.profileStrength
                     )
                 }
@@ -344,14 +445,14 @@ class NetworkApplicationRepository(
     private val mockFallback: MockApplicationRepository = MockApplicationRepository()
 ) : ApplicationRepository {
 
-    private val _applications = MutableStateFlow(MockDataProvider.mockApplications)
+    private val _applications = MutableStateFlow<List<JobApplication>>(emptyList())
     override val applicationsStream: Flow<List<JobApplication>> = _applications.asStateFlow()
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = apiService.getApplications()
-                if (response.isSuccessful && response.body() != null && response.body()!!.isNotEmpty()) {
+                if (response.isSuccessful && response.body() != null) {
                     val dtoList = response.body()!!
                     _applications.value = dtoList.map { dto ->
                         val status = ApplicationStatus.values().firstOrNull {
@@ -462,7 +563,7 @@ class NetworkResumeRepository(
     private val mockFallback: MockResumeRepository = MockResumeRepository()
 ) : ResumeRepository {
 
-    private val _resumes = MutableStateFlow(mockFallback.getAllResumes())
+    private val _resumes = MutableStateFlow<List<Resume>>(emptyList())
     override val resumesStream: Flow<List<Resume>> = _resumes.asStateFlow()
 
     init {
@@ -473,7 +574,7 @@ class NetworkResumeRepository(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = apiService.getSavedResumes()
-                if (response.isSuccessful && response.body() != null && response.body()!!.isNotEmpty()) {
+                if (response.isSuccessful && response.body() != null) {
                     val dtoList = response.body()!!
                     val domainResumes = dtoList.map { dto ->
                         val template = ResumeTemplateType.values().firstOrNull {
@@ -485,7 +586,7 @@ class NetworkResumeRepository(
                             title = dto.title,
                             templateType = template,
                             lastModified = dto.updatedAt.take(10),
-                            profileSnapshot = MockDataProvider.currentProfile,
+                            profileSnapshot = CareerProfile.empty(),
                             isDefault = false,
                             tailoredForJobTitle = dto.tailoredRoleTitle
                         )
@@ -673,8 +774,29 @@ class NetworkConnectedAccountRepository(
     private val mockFallback: MockConnectedAccountRepository = MockConnectedAccountRepository()
 ) : ConnectedAccountRepository {
 
-    private val _accounts = MutableStateFlow(MockDataProvider.mockConnectedAccounts)
-    private val _emailEvents = MutableStateFlow(MockDataProvider.mockEmailEvents)
+    private val defaultAccounts = listOf(
+        ConnectedAccount(
+            provider = AccountProvider.GOOGLE_GMAIL,
+            isConnected = false,
+            syncStatus = "Not Connected",
+            note = "Connect securely via Google OAuth 2.0. We never ask for or store passwords."
+        ),
+        ConnectedAccount(
+            provider = AccountProvider.GITHUB,
+            isConnected = false,
+            syncStatus = "Not Connected",
+            note = "Import verified public repositories and open-source contributions."
+        ),
+        ConnectedAccount(
+            provider = AccountProvider.LINKEDIN,
+            isConnected = false,
+            syncStatus = "Not Connected",
+            note = "Import verified professional headline and career history."
+        )
+    )
+
+    private val _accounts = MutableStateFlow(defaultAccounts)
+    private val _emailEvents = MutableStateFlow<List<EmailEvent>>(emptyList())
 
     override val accountsStream: Flow<List<ConnectedAccount>> = _accounts.asStateFlow()
     override val emailEventsStream: Flow<List<EmailEvent>> = _emailEvents.asStateFlow()

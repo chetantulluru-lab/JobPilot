@@ -2,7 +2,6 @@ package com.jobpilot.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jobpilot.app.data.mock.MockDataProvider
 import com.jobpilot.app.data.model.*
 import com.jobpilot.app.data.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +23,7 @@ class ProfileViewModel(
     private val _uiState = MutableStateFlow(
         ProfileUiState(
             profile = profileRepository.getProfile(),
-            missingFields = MockDataProvider.mockParsedResume.missingFields
+            missingFields = computeMissingFields(profileRepository.getProfile())
         )
     )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -32,7 +31,10 @@ class ProfileViewModel(
     init {
         viewModelScope.launch {
             profileRepository.profileStream.collect { updatedProfile ->
-                _uiState.value = _uiState.value.copy(profile = updatedProfile)
+                _uiState.value = _uiState.value.copy(
+                    profile = updatedProfile,
+                    missingFields = computeMissingFields(updatedProfile)
+                )
             }
         }
     }
@@ -125,4 +127,49 @@ class ProfileViewModel(
     fun clearFeedback() {
         _uiState.value = _uiState.value.copy(feedbackMessage = null)
     }
+}
+
+private fun computeMissingFields(profile: CareerProfile): List<MissingField> {
+    val list = mutableListOf<MissingField>()
+    if (profile.education.isEmpty()) {
+        list.add(
+            MissingField(
+                fieldKey = "education",
+                fieldLabel = "Education",
+                reason = "No formal education or degree listed",
+                suggestedAction = "Add your university, degree, and graduation year"
+            )
+        )
+    }
+    if (profile.skills.isEmpty()) {
+        list.add(
+            MissingField(
+                fieldKey = "skills",
+                fieldLabel = "Key Skills",
+                reason = "No technical skills detected on your profile",
+                suggestedAction = "Add at least 3-5 core technologies or programming languages"
+            )
+        )
+    }
+    if (profile.projects.isEmpty() && profile.experience.isEmpty()) {
+        list.add(
+            MissingField(
+                fieldKey = "projects",
+                fieldLabel = "Projects or Experience",
+                reason = "No projects or work history listed",
+                suggestedAction = "Add your notable engineering projects or internships"
+            )
+        )
+    }
+    if (profile.personalInfo.phone.isBlank()) {
+        list.add(
+            MissingField(
+                fieldKey = "phone",
+                fieldLabel = "Phone Number",
+                reason = "Recruiters frequently reach out via phone",
+                suggestedAction = "Add a valid contact phone number"
+            )
+        )
+    }
+    return list
 }

@@ -14,18 +14,35 @@ interface AuthRepository {
     suspend fun register(fullName: String, email: String, password: String): Result<User>
     suspend fun sendPasswordReset(email: String): Result<Unit>
     suspend fun logout()
+    fun hasActiveSession(): Boolean
+    fun isOnboardingCompleted(): Boolean
+    fun setOnboardingCompleted(completed: Boolean)
 }
 
 class MockAuthRepository : AuthRepository {
-    private val _currentUser = MutableStateFlow<User?>(MockDataProvider.currentUser)
+    private val _currentUser = MutableStateFlow<User?>(null)
     override val currentUserStream: Flow<User?> = _currentUser.asStateFlow()
+    private var _onboardingDone = false
 
     override fun getCurrentUser(): User? = _currentUser.value
+
+    override fun hasActiveSession(): Boolean = _currentUser.value != null
+
+    override fun isOnboardingCompleted(): Boolean = _onboardingDone
+
+    override fun setOnboardingCompleted(completed: Boolean) {
+        _onboardingDone = completed
+    }
 
     override suspend fun login(email: String, password: String): Result<User> {
         delay(600)
         return if (email.isNotBlank() && password.length >= 6) {
-            val user = MockDataProvider.currentUser.copy(email = email)
+            val user = User(
+                id = "mock-user-1",
+                fullName = email.substringBefore("@").replaceFirstChar { it.uppercase() },
+                email = email,
+                profileStrength = 0
+            )
             _currentUser.value = user
             Result.success(user)
         } else {
@@ -40,7 +57,7 @@ class MockAuthRepository : AuthRepository {
                 id = "user-${System.currentTimeMillis()}",
                 fullName = fullName,
                 email = email,
-                profileStrength = 50
+                profileStrength = 0
             )
             _currentUser.value = user
             Result.success(user)

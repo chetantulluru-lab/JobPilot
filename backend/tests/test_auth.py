@@ -71,3 +71,20 @@ def test_protected_me_endpoint(client, user_a_headers):
     assert res_auth.status_code == 200
     data = res_auth.json()
     assert data["email"] == "user_a_test@jobpilot.io"
+
+
+def test_swagger_oauth2_token_endpoint(client):
+    unique_email = f"swagger_{uuid.uuid4().hex[:6]}@jobpilot.io"
+    client.post(
+        "/api/v1/auth/register",
+        json={"email": unique_email, "password": "SwaggerPass123", "full_name": "Swagger User"}
+    )
+    # Standard OAuth2 form post (username & password form-encoded)
+    res = client.post(
+        "/api/v1/auth/token",
+        data={"username": unique_email, "password": "SwaggerPass123"}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"

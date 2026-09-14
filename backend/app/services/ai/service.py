@@ -233,7 +233,7 @@ class AIService:
                 messages = PromptBuilder.build_recruiter_message_messages(
                     profile_data, target_job, recipient_name, platform, user_context
                 )
-                request = AIRequest(messages=messages, temperature=0.3, max_tokens=400)
+                request = AIRequest(messages=messages, temperature=0.3, max_tokens=1000)
                 response = self._provider.generate_chat_completion(request)
                 return {"content": response.content.strip(), "is_fallback": False}
             except Exception as e:
