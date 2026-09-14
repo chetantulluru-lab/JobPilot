@@ -151,46 +151,47 @@ fun ProfileScreen(
                                 Text(
                                     text = profile.personalInfo.fullName.ifBlank { "Candidate" },
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.textPrimary,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 if (profile.personalInfo.age != null) {
                                     Text(
                                         text = "Age: ${profile.personalInfo.age}",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.textSecondary
                                     )
                                 }
                                 Text(
                                     text = profile.personalInfo.email,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Slate500
+                                    color = MaterialTheme.textMuted
                                 )
                             }
                         }
 
                         if (!profile.personalInfo.college.isNullOrBlank() || !profile.personalInfo.degree.isNullOrBlank()) {
                             Spacer(modifier = Modifier.height(12.dp))
-                            Divider(color = Slate200)
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
                                 text = "Academics:",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Slate500
+                                color = MaterialTheme.textMuted
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "${profile.personalInfo.degree ?: ""} - ${profile.personalInfo.branch ?: ""}".trim().trim('-').trim(),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Slate800
+                                color = MaterialTheme.textPrimary
                             )
                             if (!profile.personalInfo.college.isNullOrBlank()) {
                                 Text(
                                     text = profile.personalInfo.college ?: "",
                                     fontSize = 12.sp,
-                                    color = Slate600
+                                    color = MaterialTheme.textSecondary
                                 )
                             }
                         }
@@ -200,7 +201,7 @@ fun ProfileScreen(
                             Text(
                                 text = listOf(profile.personalInfo.phone, profile.personalInfo.location).filter { it.isNotBlank() }.joinToString(" • "),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Slate500
+                                color = MaterialTheme.textMuted
                             )
                         }
 
@@ -209,7 +210,7 @@ fun ProfileScreen(
                             Text(
                                 text = profile.personalInfo.professionalSummary,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Slate700,
+                                color = MaterialTheme.textSecondary,
                                 lineHeight = 20.sp
                             )
                         }
@@ -234,9 +235,9 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = edu.degree, style = MaterialTheme.typography.titleMedium, color = Slate900)
-                            Text(text = "${edu.college} • ${edu.branch}", style = MaterialTheme.typography.bodySmall, color = Slate500)
-                            Text(text = "${edu.startDate} - ${edu.endDate} • ${edu.grade}", style = MaterialTheme.typography.bodySmall, color = Orange600)
+                            Text(text = edu.degree, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.textPrimary, fontWeight = FontWeight.Bold)
+                            Text(text = "${edu.college} • ${edu.branch}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.textMuted)
+                            Text(text = "${edu.startDate} - ${edu.endDate} • ${edu.grade}", style = MaterialTheme.typography.bodySmall, color = Orange500, fontWeight = FontWeight.SemiBold)
                         }
                         IconButton(onClick = { viewModel.removeEducation(edu.id) }) {
                             Icon(Icons.Default.DeleteOutline, contentDescription = "Delete", tint = Slate400)
@@ -295,10 +296,10 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = proj.name, style = MaterialTheme.typography.titleMedium, color = Slate900)
-                            Text(text = proj.description, style = MaterialTheme.typography.bodySmall, color = Slate600)
+                            Text(text = proj.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.textPrimary, fontWeight = FontWeight.Bold)
+                            Text(text = proj.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.textSecondary)
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(text = "Tech: ${proj.technologies.joinToString(", ")}", style = MaterialTheme.typography.bodySmall, color = Orange600)
+                            Text(text = "Tech: ${proj.technologies.joinToString(", ")}", style = MaterialTheme.typography.bodySmall, color = Orange500)
                             if (proj.githubUrl != null) {
                                 Text(text = proj.githubUrl, style = MaterialTheme.typography.bodySmall, color = InfoBlue)
                             }
@@ -310,16 +311,23 @@ fun ProfileScreen(
                 }
             }
 
-            // 5. Job Preferences Section
-            item {
-                SectionHeader(title = "Job Preferences")
+            // 5. Job Preferences Section (Render only if preferences exist, with stipend completely removed)
+            if (profile.jobPreferences.targetRoles.isNotEmpty() || profile.jobPreferences.preferredLocations.isNotEmpty() || profile.jobPreferences.workMode.isNotBlank()) {
+                item {
+                    SectionHeader(title = "Job Preferences")
 
-                GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
-                    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(text = "Target Roles: ${profile.jobPreferences.targetRoles.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium, color = Slate800)
-                        Text(text = "Locations: ${profile.jobPreferences.preferredLocations.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium, color = Slate800)
-                        Text(text = "Work Mode: ${profile.jobPreferences.workMode}", style = MaterialTheme.typography.bodyMedium, color = Slate800)
-                        Text(text = "Expected Stipend: ${profile.jobPreferences.salaryExpectation}", style = MaterialTheme.typography.bodyMedium, color = Orange600, fontWeight = FontWeight.Bold)
+                    GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            if (profile.jobPreferences.targetRoles.isNotEmpty()) {
+                                Text(text = "Target Roles: ${profile.jobPreferences.targetRoles.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.textSecondary)
+                            }
+                            if (profile.jobPreferences.preferredLocations.isNotEmpty()) {
+                                Text(text = "Locations: ${profile.jobPreferences.preferredLocations.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.textSecondary)
+                            }
+                            if (profile.jobPreferences.workMode.isNotBlank()) {
+                                Text(text = "Work Mode: ${profile.jobPreferences.workMode}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.textSecondary)
+                            }
+                        }
                     }
                 }
             }
@@ -328,6 +336,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(30.dp))
             }
         }
+
     }
 
     // Add Skill Dialog

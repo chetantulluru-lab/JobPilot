@@ -118,12 +118,12 @@ fun CreateResumeScreen(
                 text = "ATS-Friendly Single Page Resume",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.textPrimary
             )
             Text(
                 text = "Recruiter-compliant format designed to pass Applicant Tracking Systems with maximum score.",
                 fontSize = 12.sp,
-                color = Slate500
+                color = MaterialTheme.textSecondary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -131,7 +131,7 @@ fun CreateResumeScreen(
             // 1. Personal & Contact Information
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("1. Personal Details", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                    Text("1. Personal Details", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                     OutlinedTextField(
                         value = fullName,
@@ -168,7 +168,7 @@ fun CreateResumeScreen(
             // 2. Academic Identity
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("2. Education & College Details", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                    Text("2. Education & College Details", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                     OutlinedTextField(
                         value = college,
@@ -218,7 +218,7 @@ fun CreateResumeScreen(
             // 3. Profiles & Online Links
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("3. Links & Social Profiles", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                    Text("3. Links & Social Profiles", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                     OutlinedTextField(
                         value = githubUrl,
@@ -252,7 +252,7 @@ fun CreateResumeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("4. Technical Skills", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                        Text("4. Technical Skills", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                         // 1-Tap Import from Roadmaps
                         TextButton(
@@ -299,7 +299,7 @@ fun CreateResumeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("5. Key Projects (${projectsList.size})", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                        Text("5. Key Projects (${projectsList.size})", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                         TextButton(
                             onClick = {
@@ -324,7 +324,7 @@ fun CreateResumeScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Project ${index + 1}", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                                    Text("Project ${index + 1}", fontWeight = FontWeight.SemiBold, fontSize = 12.sp, color = MaterialTheme.textPrimary)
                                     if (projectsList.size > 1) {
                                         IconButton(onClick = { projectsList.removeAt(index) }, modifier = Modifier.size(24.dp)) {
                                             Icon(Icons.Default.DeleteOutline, contentDescription = "Delete", tint = Color.Red, modifier = Modifier.size(16.dp))
@@ -388,7 +388,7 @@ fun CreateResumeScreen(
             // 6. Practical Experience & Achievements
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("6. Experience & Achievements (Optional)", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                    Text("6. Experience & Achievements (Optional)", fontWeight = FontWeight.Bold, color = Orange500, fontSize = 14.sp)
 
                     OutlinedTextField(
                         value = experienceText,
@@ -418,7 +418,7 @@ fun CreateResumeScreen(
             statusMessage?.let {
                 Text(
                     text = it,
-                    color = Orange600,
+                    color = Orange500,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )

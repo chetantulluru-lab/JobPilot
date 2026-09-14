@@ -46,7 +46,7 @@ fun LoginScreen(
         Text(
             text = "Welcome to JobPilot",
             style = MaterialTheme.typography.headlineLarge,
-            color = Slate900,
+            color = MaterialTheme.textPrimary,
             textAlign = TextAlign.Center
         )
 
@@ -55,7 +55,7 @@ fun LoginScreen(
         Text(
             text = "Log in to pilot your career opportunities",
             style = MaterialTheme.typography.bodyMedium,
-            color = Slate500,
+            color = MaterialTheme.textSecondary,
             textAlign = TextAlign.Center
         )
 

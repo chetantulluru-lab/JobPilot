@@ -45,7 +45,7 @@ fun ForgotPasswordScreen(
         Text(
             text = "Reset Password",
             style = MaterialTheme.typography.headlineLarge,
-            color = Slate900,
+            color = MaterialTheme.textPrimary,
             textAlign = TextAlign.Center
         )
 
@@ -54,7 +54,7 @@ fun ForgotPasswordScreen(
         Text(
             text = "Verify your identity using your secret Security Keystone",
             style = MaterialTheme.typography.bodyMedium,
-            color = Slate500,
+            color = MaterialTheme.textSecondary,
             textAlign = TextAlign.Center
         )
 
@@ -62,7 +62,7 @@ fun ForgotPasswordScreen(
 
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = BgWhite
+            backgroundColor = MaterialTheme.cardBg
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(

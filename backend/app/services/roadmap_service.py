@@ -357,86 +357,116 @@ class RoadmapService:
 
     @classmethod
     def get_or_create_phase_resources(
-        cls, db: Session, user_id: str, roadmap_id: str, phase_id: str, language: Optional[str] = None
+        cls, db: Session, user_id: str, roadmap_id: Optional[str], phase_id: str, language: Optional[str] = None
     ) -> List[RoadmapResourceResponse]:
         """
         Phase-aware resource fetching (English, Telugu, Hindi).
-        Uses curated search queries and official documentation links to protect AI tokens.
-        If resources already exist in PostgreSQL, returns them immediately with 0 AI calls.
+        If resources already exist for the requested language, returns them.
+        If not, dynamically synthesizes verified video and notes links (YouTube, Gate Smashers, Vamsi Bhavani, GFG)
+        and persists them so students always have verified resources in their chosen language.
         """
-        phase = db.query(RoadmapPhase).filter(
-            RoadmapPhase.id == phase_id,
-            RoadmapPhase.roadmap_id == roadmap_id
-        ).first()
+        query = db.query(RoadmapPhase).filter(RoadmapPhase.id == phase_id)
+        if roadmap_id and roadmap_id != "phases":
+            query = query.filter(RoadmapPhase.roadmap_id == roadmap_id)
+        phase = query.first()
         if not phase:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Phase not found.")
 
         # Check existing cached resources
         existing = db.query(RoadmapResource).filter(RoadmapResource.phase_id == phase_id).all()
-        if not existing:
-            # Generate verified, topic-specific resources for each day in this phase
-            new_resources = []
-            for day in phase.days:
-                topic_query = urllib.parse.quote_plus(f"{day.topic} tutorial")
-                topic_query_te = urllib.parse.quote_plus(f"{day.topic} tutorial in telugu")
-                topic_query_hi = urllib.parse.quote_plus(f"{day.topic} tutorial in hindi")
 
-                # English Video Search
-                new_resources.append(
-                    RoadmapResource(
-                        phase_id=phase.id,
-                        day_id=day.id,
-                        title=f"{day.topic} (English Video Guide)",
-                        url=f"https://www.youtube.com/results?search_query={topic_query}",
-                        language="English",
-                        resource_type="video",
-                        source="YouTube"
-                    )
-                )
-                # English Documentation / Article
-                new_resources.append(
-                    RoadmapResource(
-                        phase_id=phase.id,
-                        day_id=day.id,
-                        title=f"{day.topic} Official Documentation & Notes",
-                        url=f"https://www.google.com/search?q={urllib.parse.quote_plus(day.topic + ' documentation geeksforgeeks freecodecamp')}",
-                        language="English",
-                        resource_type="article",
-                        source="Documentation"
-                    )
-                )
-                # Telugu Video Search
-                new_resources.append(
-                    RoadmapResource(
-                        phase_id=phase.id,
-                        day_id=day.id,
-                        title=f"{day.topic} (తెలుగు Video Guide)",
-                        url=f"https://www.youtube.com/results?search_query={topic_query_te}",
-                        language="Telugu",
-                        resource_type="video",
-                        source="YouTube Telugu"
-                    )
-                )
-                # Hindi Video Search
-                new_resources.append(
-                    RoadmapResource(
-                        phase_id=phase.id,
-                        day_id=day.id,
-                        title=f"{day.topic} (हिंदी Video Guide)",
-                        url=f"https://www.youtube.com/results?search_query={topic_query_hi}",
-                        language="Hindi",
-                        resource_type="video",
-                        source="YouTube Hindi"
-                    )
-                )
+        is_all = (language is None or language.strip().lower() in ("all", ""))
+        languages_to_ensure = ["English", "Telugu", "Hindi"] if is_all else [language.strip().capitalize()]
 
+        new_resources = []
+        for target_lang in languages_to_ensure:
+            has_lang = any(r.language.lower() == target_lang.lower() for r in existing)
+            if not has_lang:
+                for day in phase.days:
+                    topic = day.topic
+                    if target_lang.lower() == "telugu":
+                        topic_query_te = urllib.parse.quote_plus(f"{topic} in telugu vamsi bhavani")
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — Telugu Video Guide (Vamsi Bhavani / Telugu Tech)",
+                                url=f"https://www.youtube.com/results?search_query={topic_query_te}",
+                                language="Telugu",
+                                resource_type="video",
+                                source="YouTube Telugu"
+                            )
+                        )
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — Telugu Concepts & Practice",
+                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' telugu tutorial')}",
+                                language="Telugu",
+                                resource_type="video",
+                                source="YouTube Telugu"
+                            )
+                        )
+                    elif target_lang.lower() == "hindi":
+                        topic_query_hi = urllib.parse.quote_plus(f"{topic} in hindi gate smashers")
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — Hindi Guide (Gate Smashers / CodeWithHarry)",
+                                url=f"https://www.youtube.com/results?search_query={topic_query_hi}",
+                                language="Hindi",
+                                resource_type="video",
+                                source="YouTube Hindi"
+                            )
+                        )
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — Complete Hindi Notes & Practice",
+                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' in hindi')}",
+                                language="Hindi",
+                                resource_type="video",
+                                source="YouTube Hindi"
+                            )
+                        )
+                    else:  # English default
+                        topic_query_en = urllib.parse.quote_plus(f"{topic} tutorial geeksforgeeks freecodecamp")
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — Video Walkthrough & Implementation",
+                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' tutorial')}",
+                                language="English",
+                                resource_type="video",
+                                source="YouTube"
+                            )
+                        )
+                        new_resources.append(
+                            RoadmapResource(
+                                phase_id=phase.id,
+                                day_id=day.id,
+                                title=f"{topic} — GFG & FreeCodeCamp Notes",
+                                url=f"https://www.google.com/search?q={topic_query_en}",
+                                language="English",
+                                resource_type="article",
+                                source="Documentation"
+                            )
+                        )
+
+        if new_resources:
             db.add_all(new_resources)
             db.commit()
             existing = db.query(RoadmapResource).filter(RoadmapResource.phase_id == phase_id).all()
 
-        # Filter by language if specified
-        if language and language.strip() and language.lower() != "all":
-            existing = [r for r in existing if r.language.lower() == language.strip().lower()]
+        if is_all:
+            result_resources = existing
+        else:
+            target_lower = language.strip().lower()
+            result_resources = [r for r in existing if r.language.lower() == target_lower]
 
         return [
             RoadmapResourceResponse(
@@ -448,28 +478,26 @@ class RoadmapService:
                 language=res.language,
                 resource_type=res.resource_type,
                 source=res.source
-            ) for res in existing
+            ) for res in result_resources
         ]
 
     @classmethod
-    def complete_day(cls, db: Session, user_id: str, roadmap_id: str, day_id: str) -> DayCompleteResponse:
+    def complete_day(cls, db: Session, user_id: str, roadmap_id: Optional[str], day_id: str) -> DayCompleteResponse:
         """
         Marks a day complete, recalculates progress %, checks phase unlocking,
         records learning activity, and updates user streak deterministically.
         """
+        day = db.query(RoadmapDay).filter(RoadmapDay.id == day_id).first()
+        if not day:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day not found.")
+
+        actual_roadmap_id = roadmap_id if (roadmap_id and roadmap_id != "days") else day.roadmap_id
         roadmap = db.query(Roadmap).filter(
-            Roadmap.id == roadmap_id,
+            Roadmap.id == actual_roadmap_id,
             Roadmap.user_id == user_id
         ).first()
         if not roadmap:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap not found.")
-
-        day = db.query(RoadmapDay).filter(
-            RoadmapDay.id == day_id,
-            RoadmapDay.roadmap_id == roadmap_id
-        ).first()
-        if not day:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day not found.")
 
         phase = db.query(RoadmapPhase).filter(RoadmapPhase.id == day.phase_id).first()
         if not phase or not phase.is_unlocked:

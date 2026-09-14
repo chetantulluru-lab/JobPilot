@@ -1161,9 +1161,398 @@ CSE_COURSE_CATALOG: Dict[str, Dict[str, Any]] = {
                 ]
             }
         ]
-    }
-}
+    },
 
+    # =========================================================================
+    # SEPARATE PROGRAMMING LANGUAGES & ADDITIONAL TRACKS
+    # =========================================================================
+    "python-lang": {
+        "id": "python-lang",
+        "title": "Python Programming (Beginner to Advanced)",
+        "category": "Languages",
+        "badge": "Beginner Friendly",
+        "description": "Master Python syntax, data types, OOP, generators, decorators, file I/O, error handling, and standard library modules.",
+        "skills": ["Python 3", "Object-Oriented Programming", "Functional Programming", "Decorators & Generators", "File I/O & JSON", "Unit Testing"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Python Syntax, Data Structures & Functions",
+                "description": "Core primitives, lists, dictionaries, tuples, sets, functions, and recursion.",
+                "project_title": "CLI Student Gradebook & Statistical Analyzer",
+                "project_description": "Build an interactive CLI tool that calculates CGPA, median marks, and exports student report cards in JSON.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Python Fundamentals, Types & Control Flow",
+                        "learning_objective": "Understand dynamic typing, operators, truthiness, conditional branching, and loops in Python.",
+                        "subtopics": ["Primitive types & type casting", "if/elif/else conditions", "for and while loops with range/enumerate", "f-strings formatting"],
+                        "practice_tasks": ["Write a prime number generator up to N", "Implement a command-line rock-paper-scissors game with score tracking"],
+                        "resources": [
+                            {"title": "Python for Beginners — Full Course", "url": "https://www.youtube.com/watch?v=kqtD5dpn9C8", "language": "English", "resource_type": "video", "source": "FreeCodeCamp"},
+                            {"title": "Python Tutorial in Telugu (Complete Course)", "url": "https://www.youtube.com/results?search_query=python+tutorial+in+telugu+vamsi+bhavani", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "Python Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=python+full+course+in+hindi+codewithharry", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Python Built-in Data Structures",
+                        "learning_objective": "Master Lists, Tuples, Dictionaries, and Sets with list comprehensions and dict manipulations.",
+                        "subtopics": ["List slicing & in-place methods", "Dictionary operations & dict comprehensions", "Set operations (union, intersection, difference)", "Tuple unpacking"],
+                        "practice_tasks": ["Implement word frequency counter on a multiline text", "Flatten a nested list using list comprehension"],
+                        "resources": [
+                            {"title": "Python Data Structures Mastery", "url": "https://docs.python.org/3/tutorial/datastructures.html", "language": "English", "resource_type": "doc", "source": "Python Docs"},
+                            {"title": "Python Lists & Dictionaries in Telugu", "url": "https://www.youtube.com/results?search_query=python+lists+dictionaries+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Python Collections & Loops in Hindi", "url": "https://www.youtube.com/results?search_query=python+lists+and+dictionary+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 3,
+                        "topic": "Functions, Scope, *args & **kwargs",
+                        "learning_objective": "Master function definition, default arguments, variadic parameters, keyword arguments, and closures.",
+                        "subtopics": ["Positional vs Keyword arguments", "Unpacking with * and **", "LEGB Scope rule", "Lambda functions & map/filter"],
+                        "practice_tasks": ["Build a generic arithmetic pipeline taking arbitrary functions", "Write a memoization function without using functools"],
+                        "resources": [
+                            {"title": "Python Functions Deep Dive", "url": "https://realpython.com/defining-your-own-python-function/", "language": "English", "resource_type": "article", "source": "RealPython"},
+                            {"title": "Python Functions in Telugu", "url": "https://www.youtube.com/results?search_query=python+functions+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Python Functions in Hindi", "url": "https://www.youtube.com/results?search_query=python+functions+in+hindi", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "phase_number": 2,
+                "title": "Object-Oriented Python, Generators & Decorators",
+                "description": "Classes, magic methods, inheritance, polymorphism, decorators, generators, and context managers.",
+                "project_title": "Custom ORM & Mini Query Builder",
+                "project_description": "Build an in-memory database simulation using Python classes, decorators for validation, and generator pipelines.",
+                "days": [
+                    {
+                        "day_number": 4,
+                        "topic": "Object-Oriented Programming in Python",
+                        "learning_objective": "Design clean classes using __init__, encapsulation, inheritance, method overriding, and classmethods.",
+                        "subtopics": ["Classes vs Instances", "Magic methods (__repr__, __str__, __len__, __eq__)", "Classmethods and staticmethods", "@property decorator"],
+                        "practice_tasks": ["Build a Bank Account hierarchy with Savings and Current accounts", "Implement a Vector2D class supporting +, -, and * operators via magic methods"],
+                        "resources": [
+                            {"title": "OOP in Python Tutorial", "url": "https://realpython.com/python3-object-oriented-programming/", "language": "English", "resource_type": "article", "source": "RealPython"},
+                            {"title": "Python OOP in Telugu", "url": "https://www.youtube.com/results?search_query=python+oop+in+telugu", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "Python OOPS in Hindi", "url": "https://www.youtube.com/results?search_query=python+oops+in+hindi+codewithharry", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    },
+                    {
+                        "day_number": 5,
+                        "topic": "Decorators, Generators & Context Managers",
+                        "learning_objective": "Master metaprogramming with decorators, lazy evaluation with yield, and resource management with context managers.",
+                        "subtopics": ["Function wrapping with @wraps", "Decorators with arguments", "Generator functions and generator expressions", "__enter__ and __exit__ protocol"],
+                        "practice_tasks": ["Write an @execution_timer decorator measuring function runtime", "Build an infinite Fibonacci generator with lazy evaluation"],
+                        "resources": [
+                            {"title": "Python Decorators & Generators", "url": "https://www.youtube.com/watch?v=FsAPt_9Bf3U", "language": "English", "resource_type": "video", "source": "Corey Schafer"},
+                            {"title": "Decorators & Generators in Telugu", "url": "https://www.youtube.com/results?search_query=python+decorators+generators+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Python Decorators in Hindi", "url": "https://www.youtube.com/results?search_query=python+decorators+in+hindi", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "java-lang": {
+        "id": "java-lang",
+        "title": "Java Core & OOP Mastery",
+        "category": "Languages",
+        "badge": "Enterprise Standard",
+        "description": "Comprehensive Java curriculum: JVM memory architecture, OOP principles, Collections Framework, Multithreading, and Streams API.",
+        "skills": ["Java 17/21", "JVM Architecture", "Collections Framework", "Concurrency & Threads", "Java Streams & Lambdas", "Generics"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Core Syntax, Memory Model & Object-Oriented Java",
+                "description": "Variables, JVM stack vs heap, class design, interfaces, abstract classes, and exception handling.",
+                "project_title": "Enterprise Inventory Management Engine",
+                "project_description": "Implement a type-safe inventory management system utilizing interfaces, custom exceptions, and polymorphic billing.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Java Environment, JVM Stack vs Heap & Primitives",
+                        "learning_objective": "Understand the bytecode lifecycle, classloaders, stack vs heap allocation, and garbage collection basics.",
+                        "subtopics": ["JDK vs JRE vs JVM", "Primitive vs Reference types", "Stack memory vs Heap memory", "String constant pool & Immutability"],
+                        "practice_tasks": ["Write a program illustrating pass-by-value in Java with object references", "Demonstrate String vs StringBuilder memory efficiency in a 100k iteration benchmark"],
+                        "resources": [
+                            {"title": "Java Full Course — FreeCodeCamp", "url": "https://www.youtube.com/watch?v=A74TOX803D0", "language": "English", "resource_type": "video", "source": "FreeCodeCamp"},
+                            {"title": "Java Programming in Telugu Complete", "url": "https://www.youtube.com/results?search_query=java+programming+in+telugu+vamsi+bhavani", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "Java Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=java+full+course+in+hindi+apna+college", "language": "Hindi", "resource_type": "video", "source": "Apna College"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "OOP in Java: Inheritance, Polymorphism & Interfaces",
+                        "learning_objective": "Design modular enterprise software using interfaces, abstract classes, and polymorphism.",
+                        "subtopics": ["Method overloading vs overriding", "abstract classes vs interface default methods", "Access modifiers & encapsulation", "Diamond problem resolution"],
+                        "practice_tasks": ["Design a Payment Gateway with CreditCard, UPI, and NetBanking implementations", "Implement an immutable Employee class with deep copy"],
+                        "resources": [
+                            {"title": "Java OOP Concepts Deep Dive", "url": "https://www.geeksforgeeks.org/object-oriented-programming-oops-concept-in-java/", "language": "English", "resource_type": "article", "source": "GeeksforGeeks"},
+                            {"title": "Java OOPS in Telugu", "url": "https://www.youtube.com/results?search_query=java+oops+concepts+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Java OOPs in Hindi", "url": "https://www.youtube.com/results?search_query=java+oops+in+hindi+codehelp", "language": "Hindi", "resource_type": "video", "source": "CodeHelp"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "phase_number": 2,
+                "title": "Collections, Streams API & Multithreading",
+                "description": "Lists, Maps, Sets, Comparator/Comparable, Lambdas, Functional Interfaces, and Concurrency primitives.",
+                "project_title": "Concurrent Thread-Safe Cache & Analytics Engine",
+                "project_description": "Build an in-memory concurrent key-value cache using ConcurrentHashMap, ReentrantLocks, and Java Streams.",
+                "days": [
+                    {
+                        "day_number": 3,
+                        "topic": "Java Collections Framework & Generics",
+                        "learning_objective": "Master ArrayList, LinkedList, HashMap internal hashing, TreeSet, and generic type bounds.",
+                        "subtopics": ["HashMap internal buckets & collision resolution", "Comparable vs Comparator", "Generic classes & wildcards", "Fail-fast vs Fail-safe iterators"],
+                        "practice_tasks": ["Implement an LRU Cache using LinkedHashMap", "Sort custom objects by multiple criteria using Comparator chaining"],
+                        "resources": [
+                            {"title": "Java Collections Framework Explained", "url": "https://www.youtube.com/watch?v=rzA7UJ-hQn4", "language": "English", "resource_type": "video", "source": "Telusko"},
+                            {"title": "Java Collections in Telugu", "url": "https://www.youtube.com/results?search_query=java+collections+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Java Collections Framework in Hindi", "url": "https://www.youtube.com/results?search_query=java+collections+in+hindi", "language": "Hindi", "resource_type": "video", "source": "Durga Software / Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 4,
+                        "topic": "Java Streams API, Lambdas & Concurrency",
+                        "learning_objective": "Leverage functional programming with map/filter/reduce and build multithreaded applications.",
+                        "subtopics": ["Stream pipeline (intermediate vs terminal)", "Collectors (groupingBy, partitioningBy)", "Thread lifecycle & ExecutorService", "Synchronized blocks & ReentrantLock"],
+                        "practice_tasks": ["Group a list of transactions by city and calculate total revenue using Streams", "Implement a Producer-Consumer pattern using BlockingQueue and thread pools"],
+                        "resources": [
+                            {"title": "Java 8 Streams and Lambdas in Depth", "url": "https://www.youtube.com/watch?v=t1-YZ6bF-g0", "language": "English", "resource_type": "video", "source": "Java Brains"},
+                            {"title": "Java Streams and Multithreading in Telugu", "url": "https://www.youtube.com/results?search_query=java+threads+streams+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Java Multithreading in Hindi", "url": "https://www.youtube.com/results?search_query=java+multithreading+in+hindi", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "cpp-lang": {
+        "id": "cpp-lang",
+        "title": "C++ Programming & STL Mastery",
+        "category": "Languages",
+        "badge": "High Performance",
+        "description": "Modern C++ (C++17/20), pointer mechanics, references, manual memory allocation, RAII, templates, and STL algorithms.",
+        "skills": ["Modern C++", "Pointers & References", "Manual Memory Management", "STL Algorithms", "Object-Oriented C++", "Templates"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Pointers, References & Object-Oriented C++",
+                "description": "Memory addresses, pointer arithmetic, dynamic memory allocation with new/delete, RAII, and class design.",
+                "project_title": "Custom Smart Pointer Library & String Class",
+                "project_description": "Implement custom unique_ptr and shared_ptr smart pointer classes with reference counting and automatic destruction.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "C++ Syntax, Pointers & Memory Addresses",
+                        "learning_objective": "Understand stack vs heap in C++, dereferencing pointers, and pointer arithmetic.",
+                        "subtopics": ["Address-of (&) and dereference (*) operators", "Pointers to pointers", "Pointer arithmetic and array decay", "const pointers vs pointer to const"],
+                        "practice_tasks": ["Write an in-place string reverse using raw pointers", "Implement dynamic 2D array allocation using double pointers and free it cleanly"],
+                        "resources": [
+                            {"title": "C++ Tutorial for Beginners — Full Course", "url": "https://www.youtube.com/watch?v=vLnPwxZdW4Y", "language": "English", "resource_type": "video", "source": "FreeCodeCamp"},
+                            {"title": "C++ in Telugu Complete Playlist", "url": "https://www.youtube.com/results?search_query=c%2B%2B+programming+in+telugu+vamsi+bhavani", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "C++ Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=c%2B%2B+full+course+in+hindi+codewithharry", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "STL Containers & Algorithms",
+                        "learning_objective": "Master vector, map, set, priority_queue, sort, lower_bound, and lambda predicates.",
+                        "subtopics": ["Vector dynamic capacity & iterator invalidation", "std::map (Red-Black tree) vs std::unordered_map", "std::priority_queue heap operations", "std::sort and custom comparator functions"],
+                        "practice_tasks": ["Implement Top-K Frequent Elements using priority_queue", "Solve binary search range queries using lower_bound and upper_bound"],
+                        "resources": [
+                            {"title": "C++ STL Masterclass (Containers & Algorithms)", "url": "https://www.youtube.com/watch?v=zBhVZzi5RdU", "language": "English", "resource_type": "video", "source": "Striver (take U forward)"},
+                            {"title": "C++ STL in Telugu", "url": "https://www.youtube.com/results?search_query=c%2B%2B+stl+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "C++ STL in Hindi — Love Babbar", "url": "https://www.youtube.com/results?search_query=c%2B%2B+stl+in+hindi+love+babbar", "language": "Hindi", "resource_type": "video", "source": "Love Babbar"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "c-lang": {
+        "id": "c-lang",
+        "title": "C Programming & Low-Level Foundations",
+        "category": "Languages",
+        "badge": "Core Systems",
+        "description": "Fundamental programming in C: memory layout, pointers, structures, bitwise manipulation, dynamic memory allocation, and compilation pipeline.",
+        "skills": ["C Language", "Memory Addresses", "malloc/free", "Structures & Unions", "Bit Manipulation", "File I/O"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Syntax, Pointers & Dynamic Memory Allocation",
+                "description": "Pointers, arrays, string manipulation, malloc/calloc/realloc/free, and memory leaks.",
+                "project_title": "Custom Memory Allocator Simulation",
+                "project_description": "Implement custom malloc() and free() functions using a linked list of free memory blocks.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "C Fundamentals, Memory Layout & Pointers",
+                        "learning_objective": "Understand the four memory segments: Stack, Heap, Data (BSS), and Text, and raw pointer access.",
+                        "subtopics": ["Variable declarations and storage classes", "Pointers and memory addresses", "Pass-by-reference using pointers", "Preprocessors and header files"],
+                        "practice_tasks": ["Swap two numbers using pointer references without helper variable", "Write custom strlen() and strcpy() using pointer traversal"],
+                        "resources": [
+                            {"title": "C Programming Tutorial for Beginners", "url": "https://www.youtube.com/watch?v=KJgsSFOSQv0", "language": "English", "resource_type": "video", "source": "FreeCodeCamp"},
+                            {"title": "C Language in Telugu Complete", "url": "https://www.youtube.com/results?search_query=c+programming+in+telugu+vamsi+bhavani", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "C Language Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=c+programming+full+course+in+hindi+codewithharry", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Dynamic Memory Allocation & Structures",
+                        "learning_objective": "Master malloc, calloc, realloc, free, structs, typedef, and struct pointers.",
+                        "subtopics": ["malloc() vs calloc()", "realloc() and memory fragmentation", "struct memory alignment & padding", "Dangling pointers and memory leaks (valgrind)"],
+                        "practice_tasks": ["Build a dynamic array of student structs that doubles in size when full", "Write a linked list in C from scratch with insert and delete operations"],
+                        "resources": [
+                            {"title": "Dynamic Memory Allocation in C", "url": "https://www.geeksforgeeks.org/dynamic-memory-allocation-in-c-using-malloc-calloc-free-realloc/", "language": "English", "resource_type": "article", "source": "GeeksforGeeks"},
+                            {"title": "Pointers and Dynamic Memory in Telugu", "url": "https://www.youtube.com/results?search_query=c+pointers+dynamic+memory+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Structures and Pointers in C in Hindi", "url": "https://www.youtube.com/results?search_query=c+structures+and+pointers+in+hindi", "language": "Hindi", "resource_type": "video", "source": "CodeWithHarry"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "js-lang": {
+        "id": "js-lang",
+        "title": "Modern JavaScript (ES6+ & Async)",
+        "category": "Languages",
+        "badge": "Web Foundation",
+        "description": "Master Modern JavaScript: Event loop, asynchronous execution, closures, prototypes, Promises, async/await, and ES6+ features.",
+        "skills": ["JavaScript ES6+", "Event Loop", "Promises & Async/Await", "Closures & Scope", "DOM Manipulation", "Fetch API"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Core JS Mechanics, Closures & Asynchronous Flow",
+                "description": "Call stack, event loop, hoisting, closures, Promises, async/await, and modern ES6 syntax.",
+                "project_title": "Real-Time Weather & Currency Conversion Dashboard",
+                "project_description": "Build an interactive web dashboard utilizing async/await, fetch API, local storage, and debounced search.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "JavaScript Engine, Execution Context & Event Loop",
+                        "learning_objective": "Understand the call stack, web APIs, callback queue, microtask queue, and how JS runs single-threaded.",
+                        "subtopics": ["Execution context and variable environment", "Hoisting behavior of var vs let/const", "Call stack vs Microtask vs Macrotask queue", "Temporal Dead Zone (TDZ)"],
+                        "practice_tasks": ["Predict execution order of synchronous, setTimeout, and Promise code snippets", "Write a custom debounce function using closures and setTimeout"],
+                        "resources": [
+                            {"title": "What the heck is the event loop anyway? — Philip Roberts", "url": "https://www.youtube.com/watch?v=8aGhZQkoFbQ", "language": "English", "resource_type": "video", "source": "JSConf"},
+                            {"title": "JavaScript Tutorial in Telugu Complete", "url": "https://www.youtube.com/results?search_query=javascript+tutorial+in+telugu+vamsi+bhavani", "language": "Telugu", "resource_type": "video", "source": "Vamsi Bhavani"},
+                            {"title": "Namaste JavaScript by Akshay Saini", "url": "https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP", "language": "Hindi", "resource_type": "video", "source": "Akshay Saini"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Promises, Async/Await & Fetch API",
+                        "learning_objective": "Handle complex asynchronous workflows cleanly using Promise.all, Promise.allSettled, and async/await.",
+                        "subtopics": ["Promise lifecycle states (pending, fulfilled, rejected)", "Chaining .then() and .catch()", "async/await error handling with try/catch", "Fetch API with headers, POST requests, and JSON parsing"],
+                        "practice_tasks": ["Build an API client that retries a failed request up to 3 times with exponential backoff", "Fetch data from multiple endpoints concurrently using Promise.all and combine results"],
+                        "resources": [
+                            {"title": "JavaScript Promises in 10 Minutes", "url": "https://www.youtube.com/watch?v=DHvZLI7DbU0", "language": "English", "resource_type": "video", "source": "Web Dev Simplified"},
+                            {"title": "JavaScript Async Await in Telugu", "url": "https://www.youtube.com/results?search_query=javascript+async+await+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Async Await & Promises in Hindi", "url": "https://www.youtube.com/results?search_query=javascript+promises+async+await+in+hindi+chai+aur+code", "language": "Hindi", "resource_type": "video", "source": "Chai aur Code"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "sql-lang": {
+        "id": "sql-lang",
+        "title": "SQL & Relational Database Querying",
+        "category": "Languages",
+        "badge": "High Demand",
+        "description": "Comprehensive SQL mastery: complex joins, subqueries, aggregations, window functions, indexing, transactions, and performance tuning.",
+        "skills": ["SQL", "PostgreSQL", "Window Functions", "Complex Joins", "Indexes & Query Plans", "Database Transactions"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Data Querying, Joins & Window Functions",
+                "description": "SELECT queries, WHERE filtering, INNER/LEFT/RIGHT/FULL joins, GROUP BY, and window functions.",
+                "project_title": "E-Commerce Revenue & Customer Cohort Analytics",
+                "project_description": "Write enterprise SQL queries analyzing user retention, monthly recurring revenue, and churn cohorts.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "SQL Data Manipulation & Multi-Table Joins",
+                        "learning_objective": "Master table querying, filtering conditions, and joining multiple relational entities.",
+                        "subtopics": ["INNER JOIN vs LEFT/RIGHT JOIN vs FULL OUTER JOIN", "GROUP BY and HAVING vs WHERE", "Aggregate functions (SUM, AVG, COUNT, MIN, MAX)", "Handling NULL values with COALESCE"],
+                        "practice_tasks": ["Find top 5 customers with highest total spending across multiple orders", "Query products that have never been purchased using LEFT JOIN with IS NULL"],
+                        "resources": [
+                            {"title": "SQL Tutorial - Full Database Course for Beginners", "url": "https://www.youtube.com/watch?v=HXV3zeQKqGY", "language": "English", "resource_type": "video", "source": "FreeCodeCamp"},
+                            {"title": "SQL in Telugu Complete Course", "url": "https://www.youtube.com/results?search_query=sql+full+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "SQL Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=sql+full+course+in+hindi+apna+college", "language": "Hindi", "resource_type": "video", "source": "Apna College"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Advanced SQL: Window Functions & Common Table Expressions (CTEs)",
+                        "learning_objective": "Perform advanced analytics using ROW_NUMBER, RANK, DENSE_RANK, NTILE, LAG, LEAD, and recursive CTEs.",
+                        "subtopics": ["OVER (PARTITION BY ... ORDER BY ...)", "ROW_NUMBER() vs RANK() vs DENSE_RANK()", "Running totals and moving averages", "Common Table Expressions (WITH clause)"],
+                        "practice_tasks": ["Calculate running total of sales day-by-day for each store", "Identify the second highest salary in each department without using subqueries in WHERE"],
+                        "resources": [
+                            {"title": "SQL Window Functions Explained", "url": "https://mode.com/sql-tutorial/sql-window-functions/", "language": "English", "resource_type": "article", "source": "Mode Analytics"},
+                            {"title": "SQL Window Functions in Telugu", "url": "https://www.youtube.com/results?search_query=sql+window+functions+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "SQL Window Functions in Hindi", "url": "https://www.youtube.com/results?search_query=sql+window+functions+in+hindi", "language": "Hindi", "resource_type": "video", "source": "Gate Smashers"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    "golang-lang": {
+        "id": "golang-lang",
+        "title": "Go (Golang) Systems & Microservices",
+        "category": "Languages",
+        "badge": "High Concurrency",
+        "description": "Build high-throughput backends with Go: Goroutines, channels, pointers, structs, interfaces, context package, and HTTP standard library.",
+        "skills": ["Golang", "Goroutines & Channels", "Concurrency Patterns", "Go REST APIs", "Pointers & Structs", "Unit Testing"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Go Syntax, Structs, Pointers & Concurrency",
+                "description": "Go primitives, slices, maps, structs, methods, goroutines, and channels.",
+                "project_title": "Concurrent URL Health Checker & Scraper",
+                "project_description": "Build a CLI tool that polls 100 website URLs concurrently using Goroutines, worker pools, and sync.WaitGroup.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Go Fundamentals, Slices, Structs & Interfaces",
+                        "learning_objective": "Understand Go static typing, value vs pointer receivers, and implicit interface satisfaction.",
+                        "subtopics": ["Slices vs Arrays memory layout", "structs and embedded structs (composition)", "Interfaces in Go", "Error handling idiom (val, err := ...)"],
+                        "practice_tasks": ["Write an in-memory inventory store using structs and custom interfaces", "Implement a custom error type with timestamp and HTTP status code"],
+                        "resources": [
+                            {"title": "Go Programming by Example", "url": "https://gobyexample.com/", "language": "English", "resource_type": "doc", "source": "GoByExample"},
+                            {"title": "Golang in Telugu Tutorial", "url": "https://www.youtube.com/results?search_query=golang+tutorial+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Golang Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=golang+full+course+in+hindi+chai+aur+code", "language": "Hindi", "resource_type": "video", "source": "Chai aur Code"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Goroutines, Channels & Worker Pools",
+                        "learning_objective": "Master lightweight green threads (Goroutines), buffered/unbuffered channels, select statements, and sync primitives.",
+                        "subtopics": ["Go runtime scheduler (M:N threading)", "Unbuffered vs Buffered channels", "sync.WaitGroup and sync.Mutex", "select with timeout and default case"],
+                        "practice_tasks": ["Implement a Worker Pool pattern processing jobs from a channel", "Build a rate-limited channel pipeline in Go"],
+                        "resources": [
+                            {"title": "Go Concurrency Patterns", "url": "https://www.youtube.com/watch?v=f6kdp27TYZs", "language": "English", "resource_type": "video", "source": "Google Tech Talks"},
+                            {"title": "Goroutines and Channels in Telugu", "url": "https://www.youtube.com/results?search_query=golang+goroutines+channels+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Golang Goroutines in Hindi", "url": "https://www.youtube.com/results?search_query=golang+goroutines+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+}
 
 def get_all_catalog_courses() -> List[Dict[str, Any]]:
     """Returns summarized list of all available catalog courses for UI browsing and filtering."""

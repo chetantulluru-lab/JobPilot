@@ -47,7 +47,7 @@ fun RegisterScreen(
         Text(
             text = "Create Your Profile",
             style = MaterialTheme.typography.headlineLarge,
-            color = Slate900,
+            color = MaterialTheme.textPrimary,
             textAlign = TextAlign.Center
         )
 
@@ -56,7 +56,7 @@ fun RegisterScreen(
         Text(
             text = "Begin your AI-piloted career journey",
             style = MaterialTheme.typography.bodyMedium,
-            color = Slate500,
+            color = MaterialTheme.textSecondary,
             textAlign = TextAlign.Center
         )
 

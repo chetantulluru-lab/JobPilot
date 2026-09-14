@@ -39,6 +39,27 @@ def test_generate_from_multiple_courses(auth_headers):
     assert data["total_days"] >= 15
     assert len(data["skills_learned"]) > 0
 
+    phase_id = data["phases"][0]["id"]
+
+    # Test direct phase resources in English
+    res_en = client.get(f"/api/v1/roadmaps/phases/{phase_id}/resources?language=English", headers=auth_headers)
+    assert res_en.status_code == 200
+    assert len(res_en.json()) > 0
+
+    # Test direct phase resources in Telugu
+    res_te = client.get(f"/api/v1/roadmaps/phases/{phase_id}/resources?language=Telugu", headers=auth_headers)
+    assert res_te.status_code == 200
+    te_data = res_te.json()
+    assert len(te_data) > 0
+    assert any(r["language"].lower() == "telugu" for r in te_data)
+
+    # Test direct phase resources in Hindi
+    res_hi = client.get(f"/api/v1/roadmaps/phases/{phase_id}/resources?language=Hindi", headers=auth_headers)
+    assert res_hi.status_code == 200
+    hi_data = res_hi.json()
+    assert len(hi_data) > 0
+    assert any(r["language"].lower() == "hindi" for r in hi_data)
+
 
 def test_curriculum_assistant(auth_headers):
     payload = {

@@ -1,7 +1,9 @@
 package com.jobpilot.app.ui.screens.roadmap
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,7 +46,7 @@ fun RoadmapDetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BgWarmWhite),
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Orange500)
@@ -54,7 +57,7 @@ fun RoadmapDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgWarmWhite)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         // Top Bar
@@ -63,7 +66,7 @@ fun RoadmapDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onNavigateBack) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Slate700)
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.textPrimary)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -71,13 +74,13 @@ fun RoadmapDetailScreen(
                     text = roadmap.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Slate900,
+                    color = MaterialTheme.textPrimary,
                     maxLines = 1
                 )
                 Text(
                     text = "${roadmap.duration} • ${roadmap.completedDays}/${roadmap.totalDays} Days Done",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Slate500
+                    color = MaterialTheme.textSecondary
                 )
             }
             AIOrb(size = 38.dp)
@@ -88,7 +91,7 @@ fun RoadmapDetailScreen(
         // Progress Overview Card
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = BgWhite
+            backgroundColor = MaterialTheme.cardBg
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
@@ -100,7 +103,7 @@ fun RoadmapDetailScreen(
                         text = "Curriculum Progress",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
-                        color = Slate800
+                        color = MaterialTheme.textPrimary
                     )
                     Text(
                         text = "${roadmap.progressPercentage}%",
@@ -119,7 +122,7 @@ fun RoadmapDetailScreen(
                         .height(8.dp)
                         .clip(JobPilotShapes.small),
                     color = if (roadmap.isCompleted) SuccessGreen else Orange500,
-                    trackColor = Slate200
+                    trackColor = MaterialTheme.cardBorder
                 )
 
                 if (roadmap.skillsLearned.isNotEmpty()) {
@@ -127,7 +130,7 @@ fun RoadmapDetailScreen(
                     Text(
                         text = "Target Skills: " + roadmap.skillsLearned.take(5).joinToString(", "),
                         fontSize = 12.sp,
-                        color = Slate600
+                        color = MaterialTheme.textSecondary
                     )
                 }
             }
@@ -221,10 +224,11 @@ private fun PhaseCard(
     onOpenDay: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(phase.isUnlocked) }
+    val isDark = isSystemInDarkTheme()
 
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        backgroundColor = if (phase.isUnlocked) BgWhite else Slate100
+        backgroundColor = MaterialTheme.cardBg
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
@@ -247,8 +251,8 @@ private fun PhaseCard(
                             .background(
                                 when {
                                     phase.isCompleted -> SuccessGreen.copy(alpha = 0.15f)
-                                    phase.isUnlocked -> Orange50
-                                    else -> Slate200
+                                    phase.isUnlocked -> if (isDark) Color(0xFF1E293B) else Orange50
+                                    else -> if (isDark) Color(0xFF334155) else Slate200
                                 }
                             ),
                         contentAlignment = Alignment.Center
@@ -263,7 +267,7 @@ private fun PhaseCard(
                             tint = when {
                                 phase.isCompleted -> SuccessGreen
                                 phase.isUnlocked -> Orange500
-                                else -> Slate400
+                                else -> MaterialTheme.textMuted
                             },
                             modifier = Modifier.size(18.dp)
                         )
@@ -276,20 +280,20 @@ private fun PhaseCard(
                             text = "Phase ${phase.phaseNumber}: ${phase.title}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (phase.isUnlocked) Slate900 else Slate500
+                            color = if (phase.isUnlocked) MaterialTheme.textPrimary else MaterialTheme.textMuted
                         )
                         if (!phase.isUnlocked) {
                             Text(
                                 text = "Complete previous phase to unlock",
                                 fontSize = 11.sp,
-                                color = Slate400
+                                color = MaterialTheme.textMuted
                             )
                         } else {
                             val completedCount = phase.days.count { it.isCompleted }
                             Text(
                                 text = "$completedCount/${phase.days.size} Days Finished",
                                 fontSize = 11.sp,
-                                color = Slate500
+                                color = MaterialTheme.textSecondary
                             )
                         }
                     }
@@ -299,7 +303,7 @@ private fun PhaseCard(
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                         contentDescription = null,
-                        tint = Slate400
+                        tint = MaterialTheme.textMuted
                     )
                 }
             }
@@ -310,12 +314,12 @@ private fun PhaseCard(
                     Text(
                         text = phase.description,
                         fontSize = 12.sp,
-                        color = Slate600
+                        color = MaterialTheme.textSecondary
                     )
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
-                Divider(color = Slate200)
+                Divider(color = MaterialTheme.cardBorder)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Days list
@@ -345,11 +349,20 @@ private fun DayRowItem(
     day: RoadmapDay,
     onClick: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(JobPilotShapes.small)
-            .background(if (day.isCompleted) SuccessGreen.copy(alpha = 0.06f) else BgWarmWhite)
+            .background(
+                if (day.isCompleted) SuccessGreen.copy(alpha = 0.12f)
+                else (if (isDark) Color(0xFF0F172A) else BgWarmWhite)
+            )
+            .border(
+                1.dp,
+                if (day.isCompleted) SuccessGreen.copy(alpha = 0.3f) else MaterialTheme.cardBorder,
+                JobPilotShapes.small
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -362,7 +375,7 @@ private fun DayRowItem(
             Icon(
                 imageVector = if (day.isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                 contentDescription = null,
-                tint = if (day.isCompleted) SuccessGreen else Slate400,
+                tint = if (day.isCompleted) SuccessGreen else MaterialTheme.textMuted,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -371,13 +384,13 @@ private fun DayRowItem(
                     text = "Day ${day.dayNumber}: ${day.topic}",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Slate900
+                    color = MaterialTheme.textPrimary
                 )
                 if (!day.learningObjective.isNullOrBlank()) {
                     Text(
                         text = day.learningObjective,
                         fontSize = 11.sp,
-                        color = Slate500,
+                        color = MaterialTheme.textSecondary,
                         maxLines = 1
                     )
                 }
@@ -387,7 +400,7 @@ private fun DayRowItem(
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = Slate400,
+            tint = Orange500,
             modifier = Modifier.size(18.dp)
         )
     }
@@ -398,11 +411,13 @@ private fun PhaseProjectBadge(
     title: String,
     description: String?
 ) {
+    val isDark = isSystemInDarkTheme()
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(JobPilotShapes.medium)
-            .background(Orange50)
+            .background(if (isDark) Color(0xFF1E293B) else Orange50)
+            .border(1.dp, if (isDark) Orange500.copy(alpha = 0.3f) else Orange200, JobPilotShapes.medium)
             .padding(12.dp)
     ) {
         Column {
@@ -418,7 +433,7 @@ private fun PhaseProjectBadge(
                     text = "Phase Capstone: $title",
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
-                    color = Orange600
+                    color = Orange500
                 )
             }
             if (!description.isNullOrBlank()) {
@@ -426,7 +441,7 @@ private fun PhaseProjectBadge(
                 Text(
                     text = description,
                     fontSize = 11.sp,
-                    color = Slate600
+                    color = MaterialTheme.textSecondary
                 )
             }
         }

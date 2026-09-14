@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -88,7 +89,11 @@ fun DayLearningScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onNavigateBack) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Slate700)
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.textPrimary
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -96,12 +101,12 @@ fun DayLearningScreen(
                     text = "Day ${day.dayNumber}",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Slate900
+                    color = MaterialTheme.textPrimary
                 )
                 Text(
                     text = day.topic,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Slate600,
+                    color = MaterialTheme.textSecondary,
                     maxLines = 1
                 )
             }
@@ -127,14 +132,14 @@ fun DayLearningScreen(
         // Topic & Objective Card
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = BgWhite
+            backgroundColor = MaterialTheme.cardBg
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = day.topic,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Slate900
+                    color = MaterialTheme.textPrimary
                 )
 
                 if (!day.learningObjective.isNullOrBlank()) {
@@ -142,7 +147,7 @@ fun DayLearningScreen(
                     Text(
                         text = day.learningObjective,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Slate600
+                        color = MaterialTheme.textSecondary
                     )
                 }
 
@@ -152,7 +157,7 @@ fun DayLearningScreen(
                         text = "Key Concepts to Master:",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp,
-                        color = Slate800
+                        color = Orange500
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     day.subtopics.forEach { subtopic ->
@@ -169,7 +174,7 @@ fun DayLearningScreen(
                             Text(
                                 text = subtopic,
                                 fontSize = 13.sp,
-                                color = Slate700
+                                color = MaterialTheme.textSecondary
                             )
                         }
                     }
@@ -193,7 +198,7 @@ fun DayLearningScreen(
                     text = "Hands-on Practice Tasks",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Slate900
+                    color = MaterialTheme.textPrimary
                 )
             }
 
@@ -225,7 +230,7 @@ fun DayLearningScreen(
                     text = "Curated Resources & Videos",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Slate900
+                    color = MaterialTheme.textPrimary
                 )
             }
         }
@@ -248,10 +253,10 @@ fun DayLearningScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(JobPilotShapes.small)
-                        .background(if (isSelected) Orange500 else BgWhite)
+                        .background(if (isSelected) Orange500 else MaterialTheme.cardBg)
                         .border(
                             width = 1.dp,
-                            color = if (isSelected) Orange500 else Slate200,
+                            color = if (isSelected) Orange500 else MaterialTheme.cardBorder,
                             shape = JobPilotShapes.small
                         )
                         .clickable {
@@ -264,7 +269,7 @@ fun DayLearningScreen(
                         text = label,
                         fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) BgWhite else Slate700,
+                        color = if (isSelected) Color.White else MaterialTheme.textPrimary,
                         maxLines = 1
                     )
                 }
@@ -284,7 +289,7 @@ fun DayLearningScreen(
                 Text(
                     text = "Loading curated ${uiState.selectedLanguage} resources...",
                     fontSize = 12.sp,
-                    color = Slate500
+                    color = MaterialTheme.textMuted
                 )
             }
         } else {
@@ -459,28 +464,29 @@ private fun PracticeTaskCard(
 ) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        backgroundColor = BgWhite
+        backgroundColor = MaterialTheme.cardBg
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Task $taskNumber: ${task.title}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
-                color = Slate900
+                color = MaterialTheme.textPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = task.description,
                 fontSize = 12.sp,
-                color = Slate600
+                color = MaterialTheme.textSecondary
             )
             if (!task.expectedOutput.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
+                val isDark = isSystemInDarkTheme()
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(JobPilotShapes.small)
-                        .background(Slate100)
+                        .background(if (isDark) Color(0xFF0F172A) else Slate100)
                         .padding(8.dp)
                 ) {
                     Column {
@@ -488,14 +494,14 @@ private fun PracticeTaskCard(
                             text = "Expected Output / Result:",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Slate500
+                            color = Orange500
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = task.expectedOutput,
                             fontFamily = FontFamily.Monospace,
                             fontSize = 11.sp,
-                            color = Slate800
+                            color = MaterialTheme.textPrimary
                         )
                     }
                 }
@@ -513,8 +519,8 @@ private fun ResourceItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(JobPilotShapes.small)
-            .background(BgWhite)
-            .border(1.dp, Slate200, JobPilotShapes.small)
+            .background(MaterialTheme.cardBg)
+            .border(1.dp, MaterialTheme.cardBorder, JobPilotShapes.small)
             .clickable(onClick = onClick)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -536,13 +542,13 @@ private fun ResourceItemRow(
                     text = resource.title,
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
-                    color = Slate900,
+                    color = MaterialTheme.textPrimary,
                     maxLines = 1
                 )
                 Text(
                     text = "${resource.source} • ${resource.language}",
                     fontSize = 11.sp,
-                    color = Slate500
+                    color = MaterialTheme.textMuted
                 )
             }
         }
@@ -550,7 +556,7 @@ private fun ResourceItemRow(
         Icon(
             imageVector = Icons.Default.OpenInNew,
             contentDescription = null,
-            tint = Slate400,
+            tint = Orange500,
             modifier = Modifier.size(16.dp)
         )
     }

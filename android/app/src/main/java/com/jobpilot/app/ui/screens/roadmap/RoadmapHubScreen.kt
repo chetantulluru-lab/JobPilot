@@ -2,6 +2,7 @@ package com.jobpilot.app.ui.screens.roadmap
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,12 +69,12 @@ fun RoadmapHubScreen(
                         text = "Career Roadmaps",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Slate900
+                        color = MaterialTheme.textPrimary
                     )
                     Text(
                         text = "Structured day-by-day AI learning plans",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Slate500
+                        color = MaterialTheme.textSecondary
                     )
                 }
                 AIOrb(size = 44.dp)
@@ -103,14 +105,14 @@ fun RoadmapHubScreen(
                             text = "No Roadmaps Generated Yet",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Slate900,
+                            color = MaterialTheme.textPrimary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Pick a career goal or target technology to generate your structured 3, 6, or 12 month day-by-day learning curriculum.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Slate500,
+                            color = MaterialTheme.textSecondary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -143,10 +145,12 @@ private fun RoadmapCard(
     roadmap: RoadmapSummary,
     onClick: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
     GlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        backgroundColor = MaterialTheme.cardBg
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
@@ -159,13 +163,13 @@ private fun RoadmapCard(
                         text = roadmap.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Slate900
+                        color = MaterialTheme.textPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Goal: ${roadmap.goal}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Slate600
+                        color = MaterialTheme.textSecondary
                     )
                 }
 
@@ -173,7 +177,7 @@ private fun RoadmapCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(JobPilotShapes.small)
-                        .background(Orange50)
+                        .background(if (isDark) Color(0xFF1E293B) else Orange50)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Icon(
@@ -203,7 +207,7 @@ private fun RoadmapCard(
                 Text(
                     text = "${roadmap.completedDays}/${roadmap.totalDays} Days Completed",
                     fontSize = 12.sp,
-                    color = Slate500
+                    color = MaterialTheme.textSecondary
                 )
                 Text(
                     text = "${roadmap.progressPercentage}%",
@@ -222,7 +226,7 @@ private fun RoadmapCard(
                     .height(6.dp)
                     .clip(JobPilotShapes.small),
                 color = if (roadmap.isCompleted) SuccessGreen else Orange500,
-                trackColor = Slate200
+                trackColor = MaterialTheme.cardBorder
             )
 
             if (roadmap.currentDayTopic != null && !roadmap.isCompleted) {
@@ -231,14 +235,14 @@ private fun RoadmapCard(
                     Icon(
                         imageVector = Icons.Default.Flag,
                         contentDescription = null,
-                        tint = Slate400,
+                        tint = MaterialTheme.textMuted,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Current: ${roadmap.currentDayTopic}",
                         fontSize = 12.sp,
-                        color = Slate600,
+                        color = MaterialTheme.textSecondary,
                         maxLines = 1
                     )
                 }

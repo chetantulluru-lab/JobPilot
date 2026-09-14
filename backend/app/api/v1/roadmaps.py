@@ -99,6 +99,31 @@ def get_roadmap_detail(
     return RoadmapService.get_roadmap_detail(db, current_user.id, roadmap_id)
 
 
+@router.get("/phases/{phase_id}/resources", response_model=List[RoadmapResourceResponse])
+def get_phase_resources_direct(
+    phase_id: str,
+    language: Optional[str] = Query(None, description="Filter by language: 'English', 'Telugu', 'Hindi', or all"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Direct phase resource fetching matching mobile client signatures.
+    """
+    return RoadmapService.get_or_create_phase_resources(db, current_user.id, None, phase_id, language)
+
+
+@router.post("/days/{day_id}/complete", response_model=DayCompleteResponse)
+def complete_day_direct(
+    day_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Direct day completion matching mobile client signatures.
+    """
+    return RoadmapService.complete_day(db, current_user.id, None, day_id)
+
+
 @router.get("/{roadmap_id}/phases/{phase_id}/resources", response_model=List[RoadmapResourceResponse])
 def get_phase_resources(
     roadmap_id: str,

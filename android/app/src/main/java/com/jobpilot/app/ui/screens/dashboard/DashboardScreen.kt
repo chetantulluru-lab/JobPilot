@@ -55,13 +55,13 @@ fun DashboardScreen(
                     Text(
                         text = if (uiState.userName.isNotBlank()) "Welcome, ${uiState.userName}" else "Welcome to JobPilot",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Slate500
+                        color = MaterialTheme.textMuted
                     )
                     Text(
                         text = "Career Cockpit",
                         style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
+                        color = MaterialTheme.textPrimary,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
 
@@ -100,7 +100,7 @@ fun DashboardScreen(
                                 Text(
                                     text = "Learning Streak",
                                     fontSize = 12.sp,
-                                    color = Slate500,
+                                    color = MaterialTheme.textMuted,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(text = "🔥", fontSize = 16.sp)
@@ -110,13 +110,13 @@ fun DashboardScreen(
                                 text = "${uiState.currentStreak} Days",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Slate900
+                                color = MaterialTheme.textPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Best: ${uiState.longestStreak} days",
                                 fontSize = 11.sp,
-                                color = Slate400
+                                color = MaterialTheme.textMuted
                             )
                         }
                     }
@@ -137,7 +137,7 @@ fun DashboardScreen(
                                 Text(
                                     text = "Profile Score",
                                     fontSize = 12.sp,
-                                    color = Slate500,
+                                    color = MaterialTheme.textMuted,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Icon(
@@ -158,7 +158,7 @@ fun DashboardScreen(
                             Text(
                                 text = "Tap to update profile",
                                 fontSize = 11.sp,
-                                color = Slate400
+                                color = MaterialTheme.textMuted
                             )
                         }
                     }
@@ -207,14 +207,14 @@ fun DashboardScreen(
                                 text = active.title,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Slate900
+                                color = MaterialTheme.textPrimary
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Goal: ${active.goal}",
                                 fontSize = 12.sp,
-                                color = Slate600
+                                color = MaterialTheme.textSecondary
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -226,7 +226,7 @@ fun DashboardScreen(
                                     .height(6.dp)
                                     .clip(JobPilotShapes.small),
                                 color = if (active.isCompleted) SuccessGreen else Orange500,
-                                trackColor = Slate200
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -234,7 +234,7 @@ fun DashboardScreen(
                             Text(
                                 text = "${active.completedDays} of ${active.totalDays} days completed",
                                 fontSize = 11.sp,
-                                color = Slate500
+                                color = MaterialTheme.textMuted
                             )
 
                             Spacer(modifier = Modifier.height(14.dp))
@@ -261,13 +261,13 @@ fun DashboardScreen(
                                 text = "No Active Roadmap",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Slate900
+                                color = MaterialTheme.textPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Generate a day-by-day structured curriculum with multilingual practice tasks.",
                                 fontSize = 12.sp,
-                                color = Slate500,
+                                color = MaterialTheme.textMuted,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(16.dp))
@@ -299,19 +299,19 @@ fun DashboardScreen(
                                 text = "AI Career Coach",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Slate900
+                                color = MaterialTheme.textPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Instant guidance on skills, interview questions, and ATS resume improvements.",
                                 fontSize = 12.sp,
-                                color = Slate600
+                                color = MaterialTheme.textSecondary
                             )
                         }
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            tint = Slate400
+                            tint = Orange500
                         )
                     }
                 }
@@ -328,7 +328,7 @@ fun DashboardScreen(
                         text = "My Roadmaps",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Slate900
+                        color = MaterialTheme.textPrimary
                     )
                     TextButton(onClick = onCreateRoadmap) {
                         Text(
@@ -360,7 +360,7 @@ fun DashboardScreen(
                     Text(
                         text = "No roadmaps created yet. Tap '+ New Roadmap' above to get started.",
                         fontSize = 12.sp,
-                        color = Slate500
+                        color = MaterialTheme.textMuted
                     )
                 }
             }
@@ -410,7 +410,7 @@ private fun MiniRoadmapCard(
                 text = summary.title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
-                color = Slate900,
+                color = MaterialTheme.textPrimary,
                 maxLines = 1
             )
 
@@ -419,7 +419,7 @@ private fun MiniRoadmapCard(
             Text(
                 text = summary.goal,
                 fontSize = 11.sp,
-                color = Slate500,
+                color = MaterialTheme.textMuted,
                 maxLines = 1
             )
 
@@ -432,7 +432,7 @@ private fun MiniRoadmapCard(
                     .height(4.dp)
                     .clip(JobPilotShapes.small),
                 color = if (summary.isCompleted) SuccessGreen else Orange500,
-                trackColor = Slate200
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         }
     }

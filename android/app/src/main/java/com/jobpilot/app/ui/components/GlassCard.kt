@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,10 +16,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jobpilot.app.ui.theme.*
 
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.LocalContentColor
 
 /**
- * Reusable Glassmorphism Card for JobPilot
+ * Reusable Glassmorphism Card for JobPilot with automatic dark/light high-contrast theme adaptation.
  */
 @Composable
 fun GlassCard(
@@ -40,6 +42,12 @@ fun GlassCard(
         backgroundColor
     }
 
+    val resolvedBorder = if (isDark && (borderColor == BorderGlass || borderColor == BorderSubtle || borderColor == Slate200)) {
+        Color(0x33FF6A00)
+    } else {
+        borderColor
+    }
+
     val cardModifier = if (onClick != null) {
         modifier.clickable(onClick = onClick)
     } else {
@@ -50,13 +58,19 @@ fun GlassCard(
         modifier = cardModifier,
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = resolvedBg
+            containerColor = resolvedBg,
+            contentColor = if (isDark) Color.White else Slate900
         ),
-        border = BorderStroke(1.dp, borderColor),
+        border = BorderStroke(1.dp, resolvedBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
-        Box(modifier = Modifier.padding(contentPadding)) {
-            content()
+        CompositionLocalProvider(
+            LocalContentColor provides (if (isDark) Color.White else Slate900)
+        ) {
+            Box(modifier = Modifier.padding(contentPadding)) {
+                content()
+            }
         }
     }
 }
+

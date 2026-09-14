@@ -87,3 +87,24 @@ fun JobPilotTheme(
         content = content
     )
 }
+
+val MaterialTheme.textPrimary: Color
+    @Composable
+    get() = if (colorScheme.background == Color(0xFF0F172A)) Color.White else Slate900
+
+val MaterialTheme.textSecondary: Color
+    @Composable
+    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFFE2E8F0) else Slate600
+
+val MaterialTheme.textMuted: Color
+    @Composable
+    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFF94A3B8) else Slate400
+
+val MaterialTheme.cardBg: Color
+    @Composable
+    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFF1E293B) else BgWhite
+
+val MaterialTheme.cardBorder: Color
+    @Composable
+    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0x33FF6A00) else Color(0x260F172A)
+

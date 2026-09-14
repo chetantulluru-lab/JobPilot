@@ -3,6 +3,7 @@ package com.jobpilot.app.ui.screens.roadmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -166,12 +167,12 @@ fun RoadmapCreateScreen(
                     text = "Build Structured Roadmap",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.textPrimary
                 )
                 Text(
                     text = "Select courses to build day-by-day learning phases",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Slate500
+                    color = MaterialTheme.textSecondary
                 )
             }
         }
@@ -221,9 +222,10 @@ fun RoadmapCreateScreen(
 
         // Selection Summary Tray
         if (uiState.selectedCourseIds.isNotEmpty()) {
+            val isDark = isSystemInDarkTheme()
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Orange50
+                backgroundColor = if (isDark) Color(0xFF1E293B) else Orange50
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -234,17 +236,17 @@ fun RoadmapCreateScreen(
                         Text(
                             text = "${uiState.selectedCourseIds.size} Courses Selected",
                             fontWeight = FontWeight.Bold,
-                            color = Orange600,
+                            color = Orange500,
                             fontSize = 14.sp
                         )
                         Text(
                             text = "Tracks will be combined into a structured sequential roadmap",
                             fontSize = 11.sp,
-                            color = Slate600
+                            color = MaterialTheme.textSecondary
                         )
                     }
                     TextButton(onClick = { viewModel.clearSelectedCourses() }) {
-                        Text("Clear", color = Orange600, fontSize = 12.sp)
+                        Text("Clear", color = Orange500, fontSize = 12.sp)
                     }
                 }
             }
@@ -256,7 +258,7 @@ fun RoadmapCreateScreen(
             text = "Target Completion Timeline",
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.textPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -271,17 +273,17 @@ fun RoadmapCreateScreen(
                     shape = JobPilotShapes.small,
                     border = BorderStroke(
                         width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) Orange500 else Slate200
+                        color = if (isSelected) Orange500 else MaterialTheme.cardBorder
                     ),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = if (isSelected) Orange50 else Color.Transparent
+                        containerColor = if (isSelected) Orange500.copy(alpha = 0.15f) else MaterialTheme.cardBg
                     )
                 ) {
                     Text(
                         text = d,
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Orange600 else MaterialTheme.colorScheme.onSurface
+                        color = if (isSelected) Orange500 else MaterialTheme.textPrimary
                     )
                 }
             }
@@ -294,11 +296,12 @@ fun RoadmapCreateScreen(
             text = "Available Computer Science Modules (${filteredCourses.size})",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.textPrimary
         )
         Spacer(modifier = Modifier.height(10.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val isDark = isSystemInDarkTheme()
             filteredCourses.forEach { course ->
                 val isChecked = uiState.selectedCourseIds.contains(course.id)
 
@@ -308,11 +311,11 @@ fun RoadmapCreateScreen(
                         .clickable { viewModel.toggleCourseSelection(course.id) },
                     shape = JobPilotShapes.medium,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isChecked) Orange50.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
+                        containerColor = if (isChecked) Orange500.copy(alpha = 0.12f) else MaterialTheme.cardBg
                     ),
                     border = BorderStroke(
                         width = if (isChecked) 2.dp else 1.dp,
-                        color = if (isChecked) Orange500 else Slate200
+                        color = if (isChecked) Orange500 else MaterialTheme.cardBorder
                     )
                 ) {
                     Row(
@@ -337,19 +340,19 @@ fun RoadmapCreateScreen(
                                     text = course.title,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = MaterialTheme.textPrimary,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Surface(
                                     shape = JobPilotShapes.small,
-                                    color = if (course.category == "Core CSE") InfoBlueBg else Orange100,
+                                    color = if (course.category == "Core CSE") (if (isDark) Color(0xFF1E3A8A) else InfoBlueBg) else (if (isDark) Color(0xFF7C2D12) else Orange100),
                                     modifier = Modifier.padding(start = 6.dp)
                                 ) {
                                     Text(
                                         text = course.badge,
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (course.category == "Core CSE") InfoBlue else Orange600,
+                                        color = if (course.category == "Core CSE") (if (isDark) Color(0xFF93C5FD) else InfoBlue) else Orange500,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                     )
                                 }
@@ -359,7 +362,7 @@ fun RoadmapCreateScreen(
                             Text(
                                 text = course.description,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Slate500
+                                color = MaterialTheme.textSecondary
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -371,12 +374,12 @@ fun RoadmapCreateScreen(
                                 course.skills.take(4).forEach { skill ->
                                     Surface(
                                         shape = JobPilotShapes.small,
-                                        color = Slate100
+                                        color = if (isDark) Color(0xFF334155) else Slate100
                                     ) {
                                         Text(
                                             text = skill,
                                             fontSize = 10.sp,
-                                            color = Slate700,
+                                            color = if (isDark) Color.White else Slate700,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }
@@ -387,7 +390,7 @@ fun RoadmapCreateScreen(
                             Text(
                                 text = "⏱ ${course.totalDays} Days • ${course.totalPhases} Structured Phases",
                                 fontSize = 11.sp,
-                                color = Slate400
+                                color = Orange500
                             )
                         }
                     }

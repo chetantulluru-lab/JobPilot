@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,10 +32,23 @@ fun SkillChip(
     variant: ChipVariant = ChipVariant.NEUTRAL,
     modifier: Modifier = Modifier
 ) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF0F172A)
     val (bgColor, textColor, borderColor) = when (variant) {
-        ChipVariant.STRONG_MATCH -> Triple(SuccessGreenBg, SuccessGreen, SuccessGreen.copy(alpha = 0.4f))
-        ChipVariant.MISSING_GAP -> Triple(GapOrangeBg, GapOrange, GapOrange.copy(alpha = 0.4f))
-        ChipVariant.NEUTRAL -> Triple(Slate100, Slate700, Slate200)
+        ChipVariant.STRONG_MATCH -> Triple(
+            if (isDark) Color(0xFF064E3B) else SuccessGreenBg,
+            if (isDark) Color(0xFF6EE7B7) else SuccessGreen,
+            SuccessGreen.copy(alpha = 0.4f)
+        )
+        ChipVariant.MISSING_GAP -> Triple(
+            if (isDark) Color(0xFF7C2D12) else GapOrangeBg,
+            if (isDark) Color(0xFFFDBA74) else GapOrange,
+            GapOrange.copy(alpha = 0.4f)
+        )
+        ChipVariant.NEUTRAL -> Triple(
+            if (isDark) Color(0xFF334155) else Slate100,
+            if (isDark) Color.White else Slate700,
+            if (isDark) Color(0xFF475569) else Slate200
+        )
     }
 
     Surface(
@@ -43,6 +57,7 @@ fun SkillChip(
         color = bgColor,
         border = BorderStroke(1.dp, borderColor)
     ) {
+
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically

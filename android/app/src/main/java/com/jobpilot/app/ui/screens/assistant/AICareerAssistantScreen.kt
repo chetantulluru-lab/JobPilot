@@ -3,6 +3,7 @@ package com.jobpilot.app.ui.screens.assistant
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -64,13 +65,13 @@ fun AICareerAssistantScreen(
                             text = "AI Career Coach",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Slate900
+                            color = MaterialTheme.textPrimary
                         )
                         Text(
                             text = "Zero-Fabrication • Grounded in Your Profile",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 11.sp,
-                            color = Orange600
+                            color = Orange500
                         )
                     }
                 },
@@ -281,6 +282,7 @@ private fun MessageBubble(
             modifier = Modifier.widthIn(max = 300.dp),
             horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
         ) {
+            val isDark = isSystemInDarkTheme()
             Surface(
                 shape = RoundedCornerShape(
                     topStart = 16.dp,
@@ -288,15 +290,15 @@ private fun MessageBubble(
                     bottomStart = if (isUser) 16.dp else 4.dp,
                     bottomEnd = if (isUser) 4.dp else 16.dp
                 ),
-                color = if (isUser) Orange500 else BgWhite,
-                border = if (isUser) null else androidx.compose.foundation.BorderStroke(1.dp, Slate200),
+                color = if (isUser) Orange500 else MaterialTheme.cardBg,
+                border = if (isUser) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.cardBorder),
                 shadowElevation = 1.dp
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
                         text = message.content,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (isUser) Color.White else Slate900,
+                        color = if (isUser) Color.White else MaterialTheme.textPrimary,
                         lineHeight = 20.sp
                     )
 
@@ -306,7 +308,7 @@ private fun MessageBubble(
                             text = "⚡ Grounded Fallback Mode",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
-                            color = Slate400
+                            color = MaterialTheme.textMuted
                         )
                     }
                 }
@@ -318,15 +320,18 @@ private fun MessageBubble(
                     message.suggestedActions.forEach { action ->
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Orange50,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Orange200),
+                            color = if (isDark) Color(0xFF1E293B) else Orange50,
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                if (isDark) Orange500.copy(alpha = 0.3f) else Orange200
+                            ),
                             modifier = Modifier.clickable { onSuggestedActionClick(action) }
                         ) {
                             Text(
                                 text = "✦ $action",
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 11.sp,
-                                color = Orange700,
+                                color = Orange500,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                             )
                         }
