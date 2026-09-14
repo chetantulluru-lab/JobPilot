@@ -52,6 +52,36 @@ class ResumeViewModel(
         }
     }
 
+    fun uploadResumeFile(bytes: ByteArray, fileName: String, mimeType: String, onParsed: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isUploading = true)
+            val result = resumeRepository.uploadResumeFile(bytes, fileName, mimeType)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isUploading = false,
+                    parsedResumeData = result.getOrNull()
+                )
+                onParsed()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isUploading = false,
+                    parsedResumeData = null
+                )
+            }
+        }
+    }
+
+    fun confirmResume(resumeId: String, onConfirmed: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isUploading = true)
+            val result = resumeRepository.confirmResume(resumeId)
+            _uiState.value = _uiState.value.copy(isUploading = false)
+            if (result.isSuccess) {
+                onConfirmed()
+            }
+        }
+    }
+
     fun generateResume(title: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isGenerating = true)

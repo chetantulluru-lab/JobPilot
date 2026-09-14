@@ -25,6 +25,23 @@ data class TokenRefreshRequestDto(
     @SerializedName("refresh_token") val refreshToken: String
 )
 
+data class RegisterStartRequestDto(
+    @SerializedName("full_name") val fullName: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("password") val password: String
+)
+
+data class RegisterStartResponseDto(
+    @SerializedName("status") val status: String,
+    @SerializedName("message") val message: String,
+    @SerializedName("email") val email: String
+)
+
+data class RegisterVerifyRequestDto(
+    @SerializedName("email") val email: String,
+    @SerializedName("otp") val otp: String
+)
+
 data class UserDto(
     @SerializedName("id") val id: String,
     @SerializedName("email") val email: String,
@@ -99,18 +116,22 @@ data class JobDto(
     @SerializedName("requirements") val requirements: String? = null,
     @SerializedName("skills_required") val skillsRequired: String,
     @SerializedName("preferred_skills") val preferredSkills: String? = null,
-    @SerializedName("education_requirement") val educationRequirement: String? = null
+    @SerializedName("education_requirement") val educationRequirement: String? = null,
+    @SerializedName("source") val source: String? = "Direct",
+    @SerializedName("source_url") val sourceUrl: String? = null,
+    @SerializedName("application_url") val applicationUrl: String? = null,
+    @SerializedName("external_id") val externalId: String? = null
 )
 
 data class JobMatchDto(
     @SerializedName("job_id") val jobId: String,
     @SerializedName("job_title") val jobTitle: String,
     @SerializedName("company") val company: String,
-    @SerializedName("match_score") val matchScore: Int,
-    @SerializedName("match_tier") val matchTier: String,
-    @SerializedName("matched_skills") val matchedSkills: List<String>,
-    @SerializedName("missing_skills") val missingSkills: List<String>,
-    @SerializedName("explanation") val explanation: String,
+    @SerializedName("match_score") val matchScore: Int? = null,
+    @SerializedName("match_tier") val matchTier: String? = null,
+    @SerializedName("matched_skills") val matchedSkills: List<String> = emptyList(),
+    @SerializedName("missing_skills") val missingSkills: List<String> = emptyList(),
+    @SerializedName("explanation") val explanation: String = "",
     @SerializedName("strong_matches") val strongMatches: List<String> = emptyList(),
     @SerializedName("missing_required_skills") val missingRequiredSkills: List<String> = emptyList(),
     @SerializedName("missing_preferred_skills") val missingPreferredSkills: List<String> = emptyList(),
@@ -118,7 +139,8 @@ data class JobMatchDto(
     @SerializedName("experience_relevance") val experienceRelevance: Int = 0,
     @SerializedName("education_relevance") val educationRelevance: Int = 0,
     @SerializedName("profile_completeness") val profileCompleteness: Int = 0,
-    @SerializedName("skill_gap_count") val skillGapCount: Int = 0
+    @SerializedName("skill_gap_count") val skillGapCount: Int = 0,
+    @SerializedName("is_profile_insufficient") val isProfileInsufficient: Boolean = false
 )
 
 data class SkillGapItemDto(
@@ -136,8 +158,9 @@ data class SkillGapItemDto(
 data class SkillGapDto(
     @SerializedName("job_id") val jobId: String,
     @SerializedName("job_title") val jobTitle: String,
-    @SerializedName("match_score") val matchScore: Int,
-    @SerializedName("gaps") val gaps: List<SkillGapItemDto>
+    @SerializedName("match_score") val matchScore: Int? = null,
+    @SerializedName("gaps") val gaps: List<SkillGapItemDto> = emptyList(),
+    @SerializedName("is_profile_insufficient") val isProfileInsufficient: Boolean = false
 )
 
 // --- Application DTOs ---
@@ -177,6 +200,20 @@ data class ResumeDto(
     @SerializedName("file_size_bytes") val fileSizeBytes: Int,
     @SerializedName("missing_fields") val missingFields: List<String> = emptyList(),
     @SerializedName("is_active") val isActive: Boolean
+)
+
+data class ResumeResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("user_id") val userId: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("file_name") val fileName: String,
+    @SerializedName("file_type") val fileType: String,
+    @SerializedName("file_size_bytes") val fileSizeBytes: Int,
+    @SerializedName("missing_fields") val missingFields: List<String> = emptyList(),
+    @SerializedName("extraction_status") val extractionStatus: String? = null,
+    @SerializedName("completion_percentage") val completionPercentage: Int? = null,
+    @SerializedName("is_active") val isActive: Boolean = true,
+    @SerializedName("created_at") val createdAt: String? = null
 )
 
 data class MissingFieldsAuditDto(

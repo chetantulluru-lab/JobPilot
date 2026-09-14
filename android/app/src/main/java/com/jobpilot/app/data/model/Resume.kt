@@ -43,6 +43,7 @@ data class Resume(
 )
 
 data class ResumeParsedData(
+    val resumeId: String? = null,
     val detectedName: String,
     val detectedEmail: String,
     val detectedPhone: String,

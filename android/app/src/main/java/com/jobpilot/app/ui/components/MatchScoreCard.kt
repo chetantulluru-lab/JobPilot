@@ -21,11 +21,35 @@ import com.jobpilot.app.ui.theme.*
 
 @Composable
 fun MatchScoreRing(
-    score: Int,
+    score: Int?,
     size: Dp = 64.dp,
     strokeWidth: Dp = 6.dp,
     modifier: Modifier = Modifier
 ) {
+    if (score == null) {
+        Box(
+            modifier = modifier.size(size),
+            contentAlignment = Alignment.Center
+        ) {
+            Canvas(modifier = Modifier.size(size)) {
+                val strokePx = strokeWidth.toPx()
+                val radius = (size.toPx() - strokePx) / 2f
+                drawCircle(
+                    color = Slate200.copy(alpha = 0.6f),
+                    radius = radius,
+                    style = Stroke(width = strokePx)
+                )
+            }
+            Text(
+                text = "—",
+                style = MaterialTheme.typography.titleMedium,
+                color = Slate400,
+                fontSize = 14.sp
+            )
+        }
+        return
+    }
+
     val ringColor = when {
         score >= 90 -> Orange500
         score >= 75 -> Orange400
@@ -72,9 +96,27 @@ fun MatchScoreRing(
 
 @Composable
 fun MatchScoreBadge(
-    score: Int,
+    score: Int?,
     modifier: Modifier = Modifier
 ) {
+    if (score == null) {
+        Box(
+            modifier = modifier
+                .clip(CircleShape)
+                .background(Slate100)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Match Pending",
+                color = Slate500,
+                style = JobPilotTypography.labelLarge,
+                fontSize = 11.sp
+            )
+        }
+        return
+    }
+
     val (bgColor, textColor) = when {
         score >= 90 -> Pair(SuccessGreenBg, SuccessGreen)
         score >= 75 -> Pair(Orange50, Orange600)

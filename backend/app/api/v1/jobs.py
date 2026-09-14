@@ -7,11 +7,14 @@ from app.models.job import Job
 from app.schemas.job import JobCreate, JobResponse, JobMatchResponse, SkillGapResponse
 from app.services.job_matching_service import JobMatchingService
 
+from app.services.job_providers.manager import job_provider_manager
+
 router = APIRouter(prefix="/jobs", tags=["Jobs & AI Matching"])
 
 
 @router.get("", response_model=List[JobResponse])
 def list_jobs(
+    query: Optional[str] = Query(None, description="Search keyword across title, company, description, skills"),
     role: Optional[str] = Query(None, description="Filter by job title or role keyword"),
     location: Optional[str] = Query(None, description="Filter by location"),
     work_mode: Optional[str] = Query(None, description="Remote, Hybrid, or On-site"),
@@ -22,23 +25,19 @@ def list_jobs(
     db: Session = Depends(get_db)
 ):
     """
-    Search and filter curated jobs.
-    Supports filtering by role, location, work mode, and skills.
+    Search and filter real jobs from authorized providers and PostgreSQL catalog.
+    Supports dynamic search across title, company, description, and required/preferred skills.
     """
-    query = db.query(Job).filter(Job.is_active == True)
-
-    if role:
-        query = query.filter(Job.title.ilike(f"%{role.strip()}%"))
-    if location:
-        query = query.filter(Job.location.ilike(f"%{location.strip()}%"))
-    if work_mode and work_mode.lower() != "all":
-        query = query.filter(Job.work_mode.ilike(work_mode.strip()))
-    if employment_type:
-        query = query.filter(Job.employment_type.ilike(employment_type.strip()))
-    if skill:
-        query = query.filter(Job.skills_required.ilike(f"%{skill.strip()}%"))
-
-    return query.order_by(Job.created_at.desc()).offset(offset).limit(limit).all()
+    search_term = query or role or skill
+    return job_provider_manager.search_jobs(
+        db=db,
+        query=search_term,
+        location=location,
+        work_mode=work_mode,
+        employment_type=employment_type,
+        limit=limit,
+        offset=offset
+    )
 
 
 @router.get("/{job_id}", response_model=JobResponse)

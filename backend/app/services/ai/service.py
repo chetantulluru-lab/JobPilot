@@ -85,6 +85,13 @@ class AIService:
         if profile_data and profile_data.get("skills"):
             skills = [s.get("name") if isinstance(s, dict) else str(s) for s in profile_data["skills"]]
 
+        # Query: "What skills do I have?" / empty profile query
+        if ("what" in msg_lower or "my" in msg_lower or "list" in msg_lower) and "skill" in msg_lower and "missing" not in msg_lower:
+            if not skills:
+                return "I don't have confirmed career information yet. Upload your resume or complete your Career Profile and I can analyze it."
+            skill_list = ", ".join(skills)
+            return f"Based on your confirmed Career Profile, you currently have {len(skills)} verified competencies: {skill_list}."
+
         # Query: "Why is my match 58%?" / "Why is my match score X?"
         if "why" in msg_lower and ("match" in msg_lower or "score" in msg_lower):
             if job_context and job_context.get("match_score") is not None:

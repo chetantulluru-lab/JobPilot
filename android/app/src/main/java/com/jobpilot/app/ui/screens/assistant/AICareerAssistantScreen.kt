@@ -95,6 +95,101 @@ fun AICareerAssistantScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgWarmWhite)
             )
         },
+        bottomBar = {
+            Surface(
+                color = BgWarmWhite,
+                tonalElevation = 6.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
+                    .navigationBarsPadding()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Quick Prompt Chips
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(starterPrompts) { prompt ->
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = BgWhite,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate200),
+                                modifier = Modifier.clickable {
+                                    viewModel.sendMessage(prompt)
+                                }
+                            ) {
+                                Text(
+                                    text = prompt,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 12.sp,
+                                    color = Slate700,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Chat Input Bar
+                    Surface(
+                        color = BgWhite,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = uiState.inputText,
+                                onValueChange = { viewModel.onInputChanged(it) },
+                                placeholder = {
+                                    Text(
+                                        text = "Ask your AI Coach anything...",
+                                        fontSize = 14.sp,
+                                        color = Slate400
+                                    )
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp),
+                                shape = RoundedCornerShape(24.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Orange500,
+                                    unfocusedBorderColor = Slate300
+                                ),
+                                maxLines = 4
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    viewModel.sendMessage()
+                                    coroutineScope.launch {
+                                        if (uiState.messages.isNotEmpty()) {
+                                            listState.animateScrollToItem(uiState.messages.size - 1)
+                                        }
+                                    }
+                                },
+                                enabled = uiState.inputText.isNotBlank() && !uiState.isSending,
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(if (uiState.inputText.isNotBlank() && !uiState.isSending) Orange500 else Slate200)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = "Send",
+                                    tint = if (uiState.inputText.isNotBlank() && !uiState.isSending) Color.White else Slate400
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
         containerColor = BgWarmWhite
     ) { paddingValues ->
         Column(
@@ -131,8 +226,7 @@ fun AICareerAssistantScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
@@ -159,83 +253,6 @@ fun AICareerAssistantScreen(
                                 color = Slate500
                             )
                         }
-                    }
-                }
-            }
-
-            // Quick Prompt Chips
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(starterPrompts) { prompt ->
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = BgWhite,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate200),
-                        modifier = Modifier.clickable {
-                            viewModel.sendMessage(prompt)
-                        }
-                    ) {
-                        Text(
-                            text = prompt,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontSize = 12.sp,
-                            color = Slate700,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            // Chat Input Area
-            Surface(
-                color = BgWhite,
-                tonalElevation = 4.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = uiState.inputText,
-                        onValueChange = { viewModel.onInputChanged(it) },
-                        placeholder = {
-                            Text(
-                                text = "Ask your AI Coach anything...",
-                                fontSize = 14.sp,
-                                color = Slate400
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Orange500,
-                            unfocusedBorderColor = Slate300
-                        ),
-                        maxLines = 4
-                    )
-
-                    IconButton(
-                        onClick = { viewModel.sendMessage() },
-                        enabled = uiState.inputText.isNotBlank() && !uiState.isSending,
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(if (uiState.inputText.isNotBlank() && !uiState.isSending) Orange500 else Slate200)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Send",
-                            tint = if (uiState.inputText.isNotBlank() && !uiState.isSending) Color.White else Slate400
-                        )
                     }
                 }
             }

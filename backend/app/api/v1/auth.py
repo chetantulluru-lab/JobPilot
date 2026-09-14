@@ -14,12 +14,34 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import AuthService
 
+from app.schemas.otp import RegisterStartRequest, RegisterStartResponse, RegisterVerifyRequest
+from app.services.otp_service import OtpService
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+@router.post("/register/start", response_model=RegisterStartResponse, status_code=status.HTTP_200_OK)
+def register_start(req: RegisterStartRequest, db: Session = Depends(get_db)):
+    """
+    Step 1 of Registration: Initiates email OTP verification.
+    Generates a secure 6-digit OTP, stores hashed record with 10-min expiration,
+    and dispatches verification email.
+    """
+    return OtpService.start_registration(db, req)
+
+
+@router.post("/register/verify", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+def register_verify(req: RegisterVerifyRequest, db: Session = Depends(get_db)):
+    """
+    Step 2 of Registration: Verifies 6-digit OTP, activates account,
+    initializes a clean empty Career Profile, and returns JWT auth tokens.
+    """
+    return OtpService.verify_and_register(db, req)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserRegister, db: Session = Depends(get_db)):
-    """Register a new user and create their base career profile."""
+    """Direct registration endpoint (backward-compatible)."""
     return AuthService.register_user(db, user_in)
 
 

@@ -74,3 +74,24 @@ def decode_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+
+def create_oauth_state_token(user_id: str, provider: str) -> str:
+    """Creates a short-lived signed state token to securely track user across OAuth browser redirects."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    return jwt.encode(
+        {"sub": str(user_id), "provider": provider, "exp": expire, "type": "oauth_state"},
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM
+    )
+
+
+def decode_oauth_state_token(token: str) -> Optional[dict]:
+    """Decodes and validates signed OAuth state token."""
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        if payload.get("type") == "oauth_state":
+            return payload
+    except Exception:
+        return None
+    return None

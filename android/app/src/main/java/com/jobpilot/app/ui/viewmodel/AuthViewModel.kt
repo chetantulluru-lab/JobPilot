@@ -63,6 +63,45 @@ class AuthViewModel(
         }
     }
 
+    fun startRegistration(fullName: String, email: String, password: String, onOtpSent: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = authRepository.startRegistration(fullName, email, password)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    successMessage = result.getOrNull() ?: "Verification code sent to $email"
+                )
+                onOtpSent()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to initiate registration"
+                )
+            }
+        }
+    }
+
+    fun verifyRegistrationOtp(email: String, otp: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = authRepository.verifyRegistrationOtp(email, otp)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    currentUser = result.getOrNull(),
+                    isLoading = false,
+                    errorMessage = null
+                )
+                onSuccess()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Invalid verification code"
+                )
+            }
+        }
+    }
+
     fun forgotPassword(email: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)

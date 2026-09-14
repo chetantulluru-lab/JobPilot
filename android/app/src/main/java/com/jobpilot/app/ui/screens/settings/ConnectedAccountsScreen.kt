@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.jobpilot.app.data.model.AccountProvider
 import com.jobpilot.app.data.model.EmailCategory
 import com.jobpilot.app.ui.components.GlassCard
@@ -29,6 +30,7 @@ fun ConnectedAccountsScreen(
     viewModel: ConnectedAccountsViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -89,151 +91,194 @@ fun ConnectedAccountsScreen(
                                 }
                             }
 
-                            if (gmail?.isConnected == true) {
-                                OutlinedButton(
-                                    onClick = { viewModel.disconnect(AccountProvider.GOOGLE_GMAIL) },
-                                    shape = ButtonShape,
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-                                ) {
-                                    Text("Disconnect", color = Slate600, fontSize = 12.sp)
-                                }
-                            } else {
-                                Button(
-                                    onClick = { viewModel.connectGmail() },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Orange500),
-                                    shape = ButtonShape,
-                                    enabled = !uiState.isConnectingGoogle,
-                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = if (uiState.isConnectingGoogle) "Authorizing..." else "Connect Gmail",
-                                        color = Color.White,
-                                        fontSize = 12.sp
-                                    )
-                                }
-                            }
+                    if (gmail?.isConnected == true) {
+                        OutlinedButton(
+                            onClick = { viewModel.disconnect(AccountProvider.GOOGLE_GMAIL) },
+                            shape = ButtonShape,
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text("Disconnect", color = Slate600, fontSize = 12.sp)
                         }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // OAuth 2.0 Security Guarantee Note
-                        Surface(
-                            shape = JobPilotShapes.small,
-                            color = Orange50,
-                            modifier = Modifier.fillMaxWidth()
+                    } else {
+                        Button(
+                            onClick = {
+                                viewModel.startOAuthConnect(AccountProvider.GOOGLE_GMAIL) { url ->
+                                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                    context.startActivity(intent)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Orange500),
+                            shape = ButtonShape,
+                            enabled = !uiState.isConnectingGoogle,
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = "🔒 Security Notice: JobPilot connects exclusively via official Google OAuth 2.0 tokens. We never prompt for, see, or store your Google or Gmail password.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Orange700,
-                                modifier = Modifier.padding(10.dp),
-                                lineHeight = 16.sp
+                                text = if (uiState.isConnectingGoogle) "Authorizing..." else "Connect Gmail",
+                                color = Color.White,
+                                fontSize = 12.sp
                             )
                         }
                     }
                 }
-            }
 
-            // GitHub Integration
-            item {
-                val github = uiState.accounts.find { it.provider == AccountProvider.GITHUB }
-                GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // OAuth 2.0 Security Guarantee Note
+                Surface(
+                    shape = JobPilotShapes.small,
+                    color = Orange50,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "🔒 Security Notice: JobPilot connects exclusively via official Google OAuth 2.0 tokens. We never prompt for, see, or store your Google or Gmail password.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Orange700,
+                        modifier = Modifier.padding(10.dp),
+                        lineHeight = 16.sp
+                    )
+                }
+            }
+        }
+    }
+
+    // GitHub Integration
+    item {
+        val github = uiState.accounts.find { it.provider == AccountProvider.GITHUB }
+        GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = "GitHub Developer Account", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = if (github?.isConnected == true) "Connected: ${github.accountEmailOrHandle ?: "Verified"}" else "Connect to verify repositories",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (github?.isConnected == true) SuccessGreen else Slate500
+                    )
+                }
+
+                if (github?.isConnected == true) {
+                    OutlinedButton(onClick = { viewModel.disconnect(AccountProvider.GITHUB) }, shape = ButtonShape) {
+                        Text("Unlink", color = Slate600)
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            viewModel.startOAuthConnect(AccountProvider.GITHUB) { url ->
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Slate900),
+                        shape = ButtonShape
+                    ) {
+                        Text("Connect", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+
+    // LinkedIn Integration
+    item {
+        val linkedin = uiState.accounts.find { it.provider == AccountProvider.LINKEDIN }
+        GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = "LinkedIn Professional Profile", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = if (linkedin?.isConnected == true) "Connected: ${linkedin.accountEmailOrHandle ?: "Verified"}" else "Connect to sync profile",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (linkedin?.isConnected == true) SuccessGreen else Slate500
+                    )
+                }
+
+                if (linkedin?.isConnected == true) {
+                    OutlinedButton(onClick = { viewModel.disconnect(AccountProvider.LINKEDIN) }, shape = ButtonShape) {
+                        Text("Unlink", color = Slate600)
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            viewModel.startOAuthConnect(AccountProvider.LINKEDIN) { url ->
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = InfoBlue),
+                        shape = ButtonShape
+                    ) {
+                        Text("Connect", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+
+    // Email Classification Stream
+    item {
+        SectionHeader(
+            title = "NLP Email Classification Architecture",
+            subtitle = "Automated reply and interview detection"
+        )
+    }
+
+    if (uiState.emailEvents.isEmpty()) {
+        item {
+            GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+                Column(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "No synced application emails",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Slate700
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Connect Gmail to automatically track recruiter replies and interview schedules.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Slate500
+                    )
+                }
+            }
+        }
+    } else {
+        items(uiState.emailEvents) { mail ->
+            GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "GitHub Developer Account", style = MaterialTheme.typography.titleMedium)
+                        Text(text = mail.senderName, style = MaterialTheme.typography.titleMedium, color = Slate900)
+                        Surface(shape = ChipShape, color = Orange50) {
                             Text(
-                                text = if (github?.isConnected == true) "Connected: ${github.accountEmailOrHandle}" else "Connect to verify repositories",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (github?.isConnected == true) SuccessGreen else Slate500
+                                text = mail.category.displayName,
+                                color = Orange600,
+                                style = JobPilotTypography.labelMedium,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
-
-                        if (github?.isConnected == true) {
-                            OutlinedButton(onClick = { viewModel.disconnect(AccountProvider.GITHUB) }, shape = ButtonShape) {
-                                Text("Unlink", color = Slate600)
-                            }
-                        } else {
-                            Button(onClick = { viewModel.connectGitHub("chetan-dev") }, colors = ButtonDefaults.buttonColors(containerColor = Slate900), shape = ButtonShape) {
-                                Text("Connect", color = Color.White)
-                            }
-                        }
                     }
+                    Text(text = mail.subject, style = MaterialTheme.typography.bodySmall, color = Slate700, fontWeight = FontWeight.SemiBold)
+                    Text(text = mail.snippet, style = MaterialTheme.typography.bodySmall, color = Slate500)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Classified with ${(mail.confidenceScore * 100).toInt()}% NLP confidence • ${mail.receivedDate}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Slate400,
+                        fontSize = 11.sp
+                    )
                 }
             }
-
-            // LinkedIn Integration
-            item {
-                val linkedin = uiState.accounts.find { it.provider == AccountProvider.LINKEDIN }
-                GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "LinkedIn Professional Profile", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                text = if (linkedin?.isConnected == true) "Verified" else "Connect via authorized profile link",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (linkedin?.isConnected == true) SuccessGreen else Slate500
-                            )
-                        }
-
-                        if (linkedin?.isConnected == true) {
-                            OutlinedButton(onClick = { viewModel.disconnect(AccountProvider.LINKEDIN) }, shape = ButtonShape) {
-                                Text("Unlink", color = Slate600)
-                            }
-                        } else {
-                            Button(onClick = { viewModel.connectLinkedIn("linkedin.com/in/chetan-dev") }, colors = ButtonDefaults.buttonColors(containerColor = InfoBlue), shape = ButtonShape) {
-                                Text("Connect", color = Color.White)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Email Classification Stream Architecture (Mock Gmail Events)
-            item {
-                SectionHeader(
-                    title = "NLP Email Classification Architecture",
-                    subtitle = "Automated reply and interview detection"
-                )
-            }
-
-            items(uiState.emailEvents) { mail ->
-                GlassCard(modifier = Modifier.fillMaxWidth(), backgroundColor = BgWhite) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = mail.senderName, style = MaterialTheme.typography.titleMedium, color = Slate900)
-                            Surface(shape = ChipShape, color = Orange50) {
-                                Text(
-                                    text = mail.category.displayName,
-                                    color = Orange600,
-                                    style = JobPilotTypography.labelMedium,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-                        Text(text = mail.subject, style = MaterialTheme.typography.bodySmall, color = Slate700, fontWeight = FontWeight.SemiBold)
-                        Text(text = mail.snippet, style = MaterialTheme.typography.bodySmall, color = Slate500)
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Classified with ${(mail.confidenceScore * 100).toInt()}% NLP confidence • ${mail.receivedDate}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Slate400,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-            }
+        }
+    }
 
             if (uiState.feedbackMessage != null) {
                 item {

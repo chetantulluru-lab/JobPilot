@@ -1,5 +1,6 @@
 package com.jobpilot.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,9 @@ import androidx.compose.ui.Modifier
 import com.jobpilot.app.ui.navigation.JobPilotNavGraph
 import com.jobpilot.app.ui.theme.BgWarmWhite
 import com.jobpilot.app.ui.theme.JobPilotTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,6 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val app = application as JobPilotApplication
+        handleOAuthIntent(intent)
 
         setContent {
             JobPilotTheme {
@@ -27,6 +32,22 @@ class MainActivity : ComponentActivity() {
                 ) {
                     JobPilotNavGraph(container = app.container)
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleOAuthIntent(intent)
+    }
+
+    private fun handleOAuthIntent(intent: Intent?) {
+        val data = intent?.data ?: return
+        if (data.scheme == "jobpilot" && data.host == "oauth") {
+            val app = application as? JobPilotApplication ?: return
+            CoroutineScope(Dispatchers.IO).launch {
+                app.container.connectedAccountRepository.refreshAccounts()
             }
         }
     }

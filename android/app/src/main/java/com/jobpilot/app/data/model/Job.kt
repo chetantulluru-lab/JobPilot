@@ -19,17 +19,20 @@ data class Job(
     val description: String,
     val postedDaysAgo: Int,
     val requirements: List<String>,
-    val matchDetails: JobMatch
+    val matchDetails: JobMatch,
+    val source: String? = "Direct",
+    val applicationUrl: String? = null
 )
 
 data class JobMatch(
-    val matchScore: Int,
-    val matchTier: MatchTier,
-    val strongMatches: List<String>,
-    val missingSkills: List<String>,
+    val matchScore: Int? = null,
+    val matchTier: MatchTier? = null,
+    val strongMatches: List<String> = emptyList(),
+    val missingSkills: List<String> = emptyList(),
     val partialMatches: List<String> = emptyList(),
-    val whyItMatchesExplanation: String,
-    val improvementPlan: List<ImprovementStep> = emptyList()
+    val whyItMatchesExplanation: String = "",
+    val improvementPlan: List<ImprovementStep> = emptyList(),
+    val isProfileInsufficient: Boolean = false
 )
 
 data class ImprovementStep(

@@ -17,6 +17,9 @@ class JobBase(BaseModel):
     education_requirement: Optional[str] = None
     experience_level: Optional[str] = "Entry-level"
     posted_date: Optional[str] = "Recently"
+    source: Optional[str] = "Company Careers"
+    source_url: Optional[str] = None
+    application_url: Optional[str] = None
 
 
 class JobCreate(JobBase):
@@ -37,11 +40,12 @@ class JobMatchResponse(BaseModel):
     job_id: str
     job_title: str
     company: str
-    match_score: int
-    match_tier: str  # Excellent Match, Strong Match, Moderate Match, Low Match, Weak Match
+    match_score: Optional[int] = None
+    match_tier: str  # Excellent Match, Strong Match, Moderate Match, Low Match, Weak Match, Match Unavailable
     matched_skills: List[str]
     missing_skills: List[str]
     explanation: str
+    is_profile_insufficient: bool = False
     # Phase 3B Enhanced fields
     strong_matches: List[str] = []
     missing_required_skills: List[str] = []
@@ -73,5 +77,5 @@ class SkillGapResponse(BaseModel):
 
     job_id: str
     job_title: str
-    match_score: int
+    match_score: Optional[int] = None
     gaps: List[SkillGapItem]

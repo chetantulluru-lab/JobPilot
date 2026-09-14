@@ -106,16 +106,30 @@ fun JobDetailScreen(
                                     color = Slate500
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "${job.matchDetails.matchScore}% Match",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    color = Slate900
-                                )
-                                Text(
-                                    text = job.matchDetails.matchTier.name.replace("_", " "),
-                                    style = JobPilotTypography.labelLarge,
-                                    color = Orange600
-                                )
+                                if (job.matchDetails.matchScore != null) {
+                                    Text(
+                                        text = "${job.matchDetails.matchScore}% Match",
+                                        style = MaterialTheme.typography.headlineLarge,
+                                        color = Slate900
+                                    )
+                                    Text(
+                                        text = job.matchDetails.matchTier?.name?.replace("_", " ") ?: "EVALUATED",
+                                        style = JobPilotTypography.labelLarge,
+                                        color = Orange600
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Match Unavailable",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = Slate800,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Complete your Career Profile or upload your resume to calculate AI alignment.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Slate500
+                                    )
+                                }
                             }
                             MatchScoreRing(score = job.matchDetails.matchScore, size = 70.dp)
                         }
@@ -123,43 +137,57 @@ fun JobDetailScreen(
                 }
 
                 // AI "Why This Matches You" Card
-                item {
-                    GlassCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        backgroundColor = Orange50.copy(alpha = 0.7f),
-                        borderColor = Orange300.copy(alpha = 0.6f)
-                    ) {
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Orange500, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
+                if (job.matchDetails.whyItMatchesExplanation.isNotBlank()) {
+                    item {
+                        GlassCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundColor = Orange50.copy(alpha = 0.7f),
+                            borderColor = Orange300.copy(alpha = 0.6f)
+                        ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Orange500, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Why this matches you",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Orange700,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Why this matches you",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Orange700,
-                                    fontWeight = FontWeight.Bold
+                                    text = job.matchDetails.whyItMatchesExplanation,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Slate800,
+                                    lineHeight = 20.sp
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = job.matchDetails.whyItMatchesExplanation,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Slate800,
-                                lineHeight = 20.sp
-                            )
                         }
                     }
                 }
 
-                // Strong Matches Breakdown
+                // Skills Breakdown
                 item {
-                    SectionHeader(title = "Strong Matches (${job.matchDetails.strongMatches.size})")
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        job.matchDetails.strongMatches.forEach { skill ->
-                            SkillChip(skillName = skill, variant = ChipVariant.STRONG_MATCH)
+                    if (job.matchDetails.strongMatches.isNotEmpty()) {
+                        SectionHeader(title = "Strong Matches (${job.matchDetails.strongMatches.size})")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            job.matchDetails.strongMatches.forEach { skill ->
+                                SkillChip(skillName = skill, variant = ChipVariant.STRONG_MATCH)
+                            }
+                        }
+                    } else {
+                        SectionHeader(title = "Required Skills (${job.requirements.size})")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            job.requirements.forEach { skill ->
+                                SkillChip(skillName = skill, variant = ChipVariant.NEUTRAL)
+                            }
                         }
                     }
                 }

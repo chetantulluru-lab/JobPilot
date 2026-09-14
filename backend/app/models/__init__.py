@@ -17,6 +17,7 @@ from app.models.connected_account import ConnectedAccount, EmailEvent
 from app.models.ai_assistant import AIConversation, AIMessage
 from app.models.saved_resume import SavedResume
 from app.models.career_tools import CoverLetter, RecruiterMessage
+from app.models.otp import EmailOtp
 
 __all__ = [
     "User",
@@ -44,4 +45,5 @@ __all__ = [
     "SavedResume",
     "CoverLetter",
     "RecruiterMessage",
+    "EmailOtp",
 ]

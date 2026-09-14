@@ -14,6 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "JobPilotNetwork"
 
@@ -152,6 +156,60 @@ class NetworkAuthRepository(
         }
     }
 
+    override suspend fun startRegistration(fullName: String, email: String, password: String): Result<String> {
+        return try {
+            val response = apiService.registerStart(
+                RegisterStartRequestDto(fullName = fullName, email = email, password = password)
+            )
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.message)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Failed to send verification code"
+                Result.failure(IllegalArgumentException(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "startRegistration network error: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server."))
+        }
+    }
+
+    override suspend fun verifyRegistrationOtp(email: String, otp: String): Result<User> {
+        return try {
+            val response = apiService.registerVerify(
+                RegisterVerifyRequestDto(email = email, otp = otp)
+            )
+            if (response.isSuccessful && response.body() != null) {
+                val tokenDto = response.body()!!
+                tokenManager.saveTokens(tokenDto.accessToken, tokenDto.refreshToken)
+                val meResponse = apiService.getMe()
+                val user = if (meResponse.isSuccessful && meResponse.body() != null) {
+                    val meDto = meResponse.body()!!
+                    User(
+                        id = meDto.id,
+                        fullName = meDto.fullName,
+                        email = meDto.email,
+                        profileStrength = 0
+                    )
+                } else {
+                    User(
+                        id = "user-real",
+                        fullName = email.substringBefore("@").replaceFirstChar { it.uppercase() },
+                        email = email,
+                        profileStrength = 0
+                    )
+                }
+                _currentUser.value = user
+                Result.success(user)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Invalid verification code"
+                Result.failure(IllegalArgumentException(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "verifyRegistrationOtp network error: ${e.message}")
+            Result.failure(java.io.IOException("Unable to connect to server."))
+        }
+    }
+
     override suspend fun sendPasswordReset(email: String): Result<Unit> {
         return mockFallback.sendPasswordReset(email)
     }
@@ -170,61 +228,58 @@ class NetworkJobRepository(
     private val mockFallback: MockJobRepository = MockJobRepository()
 ) : JobRepository {
 
-    private val _jobs = MutableStateFlow<List<Job>>(MockDataProvider.mockJobs)
+    private val _jobs = MutableStateFlow<List<Job>>(emptyList())
     override val jobsStream: Flow<List<Job>> = _jobs.asStateFlow()
 
     init {
-        refreshJobs()
+        CoroutineScope(Dispatchers.IO).launch {
+            refreshJobs()
+        }
     }
 
-    private fun refreshJobs() {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getJobs()
-                if (response.isSuccessful && response.body() != null) {
-                    val dtoList = response.body()!!
-                    val domainJobs = dtoList.mapIndexed { index, dto ->
-                        val tier = when {
-                            index == 0 -> MatchTier.EXCEPTIONAL
-                            index == 1 -> MatchTier.STRONG
-                            index == 2 -> MatchTier.MODERATE
-                            else -> MatchTier.DEVELOPING
-                        }
-                        val score = when (tier) {
-                            MatchTier.EXCEPTIONAL -> 94
-                            MatchTier.STRONG -> 85
-                            MatchTier.MODERATE -> 72
-                            MatchTier.DEVELOPING -> 58
-                        }
-                        Job(
-                            id = dto.id,
-                            title = dto.title,
-                            company = dto.company,
-                            companyLogoUrl = null,
-                            location = dto.location,
-                            workMode = dto.workMode,
-                            employmentType = dto.employmentType,
-                            stipendOrSalary = dto.salaryRange ?: "$85,000 - $115,000",
-                            description = dto.description,
-                            postedDaysAgo = 2,
-                            requirements = dto.requirements?.split("\n")?.filter { it.isNotBlank() }
-                                ?: listOf(dto.skillsRequired),
-                            matchDetails = JobMatch(
-                                matchScore = score,
-                                matchTier = tier,
-                                strongMatches = listOf("Python", "FastAPI", "SQLAlchemy", "Git"),
-                                missingSkills = listOf("Docker", "AWS", "Kubernetes"),
-                                whyItMatchesExplanation = "Strong overlap with core backend competencies and modern API frameworks."
-                            )
-                        )
-                    }
-                    if (domainJobs.isNotEmpty()) {
-                        _jobs.value = domainJobs
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Backend unreachable for jobs, using mock dataset: ${e.message}")
+    private fun mapDtoToJob(dto: JobDto): Job {
+        return Job(
+            id = dto.id,
+            title = dto.title,
+            company = dto.company,
+            companyLogoUrl = null,
+            location = dto.location,
+            workMode = dto.workMode,
+            employmentType = dto.employmentType,
+            stipendOrSalary = dto.salaryRange ?: "Competitive",
+            description = dto.description,
+            postedDaysAgo = 1,
+            requirements = dto.requirements?.split("\n")?.map { it.trim() }?.filter { it.isNotBlank() }
+                ?: dto.skillsRequired.split(",").map { it.trim() }.filter { it.isNotBlank() },
+            matchDetails = JobMatch(
+                matchScore = null,
+                matchTier = null,
+                strongMatches = emptyList(),
+                missingSkills = emptyList(),
+                whyItMatchesExplanation = "",
+                isProfileInsufficient = true
+            ),
+            source = dto.source ?: "Direct",
+            applicationUrl = dto.applicationUrl
+        )
+    }
+
+    override suspend fun refreshJobs(query: String?, workMode: String?): List<Job> {
+        return try {
+            val q = query?.takeIf { it.isNotBlank() }
+            val mode = workMode?.takeIf { it != "All" && it.isNotBlank() }
+            val response = apiService.getJobs(query = q, workMode = mode)
+            if (response.isSuccessful && response.body() != null) {
+                val dtoList = response.body()!!
+                val domainJobs = dtoList.map { dto -> mapDtoToJob(dto) }
+                _jobs.value = domainJobs
+                domainJobs
+            } else {
+                _jobs.value
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "Backend unreachable for jobs: ${e.message}")
+            _jobs.value
         }
     }
 
@@ -233,6 +288,8 @@ class NetworkJobRepository(
     override fun getJobById(id: String): Job? = _jobs.value.find { it.id == id }
 
     override suspend fun filterJobs(query: String, workMode: String?): List<Job> {
+        val serverResults = refreshJobs(query, workMode)
+        if (serverResults.isNotEmpty()) return serverResults
         return _jobs.value.filter { job ->
             val matchesQuery = query.isBlank() ||
                 job.title.contains(query, ignoreCase = true) ||
@@ -240,6 +297,39 @@ class NetworkJobRepository(
                 job.requirements.any { it.contains(query, ignoreCase = true) }
             val matchesMode = workMode == null || workMode == "All" || job.workMode.equals(workMode, ignoreCase = true)
             matchesQuery && matchesMode
+        }
+    }
+
+    override suspend fun getJobMatch(jobId: String): JobMatch? {
+        return try {
+            val res = apiService.getJobMatch(jobId)
+            if (res.isSuccessful && res.body() != null) {
+                val dto = res.body()!!
+                val tier = dto.matchTier?.let { t ->
+                    when {
+                        t.contains("EXCEPTIONAL", ignoreCase = true) -> MatchTier.EXCEPTIONAL
+                        t.contains("STRONG", ignoreCase = true) -> MatchTier.STRONG
+                        t.contains("MODERATE", ignoreCase = true) -> MatchTier.MODERATE
+                        t.contains("DEVELOPING", ignoreCase = true) -> MatchTier.DEVELOPING
+                        else -> null
+                    }
+                }
+                val match = JobMatch(
+                    matchScore = dto.matchScore,
+                    matchTier = tier,
+                    strongMatches = dto.strongMatches.ifEmpty { dto.matchedSkills },
+                    missingSkills = dto.missingSkills,
+                    whyItMatchesExplanation = dto.explanation,
+                    isProfileInsufficient = dto.isProfileInsufficient || dto.matchScore == null
+                )
+                _jobs.update { list ->
+                    list.map { if (it.id == jobId) it.copy(matchDetails = match) else it }
+                }
+                match
+            } else null
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to get job match for $jobId: ${e.message}")
+            null
         }
     }
 }
@@ -605,6 +695,104 @@ class NetworkResumeRepository(
         return mockFallback.parseUploadedResume(fileName)
     }
 
+    override suspend fun uploadResumeFile(bytes: ByteArray, fileName: String, mimeType: String): Result<ResumeParsedData> {
+        return try {
+            val mediaType = mimeType.toMediaTypeOrNull() ?: "application/pdf".toMediaTypeOrNull()
+            val requestBody = bytes.toRequestBody(mediaType)
+            val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
+            val uploadResponse = apiService.uploadResume(part)
+            if (!uploadResponse.isSuccessful || uploadResponse.body() == null) {
+                val errorMsg = uploadResponse.errorBody()?.string() ?: "Upload failed (${uploadResponse.code()})"
+                return Result.failure(Exception(errorMsg))
+            }
+            val resumeDto = uploadResponse.body()!!
+            val extractedResponse = apiService.getExtractedResumeData(resumeDto.id)
+            if (!extractedResponse.isSuccessful || extractedResponse.body() == null) {
+                return Result.failure(Exception("Failed to fetch extracted resume data"))
+            }
+            val extDto = extractedResponse.body()!!
+            val data = extDto.structuredData
+            val parsed = ResumeParsedData(
+                resumeId = extDto.resumeId,
+                detectedName = data.personalInfo.name ?: "",
+                detectedEmail = data.personalInfo.email ?: "",
+                detectedPhone = data.personalInfo.phone ?: "",
+                detectedEducation = data.education.map { edu ->
+                    Education(
+                        id = UUID.randomUUID().toString(),
+                        degree = edu.degree ?: "",
+                        college = edu.institution ?: "",
+                        branch = edu.field ?: "",
+                        startDate = edu.startYear?.toString() ?: "",
+                        endDate = edu.endYear?.toString() ?: "",
+                        grade = edu.grade ?: ""
+                    )
+                },
+                detectedSkills = data.skills.map { s ->
+                    val cat = when (s.category.uppercase()) {
+                        "PROGRAMMING_LANGUAGE" -> SkillCategory.PROGRAMMING_LANGUAGE
+                        "FRAMEWORK" -> SkillCategory.FRAMEWORK
+                        "DATABASE" -> SkillCategory.DATABASE
+                        "TOOL" -> SkillCategory.TOOL
+                        "CLOUD" -> SkillCategory.CLOUD
+                        else -> SkillCategory.OTHER
+                    }
+                    Skill(id = UUID.randomUUID().toString(), name = s.name, category = cat)
+                },
+                detectedExperience = data.experience.map { exp ->
+                    Experience(
+                        id = UUID.randomUUID().toString(),
+                        company = exp.company,
+                        role = exp.role,
+                        startDate = exp.startDate ?: "",
+                        endDate = exp.endDate ?: "",
+                        description = exp.description ?: "",
+                        technologies = emptyList()
+                    )
+                },
+                detectedProjects = data.projects.map { p ->
+                    Project(
+                        id = UUID.randomUUID().toString(),
+                        name = p.name,
+                        description = p.description ?: "",
+                        technologies = p.technologies,
+                        startDate = p.startDate ?: "",
+                        endDate = p.endDate ?: "",
+                        githubUrl = p.githubUrl,
+                        liveUrl = p.liveUrl
+                    )
+                },
+                missingFields = extDto.audit.missingFields.map { field ->
+                    MissingField(
+                        fieldKey = field,
+                        fieldLabel = field.replace("_", " ").split(" ").joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } },
+                        reason = "Omitted or not detected in document",
+                        suggestedAction = "Add to profile"
+                    )
+                }
+            )
+            Result.success(parsed)
+        } catch (e: Exception) {
+            Log.e(TAG, "uploadResumeFile error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun confirmResume(resumeId: String): Result<Unit> {
+        return try {
+            val response = apiService.confirmResume(resumeId)
+            if (response.isSuccessful) {
+                refreshResumes()
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to confirm resume: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "confirmResume error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun createResume(
         title: String,
         templateType: ResumeTemplateType,
@@ -803,37 +991,57 @@ class NetworkConnectedAccountRepository(
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getIntegrationsStatus()
-                if (response.isSuccessful && response.body() != null) {
-                    val overview = response.body()!!
-                    _accounts.update { list ->
-                        list.map { acc ->
-                            when (acc.provider) {
-                                AccountProvider.GOOGLE_GMAIL -> acc.copy(
-                                    isConnected = overview.google.isConnected,
-                                    accountEmailOrHandle = overview.google.accountEmail ?: acc.accountEmailOrHandle,
-                                    syncStatus = if (overview.google.isConnected) "Active" else "Not Connected"
-                                )
-                                AccountProvider.GITHUB -> acc.copy(
-                                    isConnected = overview.github.isConnected,
-                                    accountEmailOrHandle = overview.github.accountName ?: acc.accountEmailOrHandle,
-                                    syncStatus = if (overview.github.isConnected) "Synced" else "Not Connected"
-                                )
-                                AccountProvider.LINKEDIN -> acc.copy(
-                                    isConnected = overview.linkedin.isConnected,
-                                    accountEmailOrHandle = overview.linkedin.accountName ?: acc.accountEmailOrHandle,
-                                    syncStatus = if (overview.linkedin.isConnected) "Connected" else "Not Connected"
-                                )
-                                else -> acc
-                            }
+            refreshAccounts()
+        }
+    }
+
+    override suspend fun refreshAccounts() {
+        try {
+            val response = apiService.getIntegrationsStatus()
+            if (response.isSuccessful && response.body() != null) {
+                val overview = response.body()!!
+                _accounts.update { list ->
+                    list.map { acc ->
+                        when (acc.provider) {
+                            AccountProvider.GOOGLE_GMAIL -> acc.copy(
+                                isConnected = overview.google.isConnected,
+                                accountEmailOrHandle = overview.google.accountEmail,
+                                syncStatus = if (overview.google.isConnected) "Active" else "Not Connected"
+                            )
+                            AccountProvider.GITHUB -> acc.copy(
+                                isConnected = overview.github.isConnected,
+                                accountEmailOrHandle = overview.github.accountName ?: overview.github.accountEmail,
+                                syncStatus = if (overview.github.isConnected) "Synced" else "Not Connected"
+                            )
+                            AccountProvider.LINKEDIN -> acc.copy(
+                                isConnected = overview.linkedin.isConnected,
+                                accountEmailOrHandle = overview.linkedin.accountName ?: overview.linkedin.accountEmail,
+                                syncStatus = if (overview.linkedin.isConnected) "Connected" else "Not Connected"
+                            )
+                            else -> acc
                         }
                     }
-
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Backend unreachable for integrations overview: ${e.message}")
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "Backend unreachable for integrations overview: ${e.message}")
+        }
+    }
+
+    override suspend fun getConnectUrl(provider: AccountProvider): String? {
+        return try {
+            val response = when (provider) {
+                AccountProvider.GOOGLE_GMAIL -> apiService.getGoogleConnectUrl()
+                AccountProvider.GITHUB -> apiService.getGitHubConnectUrl()
+                AccountProvider.LINKEDIN -> apiService.getLinkedInConnectUrl()
+                AccountProvider.PORTFOLIO -> null
+            }
+            if (response != null && response.isSuccessful && response.body() != null) {
+                response.body()!!["authorization_url"]
+            } else null
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to get connect URL for $provider: ${e.message}")
+            null
         }
     }
 
@@ -841,24 +1049,17 @@ class NetworkConnectedAccountRepository(
         return try {
             val response = apiService.syncGoogle()
             if (response.isSuccessful) {
-                val updated = ConnectedAccount(
-                    provider = AccountProvider.GOOGLE_GMAIL,
-                    isConnected = true,
-                    accountEmailOrHandle = "chetan.student@gmail.com",
-                    connectedAt = "Just now",
-                    syncStatus = "Active (Synced via Google OAuth 2.0)",
-                    note = "Google OAuth token active. Auto-detects recruiter replies and interview invitations."
-                )
-                _accounts.update { list ->
-                    list.map { if (it.provider == AccountProvider.GOOGLE_GMAIL) updated else it }
-                }
+                refreshAccounts()
+                val updated = _accounts.value.find { it.provider == AccountProvider.GOOGLE_GMAIL }
+                    ?: ConnectedAccount(provider = AccountProvider.GOOGLE_GMAIL, isConnected = true)
                 Result.success(updated)
             } else {
-                mockFallback.connectGoogleGmail()
+                val errorMsg = response.errorBody()?.string() ?: "Google sync failed"
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Log.w(TAG, "connectGoogleGmail failed: ${e.message}")
-            mockFallback.connectGoogleGmail()
+            Result.failure(e)
         }
     }
 
@@ -866,7 +1067,7 @@ class NetworkConnectedAccountRepository(
         _accounts.update { list ->
             list.map {
                 if (it.provider == provider) {
-                    ConnectedAccount(provider = provider, isConnected = false)
+                    ConnectedAccount(provider = provider, isConnected = false, accountEmailOrHandle = null, syncStatus = "Not Connected")
                 } else it
             }
         }
@@ -878,11 +1079,17 @@ class NetworkConnectedAccountRepository(
     }
 
     override suspend fun connectGitHub(handle: String): Result<ConnectedAccount> {
-        return mockFallback.connectGitHub(handle)
+        refreshAccounts()
+        val acc = _accounts.value.find { it.provider == AccountProvider.GITHUB }
+            ?: ConnectedAccount(provider = AccountProvider.GITHUB, isConnected = false)
+        return Result.success(acc)
     }
 
     override suspend fun connectLinkedIn(profileUrl: String): Result<ConnectedAccount> {
-        return mockFallback.connectLinkedIn(profileUrl)
+        refreshAccounts()
+        val acc = _accounts.value.find { it.provider == AccountProvider.LINKEDIN }
+            ?: ConnectedAccount(provider = AccountProvider.LINKEDIN, isConnected = false)
+        return Result.success(acc)
     }
 }
 

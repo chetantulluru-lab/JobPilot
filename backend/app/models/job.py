@@ -22,6 +22,10 @@ class Job(Base):
     education_requirement = Column(String(255), nullable=True)  # e.g., "Bachelor's degree in Computer Science"
     experience_level = Column(String(50), default="Entry-level")
     posted_date = Column(String(50), nullable=True)
+    source = Column(String(100), default="Company Careers", nullable=True)
+    source_url = Column(String(500), nullable=True)
+    application_url = Column(String(500), nullable=True)
+    external_id = Column(String(255), nullable=True, index=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 

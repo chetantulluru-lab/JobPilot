@@ -64,6 +64,29 @@ class MatchingService:
         profile = db.query(CareerProfile).filter(CareerProfile.user_id == user_id).first()
         cand_data = CandidateProfileBuilder.build_from_career_profile(profile)
 
+        # Zero-fabrication rule: If user has no confirmed competencies, stop before scoring
+        has_competencies = bool(cand_data.canonical_skills or cand_data.project_techs or cand_data.experience_techs)
+        if not has_competencies:
+            return JobMatchResponse(
+                job_id=job.id,
+                job_title=job.title,
+                company=job.company,
+                match_score=None,
+                match_tier="Match Unavailable",
+                matched_skills=[],
+                missing_skills=reqs.required_skills,
+                explanation="Complete your Career Profile or upload your resume to unlock AI job matching.",
+                is_profile_insufficient=True,
+                strong_matches=[],
+                missing_required_skills=reqs.required_skills,
+                missing_preferred_skills=reqs.preferred_skills,
+                weak_skills=[],
+                experience_relevance=0,
+                education_relevance=0,
+                profile_completeness=cand_data.profile_completeness,
+                skill_gap_count=len(reqs.required_skills)
+            )
+
         # 4. Evaluate Experience and Education Relevance
         exp_relevance = ExperienceMatcher.calculate_experience_relevance(
             job_required_skills=reqs.required_skills,

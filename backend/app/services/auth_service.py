@@ -41,12 +41,12 @@ class AuthService:
         db.add(user)
         db.flush()
 
-        # Create associated empty CareerProfile
+        # Create associated clean empty CareerProfile (Zero-Fabrication)
         profile = CareerProfile(
             user_id=user.id,
-            headline=f"Aspiring Professional | {user_in.full_name}",
-            summary="Career profile managed by JobPilot AI.",
-            profile_strength=40
+            headline=None,
+            summary=None,
+            profile_strength=0
         )
         db.add(profile)
         db.flush()

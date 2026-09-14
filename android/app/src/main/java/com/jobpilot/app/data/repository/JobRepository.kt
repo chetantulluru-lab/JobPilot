@@ -2,6 +2,7 @@ package com.jobpilot.app.data.repository
 
 import com.jobpilot.app.data.mock.MockDataProvider
 import com.jobpilot.app.data.model.Job
+import com.jobpilot.app.data.model.JobMatch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +12,8 @@ interface JobRepository {
     fun getAllJobs(): List<Job>
     fun getJobById(id: String): Job?
     suspend fun filterJobs(query: String, workMode: String? = null): List<Job>
+    suspend fun refreshJobs(query: String? = null, workMode: String? = null): List<Job>
+    suspend fun getJobMatch(jobId: String): JobMatch?
 }
 
 class MockJobRepository : JobRepository {
@@ -30,5 +33,13 @@ class MockJobRepository : JobRepository {
             val matchesMode = workMode == null || workMode == "All" || job.workMode.equals(workMode, ignoreCase = true)
             matchesQuery && matchesMode
         }
+    }
+
+    override suspend fun refreshJobs(query: String?, workMode: String?): List<Job> {
+        return filterJobs(query ?: "", workMode)
+    }
+
+    override suspend fun getJobMatch(jobId: String): JobMatch? {
+        return getJobById(jobId)?.matchDetails
     }
 }

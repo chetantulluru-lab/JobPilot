@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.update
 interface ConnectedAccountRepository {
     val accountsStream: Flow<List<ConnectedAccount>>
     val emailEventsStream: Flow<List<EmailEvent>>
+    suspend fun refreshAccounts()
+    suspend fun getConnectUrl(provider: AccountProvider): String?
     suspend fun connectGoogleGmail(): Result<ConnectedAccount>
     suspend fun disconnectAccount(provider: AccountProvider)
     suspend fun connectGitHub(handle: String): Result<ConnectedAccount>
@@ -25,6 +27,9 @@ class MockConnectedAccountRepository : ConnectedAccountRepository {
 
     override val accountsStream: Flow<List<ConnectedAccount>> = _accounts.asStateFlow()
     override val emailEventsStream: Flow<List<EmailEvent>> = _emailEvents.asStateFlow()
+
+    override suspend fun refreshAccounts() {}
+    override suspend fun getConnectUrl(provider: AccountProvider): String? = null
 
     override suspend fun connectGoogleGmail(): Result<ConnectedAccount> {
         // Simulates Google OAuth 2.0 flow

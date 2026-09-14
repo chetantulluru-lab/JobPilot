@@ -1,5 +1,7 @@
 package com.jobpilot.app.data.network
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -14,6 +16,12 @@ interface JobPilotApiService {
 
     @POST("auth/register")
     suspend fun register(@Body req: RegisterRequestDto): Response<UserDto>
+
+    @POST("auth/register/start")
+    suspend fun registerStart(@Body req: RegisterStartRequestDto): Response<RegisterStartResponseDto>
+
+    @POST("auth/register/verify")
+    suspend fun registerVerify(@Body req: RegisterVerifyRequestDto): Response<TokenResponseDto>
 
     @GET("auth/me")
     suspend fun getMe(): Response<UserDto>
@@ -46,6 +54,7 @@ interface JobPilotApiService {
     // --- Jobs ---
     @GET("jobs")
     suspend fun getJobs(
+        @Query("query") query: String? = null,
         @Query("work_mode") workMode: String? = null,
         @Query("role") role: String? = null
     ): Response<List<JobDto>>
@@ -81,6 +90,13 @@ interface JobPilotApiService {
     suspend fun deleteApplication(@Path("id") id: String): Response<Unit>
 
     // --- Resumes & Audits ---
+    @Multipart
+    @POST("resumes/upload")
+    suspend fun uploadResume(
+        @Part file: MultipartBody.Part,
+        @Part("title") title: RequestBody? = null
+    ): Response<ResumeResponseDto>
+
     @GET("resumes/audit/missing-fields")
     suspend fun auditMissingFields(): Response<MissingFieldsAuditDto>
 
@@ -154,6 +170,15 @@ interface JobPilotApiService {
     // --- Integrations ---
     @GET("integrations/status")
     suspend fun getIntegrationsStatus(): Response<IntegrationsOverviewDto>
+
+    @GET("integrations/google/connect")
+    suspend fun getGoogleConnectUrl(): Response<Map<String, String>>
+
+    @GET("integrations/github/connect")
+    suspend fun getGitHubConnectUrl(): Response<Map<String, String>>
+
+    @GET("integrations/linkedin/connect")
+    suspend fun getLinkedInConnectUrl(): Response<Map<String, String>>
 
     @POST("integrations/google/sync")
     suspend fun syncGoogle(): Response<Map<String, Any>>

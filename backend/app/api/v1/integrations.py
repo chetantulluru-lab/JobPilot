@@ -8,10 +8,12 @@ Never exposes or requests user passwords.
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.dependencies import get_db, get_current_user
+from app.core.dependencies import get_db, get_current_user, get_current_user_optional
+from app.core.security import create_oauth_state_token, decode_oauth_state_token
 from app.models.user import User
 from app.models.connected_account import ConnectedAccount, EmailEvent
 from app.models.application import Application, ApplicationEvent
@@ -109,12 +111,14 @@ def connect_google(current_user: User = Depends(get_current_user)):
             "required_scopes": ["https://www.googleapis.com/auth/gmail.readonly"]
         }
 
+    state_token = create_oauth_state_token(current_user.id, "google")
     auth_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={settings.GOOGLE_CLIENT_ID}&"
-        f"redirect_uri={settings.GOOGLE_REDIRECT_URI}&"
+        f"redirect_uri={settings.effective_google_redirect_uri}&"
         f"response_type=code&"
         f"scope=https://www.googleapis.com/auth/gmail.readonly&"
+        f"state={state_token}&"
         f"access_type=offline&"
         f"prompt=consent"
     )
@@ -125,30 +129,41 @@ def connect_google(current_user: User = Depends(get_current_user)):
     }
 
 
-@router.get("/google/callback", response_model=MessageResponse)
+@router.get("/google/callback")
 def google_callback(
     code: Optional[str] = None,
+    state: Optional[str] = None,
     error: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """Google OAuth 2.0 exchange callback endpoint."""
+    """Google OAuth 2.0 exchange callback endpoint. Safely redirects back into JobPilot Android."""
     if error:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Google OAuth failed: {error}")
+        return RedirectResponse(url=f"jobpilot://oauth/error?provider=google&message={error}")
+
+    user = current_user
+    if not user and state:
+        decoded = decode_oauth_state_token(state)
+        if decoded and decoded.get("sub"):
+            user = db.query(User).filter(User.id == decoded["sub"]).first()
+
+    if not user:
+        return RedirectResponse(url="jobpilot://oauth/error?provider=google&message=Authentication+failed")
+
     if not code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing authorization code.")
+        return RedirectResponse(url="jobpilot://oauth/error?provider=google&message=Missing+authorization+code")
 
     # Record or update connected account
     acc = db.query(ConnectedAccount).filter(
-        ConnectedAccount.user_id == current_user.id,
+        ConnectedAccount.user_id == user.id,
         ConnectedAccount.provider == "google"
     ).first()
     if not acc:
         acc = ConnectedAccount(
-            user_id=current_user.id,
+            user_id=user.id,
             provider="google",
-            account_email=current_user.email,
-            account_name=current_user.full_name,
+            account_email=user.email,
+            account_name=user.full_name,
             is_connected=True,
             scopes="gmail.readonly",
             last_synced_at=datetime.now(timezone.utc)
@@ -159,10 +174,7 @@ def google_callback(
         acc.last_synced_at = datetime.now(timezone.utc)
 
     db.commit()
-    return MessageResponse(
-        status="success",
-        message="Google account linked successfully. Gmail sync is now active."
-    )
+    return RedirectResponse(url="jobpilot://oauth/success?provider=google")
 
 
 @router.post("/google/sync", response_model=MessageResponse)
@@ -171,7 +183,7 @@ def sync_gmail_emails(
     db: Session = Depends(get_db)
 ):
     """
-    Simulates / runs Gmail synchronization:
+    Runs Gmail synchronization:
     Fetches inbound recruiter emails, runs EmailClassifier,
     matches against user's applications, and adds timeline events.
     """
@@ -181,18 +193,11 @@ def sync_gmail_emails(
         ConnectedAccount.is_connected == True
     ).first()
 
-    # If not connected yet, mark connected for development demo if requested
     if not account:
-        account = ConnectedAccount(
-            user_id=current_user.id,
-            provider="google",
-            account_email=current_user.email,
-            account_name=current_user.full_name,
-            is_connected=True,
-            scopes="gmail.readonly"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Gmail account is not connected. Please complete Google OAuth 2.0 connection first."
         )
-        db.add(account)
-        db.flush()
 
     account.last_synced_at = datetime.now(timezone.utc)
 
@@ -306,10 +311,12 @@ def connect_github(current_user: User = Depends(get_current_user)):
             "required_scopes": ["read:user", "repo"]
         }
 
+    state_token = create_oauth_state_token(current_user.id, "github")
     auth_url = (
         f"https://github.com/login/oauth/authorize?"
         f"client_id={settings.GITHUB_CLIENT_ID}&"
-        f"redirect_uri={settings.GITHUB_REDIRECT_URI}&"
+        f"redirect_uri={settings.effective_github_redirect_uri}&"
+        f"state={state_token}&"
         f"scope=read:user%20repo"
     )
     return {
@@ -319,25 +326,39 @@ def connect_github(current_user: User = Depends(get_current_user)):
     }
 
 
-@router.get("/github/callback", response_model=MessageResponse)
+@router.get("/github/callback")
 def github_callback(
     code: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """GitHub OAuth 2.0 exchange callback endpoint."""
+    """GitHub OAuth 2.0 exchange callback endpoint. Safely redirects back into JobPilot Android."""
+    if error:
+        return RedirectResponse(url=f"jobpilot://oauth/error?provider=github&message={error}")
+
+    user = current_user
+    if not user and state:
+        decoded = decode_oauth_state_token(state)
+        if decoded and decoded.get("sub"):
+            user = db.query(User).filter(User.id == decoded["sub"]).first()
+
+    if not user:
+        return RedirectResponse(url="jobpilot://oauth/error?provider=github&message=Authentication+failed")
+
     if not code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing authorization code.")
+        return RedirectResponse(url="jobpilot://oauth/error?provider=github&message=Missing+authorization+code")
 
     acc = db.query(ConnectedAccount).filter(
-        ConnectedAccount.user_id == current_user.id,
+        ConnectedAccount.user_id == user.id,
         ConnectedAccount.provider == "github"
     ).first()
     if not acc:
         acc = ConnectedAccount(
-            user_id=current_user.id,
+            user_id=user.id,
             provider="github",
-            account_name=current_user.full_name,
+            account_name=user.full_name,
             is_connected=True,
             scopes="read:user,repo",
             last_synced_at=datetime.now(timezone.utc)
@@ -348,7 +369,7 @@ def github_callback(
         acc.last_synced_at = datetime.now(timezone.utc)
 
     db.commit()
-    return MessageResponse(status="success", message="GitHub connected successfully.")
+    return RedirectResponse(url="jobpilot://oauth/success?provider=github")
 
 
 @router.get("/github/repos", response_model=List[GitHubRepoDto])
@@ -463,11 +484,13 @@ def connect_linkedin(current_user: User = Depends(get_current_user)):
             "required_scopes": ["openid", "profile", "email"]
         }
 
+    state_token = create_oauth_state_token(current_user.id, "linkedin")
     auth_url = (
         f"https://www.linkedin.com/oauth/v2/authorization?"
         f"response_type=code&"
         f"client_id={settings.LINKEDIN_CLIENT_ID}&"
-        f"redirect_uri={settings.LINKEDIN_REDIRECT_URI}&"
+        f"redirect_uri={settings.effective_linkedin_redirect_uri}&"
+        f"state={state_token}&"
         f"scope=openid%20profile%20email"
     )
     return {
@@ -477,25 +500,39 @@ def connect_linkedin(current_user: User = Depends(get_current_user)):
     }
 
 
-@router.get("/linkedin/callback", response_model=MessageResponse)
+@router.get("/linkedin/callback")
 def linkedin_callback(
     code: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    """LinkedIn OAuth 2.0 exchange callback endpoint."""
+    """LinkedIn OAuth 2.0 exchange callback endpoint. Safely redirects back into JobPilot Android."""
+    if error:
+        return RedirectResponse(url=f"jobpilot://oauth/error?provider=linkedin&message={error}")
+
+    user = current_user
+    if not user and state:
+        decoded = decode_oauth_state_token(state)
+        if decoded and decoded.get("sub"):
+            user = db.query(User).filter(User.id == decoded["sub"]).first()
+
+    if not user:
+        return RedirectResponse(url="jobpilot://oauth/error?provider=linkedin&message=Authentication+failed")
+
     if not code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing authorization code.")
+        return RedirectResponse(url="jobpilot://oauth/error?provider=linkedin&message=Missing+authorization+code")
 
     acc = db.query(ConnectedAccount).filter(
-        ConnectedAccount.user_id == current_user.id,
+        ConnectedAccount.user_id == user.id,
         ConnectedAccount.provider == "linkedin"
     ).first()
     if not acc:
         acc = ConnectedAccount(
-            user_id=current_user.id,
+            user_id=user.id,
             provider="linkedin",
-            account_name=current_user.full_name,
+            account_name=user.full_name,
             is_connected=True,
             scopes="openid,profile,email",
             last_synced_at=datetime.now(timezone.utc)
@@ -506,7 +543,7 @@ def linkedin_callback(
         acc.last_synced_at = datetime.now(timezone.utc)
 
     db.commit()
-    return MessageResponse(status="success", message="LinkedIn connected successfully.")
+    return RedirectResponse(url="jobpilot://oauth/success?provider=linkedin")
 
 
 @router.post("/linkedin/disconnect", response_model=MessageResponse)

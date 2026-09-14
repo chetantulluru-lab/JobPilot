@@ -12,6 +12,8 @@ interface AuthRepository {
     fun getCurrentUser(): User?
     suspend fun login(email: String, password: String): Result<User>
     suspend fun register(fullName: String, email: String, password: String): Result<User>
+    suspend fun startRegistration(fullName: String, email: String, password: String): Result<String>
+    suspend fun verifyRegistrationOtp(email: String, otp: String): Result<User>
     suspend fun sendPasswordReset(email: String): Result<Unit>
     suspend fun logout()
     fun hasActiveSession(): Boolean
@@ -64,6 +66,23 @@ class MockAuthRepository : AuthRepository {
         } else {
             Result.failure(IllegalArgumentException("Please fill in all fields with valid information."))
         }
+    }
+
+    override suspend fun startRegistration(fullName: String, email: String, password: String): Result<String> {
+        delay(400)
+        return Result.success("Verification code sent to $email")
+    }
+
+    override suspend fun verifyRegistrationOtp(email: String, otp: String): Result<User> {
+        delay(400)
+        val user = User(
+            id = "user-${System.currentTimeMillis()}",
+            fullName = email.substringBefore("@").replaceFirstChar { it.uppercase() },
+            email = email,
+            profileStrength = 0
+        )
+        _currentUser.value = user
+        return Result.success(user)
     }
 
     override suspend fun sendPasswordReset(email: String): Result<Unit> {

@@ -74,6 +74,23 @@ class ConnectedAccountsViewModel(
         }
     }
 
+    fun startOAuthConnect(provider: AccountProvider, onUrl: (String) -> Unit) {
+        viewModelScope.launch {
+            val url = repository.getConnectUrl(provider)
+            if (url != null) {
+                onUrl(url)
+            } else {
+                _uiState.value = _uiState.value.copy(feedbackMessage = "Failed to obtain authorization link for ${provider.displayName}")
+            }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            repository.refreshAccounts()
+        }
+    }
+
     fun clearFeedback() {
         _uiState.value = _uiState.value.copy(feedbackMessage = null)
     }

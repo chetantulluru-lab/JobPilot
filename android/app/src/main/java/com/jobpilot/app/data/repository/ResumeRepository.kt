@@ -15,6 +15,8 @@ interface ResumeRepository {
     val resumesStream: Flow<List<Resume>>
     fun getAllResumes(): List<Resume>
     suspend fun parseUploadedResume(fileName: String): ResumeParsedData
+    suspend fun uploadResumeFile(bytes: ByteArray, fileName: String, mimeType: String): Result<ResumeParsedData>
+    suspend fun confirmResume(resumeId: String): Result<Unit>
     suspend fun createResume(title: String, templateType: ResumeTemplateType, profile: CareerProfile): Resume
     suspend fun tailorResumeForJob(resumeId: String, jobTitle: String): Resume
     suspend fun exportPdfToFile(resumeId: String, destFile: java.io.File): Result<java.io.File>
@@ -49,6 +51,15 @@ class MockResumeRepository : ResumeRepository {
         // Simulates NLP processing delay with mock structured extraction
         delay(1200)
         return MockDataProvider.mockParsedResume
+    }
+
+    override suspend fun uploadResumeFile(bytes: ByteArray, fileName: String, mimeType: String): Result<ResumeParsedData> {
+        delay(1200)
+        return Result.success(MockDataProvider.mockParsedResume)
+    }
+
+    override suspend fun confirmResume(resumeId: String): Result<Unit> {
+        return Result.success(Unit)
     }
 
     override suspend fun createResume(title: String, templateType: ResumeTemplateType, profile: CareerProfile): Resume {

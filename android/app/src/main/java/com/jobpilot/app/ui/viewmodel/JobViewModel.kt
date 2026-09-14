@@ -26,15 +26,19 @@ class JobViewModel(
     val uiState: StateFlow<JobUiState> = _uiState.asStateFlow()
 
     init {
-        loadJobs()
-    }
-
-    private fun loadJobs() {
-        val all = jobRepository.getAllJobs()
-        _uiState.value = _uiState.value.copy(
-            jobs = all,
-            filteredJobs = all
-        )
+        viewModelScope.launch {
+            jobRepository.jobsStream.collect { list ->
+                _uiState.value = _uiState.value.copy(
+                    jobs = list,
+                    filteredJobs = if (_uiState.value.searchQuery.isBlank() && (_uiState.value.selectedWorkMode == "All" || _uiState.value.selectedWorkMode.isBlank())) list else _uiState.value.filteredJobs
+                )
+            }
+        }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            jobRepository.refreshJobs()
+            _uiState.value = _uiState.value.copy(isLoading = false)
+        }
     }
 
     fun onSearchQueryChanged(query: String) {
@@ -60,5 +64,13 @@ class JobViewModel(
     fun selectJobById(id: String) {
         val job = jobRepository.getJobById(id)
         _uiState.value = _uiState.value.copy(selectedJob = job)
+        viewModelScope.launch {
+            val updatedMatch = jobRepository.getJobMatch(id)
+            if (updatedMatch != null && _uiState.value.selectedJob?.id == id) {
+                _uiState.value = _uiState.value.copy(
+                    selectedJob = _uiState.value.selectedJob?.copy(matchDetails = updatedMatch)
+                )
+            }
+        }
     }
 }

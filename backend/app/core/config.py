@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     RESUME_UPLOAD_DIR: str = "storage/resumes"
     MAX_RESUME_FILE_SIZE_MB: int = 10
 
-    # 5. Future Integrations (Optional Placeholders)
+    BACKEND_PUBLIC_URL: str = "https://jobpilot-backend-e97f.onrender.com"
     GOOGLE_CLIENT_ID: Optional[str] = None
     GOOGLE_CLIENT_SECRET: Optional[str] = None
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/google/callback"
@@ -79,12 +79,30 @@ class Settings(BaseSettings):
         return bool(self.GOOGLE_CLIENT_ID and self.GOOGLE_CLIENT_SECRET)
 
     @property
+    def effective_google_redirect_uri(self) -> str:
+        if self.is_production:
+            return f"{self.BACKEND_PUBLIC_URL}/api/v1/integrations/google/callback"
+        return self.GOOGLE_REDIRECT_URI
+
+    @property
     def has_github_oauth(self) -> bool:
         return bool(self.GITHUB_CLIENT_ID and self.GITHUB_CLIENT_SECRET)
 
     @property
+    def effective_github_redirect_uri(self) -> str:
+        if self.is_production:
+            return f"{self.BACKEND_PUBLIC_URL}/api/v1/integrations/github/callback"
+        return self.GITHUB_REDIRECT_URI
+
+    @property
     def has_linkedin_oauth(self) -> bool:
         return bool(self.LINKEDIN_CLIENT_ID and self.LINKEDIN_CLIENT_SECRET)
+
+    @property
+    def effective_linkedin_redirect_uri(self) -> str:
+        if self.is_production:
+            return f"{self.BACKEND_PUBLIC_URL}/api/v1/integrations/linkedin/callback"
+        return self.LINKEDIN_REDIRECT_URI
 
     @property
     def has_openai_key(self) -> bool:

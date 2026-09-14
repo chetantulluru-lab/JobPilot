@@ -152,14 +152,20 @@ fun JobCardItem(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                job.matchDetails.strongMatches.take(3).forEach { skill ->
-                    SkillChip(skillName = skill, variant = ChipVariant.STRONG_MATCH)
-                }
-                if (job.matchDetails.missingSkills.isNotEmpty()) {
-                    SkillChip(
-                        skillName = job.matchDetails.missingSkills.first(),
-                        variant = ChipVariant.MISSING_GAP
-                    )
+                if (job.matchDetails.matchScore != null && job.matchDetails.strongMatches.isNotEmpty()) {
+                    job.matchDetails.strongMatches.take(3).forEach { skill ->
+                        SkillChip(skillName = skill, variant = ChipVariant.STRONG_MATCH)
+                    }
+                    if (job.matchDetails.missingSkills.isNotEmpty()) {
+                        SkillChip(
+                            skillName = job.matchDetails.missingSkills.first(),
+                            variant = ChipVariant.MISSING_GAP
+                        )
+                    }
+                } else {
+                    job.requirements.take(3).forEach { skill ->
+                        SkillChip(skillName = skill, variant = ChipVariant.NEUTRAL)
+                    }
                 }
             }
         }

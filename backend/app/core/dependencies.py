@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -58,7 +58,27 @@ def get_current_user(
 def get_current_active_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    """Verifies that the current user is active."""
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    """Verifies that the current user account is active."""
     return current_user
+
+
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/token",
+    auto_error=False
+)
+
+
+def get_current_user_optional(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Retrieves authenticated user if Bearer token is present, otherwise returns None without 401."""
+    if not token:
+        return None
+    payload = decode_token(token)
+    if not payload:
+        return None
+    user_id = payload.get("sub")
+    if not user_id or payload.get("type") != "access":
+        return None
+    return db.query(User).filter(User.id == user_id, User.is_active == True).first()
