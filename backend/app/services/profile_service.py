@@ -35,9 +35,9 @@ class ProfileService:
         if not profile:
             profile = CareerProfile(
                 user_id=user_id,
-                headline="Software Engineer & Technologist",
-                summary="Passionate engineer building solutions with modern technologies.",
-                profile_strength=50
+                headline="",
+                summary="",
+                profile_strength=0
             )
             db.add(profile)
             db.commit()
@@ -48,20 +48,29 @@ class ProfileService:
     def calculate_profile_strength(profile: CareerProfile) -> int:
         """
         Dynamically calculates profile completeness percentage (0 to 100).
+        Strictly starts at 0% for an empty profile and grows as the candidate adds verified sections.
         """
-        score = 20  # Base account creation score
+        score = 0
+        # 1. Personal & Contact info (Phone + Location): 15%
         if profile.personal_info and profile.personal_info.phone and profile.personal_info.location:
             score += 15
+        # 2. Education (at least 1 entry): 20%
         if profile.education and len(profile.education) > 0:
-            score += 15
+            score += 20
+        # 3. Skills (20% for 3+ skills, 10% for 1-2 skills): 20%
         if profile.skills and len(profile.skills) >= 3:
             score += 20
-        if profile.projects and len(profile.projects) >= 1:
-            score += 15
-        if profile.experience and len(profile.experience) >= 1:
+        elif profile.skills and len(profile.skills) > 0:
             score += 10
+        # 4. Projects (at least 1 project): 20%
+        if profile.projects and len(profile.projects) >= 1:
+            score += 20
+        # 5. Practical Experience (at least 1 entry): 15%
+        if profile.experience and len(profile.experience) >= 1:
+            score += 15
+        # 6. Social / Professional Profiles (LinkedIn or GitHub): 10%
         if profile.social_profiles and len(profile.social_profiles) >= 1:
-            score += 5
+            score += 10
         return min(score, 100)
 
     @classmethod

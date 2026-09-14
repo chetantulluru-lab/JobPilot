@@ -3,6 +3,8 @@ package com.jobpilot.app.ui.screens.resume
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import com.jobpilot.app.data.model.ResumeTemplateType
 import com.jobpilot.app.ui.components.GlassCard
 import com.jobpilot.app.ui.components.JobPilotButton
@@ -28,6 +29,9 @@ import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.ProfileViewModel
 import com.jobpilot.app.ui.viewmodel.ResumeViewModel
 import com.jobpilot.app.ui.viewmodel.RoadmapViewModel
+import com.jobpilot.app.util.AtsResumeData
+import com.jobpilot.app.util.AtsResumePdfGenerator
+import com.jobpilot.app.util.AtsResumeProject
 import java.io.File
 
 data class ProjectItemInput(
@@ -94,6 +98,57 @@ fun CreateResumeScreen(
 
     var isExporting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
+    var selectedTemplate by remember { mutableStateOf(ResumeTemplateType.MODERN) }
+    var savedPdfUri by remember { mutableStateOf<Uri?>(null) }
+
+    val createDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri: Uri? ->
+        if (uri != null) {
+            isExporting = true
+            try {
+                val parsedSkills = skillsText.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                val parsedProjects = projectsList.map { p ->
+                    AtsResumeProject(
+                        name = p.title,
+                        tech = p.techStack,
+                        description = p.description,
+                        link = p.githubUrl
+                    )
+                }
+                val atsData = AtsResumeData(
+                    fullName = fullName,
+                    email = email,
+                    phone = phone,
+                    location = "Bengaluru, India",
+                    githubUrl = githubUrl,
+                    linkedinUrl = linkedinUrl,
+                    summary = "Motivated Software Engineer passionate about backend architecture, mobile engineering, and scalable distributed systems.",
+                    college = college,
+                    degree = branch,
+                    branch = branch,
+                    gradYear = gradYear,
+                    cgpa = cgpa,
+                    skills = parsedSkills,
+                    projects = parsedProjects,
+                    experience = experienceText,
+                    achievements = achievementsText,
+                    templateType = selectedTemplate
+                )
+
+                context.contentResolver.openOutputStream(uri)?.use { stream ->
+                    AtsResumePdfGenerator.generate(atsData, stream)
+                }
+
+                savedPdfUri = uri
+                statusMessage = "Resume saved successfully! Tap 'Open / View PDF' below."
+            } catch (e: Exception) {
+                statusMessage = "Error saving PDF: ${e.localizedMessage}"
+            } finally {
+                isExporting = false
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -125,6 +180,60 @@ fun CreateResumeScreen(
                 fontSize = 12.sp,
                 color = MaterialTheme.textSecondary
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 1-Page ATS Template Selector
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Choose 1-Page ATS Template",
+                        fontWeight = FontWeight.Bold,
+                        color = Orange500,
+                        fontSize = 14.sp
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            Triple(ResumeTemplateType.MODERN, "Modern ATS", "Orange Accent"),
+                            Triple(ResumeTemplateType.MINIMAL, "Classic Minimalist", "Black & White"),
+                            Triple(ResumeTemplateType.PROFESSIONAL, "Tech Engineering", "High Density")
+                        ).forEach { (tpl, title, desc) ->
+                            val isSelected = selectedTemplate == tpl
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { selectedTemplate = tpl },
+                                shape = JobPilotShapes.small,
+                                color = if (isSelected) Orange50 else BgWhite,
+                                border = BorderStroke(
+                                    1.5.dp,
+                                    if (isSelected) Orange500 else Slate200
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = title,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        color = if (isSelected) Orange600 else Slate900
+                                    )
+                                    Text(
+                                        text = desc,
+                                        fontSize = 9.sp,
+                                        color = if (isSelected) Orange500 else Slate500
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -412,13 +521,87 @@ fun CreateResumeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Saved PDF Card with Open & Share Actions
+            if (savedPdfUri != null) {
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = BgWhite
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SuccessGreen, modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("ATS Resume Saved Successfully!", fontWeight = FontWeight.Bold, color = Slate900, fontSize = 15.sp)
+                        }
+                        Text(
+                            text = "Your single-page ATS-compliant PDF is ready. You can view it immediately or share it with recruiters.",
+                            fontSize = 12.sp,
+                            color = Slate600,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    try {
+                                        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                                            setDataAndType(savedPdfUri, "application/pdf")
+                                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(viewIntent)
+                                    } catch (e: Exception) {
+                                        android.widget.Toast.makeText(context, "No PDF viewer app found on device", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.buttonColors(containerColor = Orange500),
+                                shape = JobPilotShapes.medium
+                            ) {
+                                Icon(Icons.Default.Visibility, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Open PDF", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    try {
+                                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "application/pdf"
+                                            putExtra(Intent.EXTRA_STREAM, savedPdfUri)
+                                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                        }
+                                        context.startActivity(Intent.createChooser(shareIntent, "Share ATS Resume"))
+                                    } catch (e: Exception) {
+                                        // Ignore
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                border = BorderStroke(1.dp, Orange500),
+                                shape = JobPilotShapes.medium
+                            ) {
+                                Icon(Icons.Default.Share, contentDescription = null, tint = Orange500, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Share", color = Orange500, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+            }
 
             // Status notification
             statusMessage?.let {
                 Text(
                     text = it,
-                    color = Orange500,
+                    color = if (it.startsWith("Error")) ErrorRed else Orange500,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -427,36 +610,10 @@ fun CreateResumeScreen(
 
             // Export & Download Button
             JobPilotButton(
-                text = if (isExporting) "Generating ATS Resume PDF..." else "Download ATS Resume (PDF)",
+                text = if (isExporting) "Generating ATS Resume PDF..." else "Save & Download ATS Resume (PDF)",
                 onClick = {
-                    isExporting = true
-                    statusMessage = null
-
-                    // Generate file in Downloads / Documents
-                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                        ?: context.filesDir
-                    val safeName = fullName.replace(" ", "_").ifBlank { "JobPilot" }
-                    val destPdfFile = File(downloadsDir, "${safeName}_ATS_Resume.pdf")
-
-                    resumeViewModel.exportPdf("current", destPdfFile)
-
-                    // Open / view PDF
-                    try {
-                        val contentUri: Uri = FileProvider.getUriForFile(
-                            context,
-                            "${context.packageName}.fileprovider",
-                            destPdfFile
-                        )
-                        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(contentUri, "application/pdf")
-                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        context.startActivity(viewIntent)
-                        statusMessage = "Resume saved to Downloads: ${destPdfFile.name}"
-                    } catch (e: Exception) {
-                        statusMessage = "Resume generated successfully (${destPdfFile.name})!"
-                    }
-                    isExporting = false
+                    val safeName = fullName.trim().replace("\\s+".toRegex(), "_").ifBlank { "JobPilot" }
+                    createDocumentLauncher.launch("${safeName}_ATS_Resume.pdf")
                 },
                 enabled = !isExporting,
                 leadingIcon = {

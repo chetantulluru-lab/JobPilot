@@ -17,17 +17,17 @@ object ThemeManager {
     private const val KEY_THEME = "app_theme_mode"
 
     private var prefs: SharedPreferences? = null
-    private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+    private val _themeMode = MutableStateFlow(ThemeMode.LIGHT)
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
     fun init(context: Context) {
         if (prefs == null) {
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val savedMode = prefs?.getString(KEY_THEME, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
+            val savedMode = prefs?.getString(KEY_THEME, ThemeMode.LIGHT.name) ?: ThemeMode.LIGHT.name
             _themeMode.value = try {
                 ThemeMode.valueOf(savedMode)
             } catch (e: Exception) {
-                ThemeMode.SYSTEM
+                ThemeMode.LIGHT
             }
         }
     }

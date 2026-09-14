@@ -95,8 +95,35 @@ class MockResumeRepository : ResumeRepository {
 
     override suspend fun exportPdfToFile(resumeId: String, destFile: java.io.File): Result<java.io.File> {
         return try {
-            delay(500)
-            destFile.writeBytes("%PDF-1.4 Mock PDF JobPilot Resume".toByteArray())
+            delay(300)
+            val r = _resumes.value.find { it.id == resumeId } ?: _resumes.value.firstOrNull()
+            destFile.outputStream().use { stream ->
+                val p = r?.profileSnapshot
+                val atsData = com.jobpilot.app.util.AtsResumeData(
+                    fullName = p?.personalInfo?.fullName ?: "Chetan",
+                    email = p?.personalInfo?.email ?: "chetan@example.com",
+                    phone = p?.personalInfo?.phone ?: "+91 98765 43210",
+                    location = p?.personalInfo?.location ?: "Bengaluru, India",
+                    summary = p?.personalInfo?.professionalSummary ?: "Software Engineer passionate about high performance systems.",
+                    degree = p?.education?.firstOrNull()?.degree ?: "B.Tech Computer Science",
+                    college = p?.education?.firstOrNull()?.college ?: "National Institute of Technology",
+                    branch = p?.education?.firstOrNull()?.branch ?: "Computer Science & Engineering",
+                    gradYear = p?.education?.firstOrNull()?.endDate ?: "2026",
+                    cgpa = p?.education?.firstOrNull()?.grade ?: "8.85 CGPA",
+                    skills = p?.skills?.map { it.name } ?: listOf("Python", "Kotlin", "FastAPI", "SQL"),
+                    projects = p?.projects?.map {
+                        com.jobpilot.app.util.AtsResumeProject(
+                            name = it.name,
+                            tech = it.technologies.joinToString(", "),
+                            description = it.description,
+                            link = it.githubUrl ?: ""
+                        )
+                    } ?: emptyList(),
+                    experience = p?.experience?.firstOrNull()?.description ?: "",
+                    templateType = r?.templateType ?: com.jobpilot.app.data.model.ResumeTemplateType.MODERN
+                )
+                com.jobpilot.app.util.AtsResumePdfGenerator.generate(atsData, stream)
+            }
             Result.success(destFile)
         } catch (e: Exception) {
             Result.failure(e)

@@ -38,7 +38,7 @@ fun RoadmapCreateScreen(
     var selectedCategory by remember { mutableStateOf("All") }
     var selectedDuration by remember { mutableStateOf("6 Months") }
 
-    val categories = listOf("All", "Core CSE", "Programming Languages", "AI & Data Science", "Web & Mobile")
+    val categories = listOf("All", "Core CSE", "Programming Languages", "Mobile Development", "AI & Data Science", "Web & Mobile")
     val durations = listOf("3 Months", "6 Months", "12 Months")
 
     // Default static course list for instant display while network loads
@@ -72,6 +72,106 @@ fun RoadmapCreateScreen(
             skills = listOf("Java 17/21", "Spring Boot", "JPA/Hibernate", "Microservices"),
             totalDays = 10,
             totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "android-kotlin",
+            title = "Android App Development (Kotlin & Jetpack Compose)",
+            category = "Mobile Development",
+            badge = "Native Android",
+            description = "Build modern, reactive Android apps with Kotlin, Jetpack Compose, Coroutines/Flow, Clean Architecture, and Retrofit.",
+            skills = listOf("Android", "Kotlin", "Jetpack Compose", "Coroutines", "Flow", "StateFlow", "Retrofit", "Room DB"),
+            totalDays = 4,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "ios-swift",
+            title = "iOS App Development (Swift & SwiftUI)",
+            category = "Mobile Development",
+            badge = "Apple Ecosystem",
+            description = "Master modern iOS application engineering with Swift 5+, SwiftUI, Combine, URLSession, and CoreData.",
+            skills = listOf("iOS", "Swift", "SwiftUI", "Combine", "URLSession", "CoreData", "MVVM"),
+            totalDays = 3,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "flutter-dart",
+            title = "Cross-Platform Mobile Dev (Flutter & Dart)",
+            category = "Mobile Development",
+            badge = "Multiplatform",
+            description = "Develop high-performance cross-platform iOS and Android apps from a single codebase with Flutter and Dart.",
+            skills = listOf("Flutter", "Dart", "Widgets", "Provider", "BLoC", "REST APIs", "Dio"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "react-native",
+            title = "Cross-Platform Mobile Dev (React Native & Expo)",
+            category = "Mobile Development",
+            badge = "Cross-Platform",
+            description = "Create native mobile apps using JavaScript, TypeScript, React Native, Expo, and native device bridge APIs.",
+            skills = listOf("React Native", "TypeScript", "Expo", "React Hooks", "AsyncStorage", "React Navigation"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "deep-learning-pytorch",
+            title = "Deep Learning with PyTorch",
+            category = "AI & Data Science",
+            badge = "Deep Learning",
+            description = "Train and evaluate deep neural networks, CNNs, RNNs, and custom architectures using PyTorch and GPU acceleration.",
+            skills = listOf("PyTorch", "Deep Learning", "Tensors", "Neural Networks", "CNN", "CUDA"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "generative-ai-llms",
+            title = "Generative AI & Large Language Models (LLMs & RAG)",
+            category = "AI & Data Science",
+            badge = "Trending AI",
+            description = "Engineer production LLM applications using LangChain, Prompt Engineering, Vector Databases, and Retrieval-Augmented Generation (RAG).",
+            skills = listOf("Generative AI", "LLMs", "LangChain", "RAG", "ChromaDB", "Prompt Engineering"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "nlp-transformers",
+            title = "Natural Language Processing & Transformers",
+            category = "AI & Data Science",
+            badge = "Applied NLP",
+            description = "Master NLP from TF-IDF tokenization to Hugging Face Transformers, BERT embeddings, and semantic search.",
+            skills = listOf("NLP", "Transformers", "BERT", "Hugging Face", "Tokenization", "TF-IDF"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "data-analytics",
+            title = "Data Analytics & Visualization",
+            category = "AI & Data Science",
+            badge = "Business Intelligence",
+            description = "Extract actionable business insights through exploratory data analysis, statistical modeling, Pandas, and interactive dashboards.",
+            skills = listOf("Data Analytics", "Python", "Pandas", "NumPy", "Matplotlib", "Seaborn", "SQL"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "rust-lang",
+            title = "Rust Systems Programming",
+            category = "Programming Languages",
+            badge = "Memory Safe",
+            description = "Build blazingly fast, memory-safe system software with Rust, ownership, borrowing, lifetimes, and fearless concurrency.",
+            skills = listOf("Rust", "Systems Programming", "Ownership", "Borrowing", "Lifetimes", "Tokio"),
+            totalDays = 2,
+            totalPhases = 1
+        ),
+        CourseCatalogItemDto(
+            id = "typescript-lang",
+            title = "TypeScript & Modern Typed JavaScript",
+            category = "Programming Languages",
+            badge = "Web Standard",
+            description = "Level up JavaScript codebases with robust type safety, generics, utility types, and strict compiler configs.",
+            skills = listOf("TypeScript", "JavaScript", "Generics", "Type Inference", "Interfaces"),
+            totalDays = 2,
+            totalPhases = 1
         ),
         CourseCatalogItemDto(
             id = "ml-ai-dev",

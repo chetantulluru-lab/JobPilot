@@ -78,3 +78,29 @@ def test_projects_crud(client, user_a_headers):
     # Delete project
     del_res = client.delete(f"/api/v1/profile/projects/{proj_id}", headers=user_a_headers)
     assert del_res.status_code == 204
+
+
+def test_empty_profile_strength_starts_at_zero(client, db):
+    import uuid
+    unique_email = f"fresh_{uuid.uuid4().hex[:8]}@example.com"
+    # Register a brand new user with no profile data
+    reg_res = client.post(
+        "/api/v1/auth/register",
+        json={"email": unique_email, "password": "SecurePassword123!", "full_name": "Fresh User"}
+    )
+    assert reg_res.status_code == 201
+
+    login_res = client.post(
+        "/api/v1/auth/login",
+        json={"email": unique_email, "password": "SecurePassword123!"}
+    )
+    assert login_res.status_code == 200
+    fresh_token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {fresh_token}"}
+
+    # Fetch initial profile
+    prof_res = client.get("/api/v1/profile", headers=headers)
+    assert prof_res.status_code == 200
+    prof_data = prof_res.json()
+    assert prof_data["profile_strength"] == 0, f"Expected 0% for empty profile, got {prof_data['profile_strength']}%"
+

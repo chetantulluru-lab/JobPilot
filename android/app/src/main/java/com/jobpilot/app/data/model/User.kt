@@ -7,5 +7,5 @@ data class User(
     val profileImageUrl: String? = null,
     val isEmailVerified: Boolean = true,
     val createdAt: String = "2026-09-01",
-    val profileStrength: Int = 86
+    val profileStrength: Int = 0
 )

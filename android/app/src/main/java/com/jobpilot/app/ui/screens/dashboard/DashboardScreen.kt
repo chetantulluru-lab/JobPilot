@@ -51,18 +51,22 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = if (uiState.userName.isNotBlank()) "Welcome, ${uiState.userName}" else "Welcome to JobPilot",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.textMuted
-                    )
-                    Text(
-                        text = "Career Cockpit",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.textPrimary,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    JobPilotGlowingBadge(size = 38.dp)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = if (uiState.userName.isNotBlank()) "Welcome, ${uiState.userName}" else "Welcome to JobPilot",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.textMuted
+                        )
+                        Text(
+                            text = "JobPilot",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.textPrimary,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
 
                 AIOrb(

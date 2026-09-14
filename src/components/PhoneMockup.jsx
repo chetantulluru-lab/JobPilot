@@ -44,7 +44,7 @@ export default function PhoneMockup({ className = '' }) {
           <div className="phone-app-header">
             <div className="phone-user-greeting">Welcome back, Candidate</div>
             <div className="phone-user-title">
-              <span>Career Cockpit</span>
+              <span>JobPilot</span>
               <div
                 style={{
                   width: '26px',

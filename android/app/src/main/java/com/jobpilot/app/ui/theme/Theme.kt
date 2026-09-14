@@ -56,16 +56,11 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun JobPilotTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
+    themeMode: ThemeMode = ThemeMode.LIGHT,
     content: @Composable () -> Unit
 ) {
-    val isDark = when (themeMode) {
-        ThemeMode.LIGHT -> false
-        ThemeMode.DARK -> true
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
-    }
-
-    val colorScheme = if (isDark) DarkColorScheme else LightColorScheme
+    // Strictly Light Theme only across the entire application as requested
+    val colorScheme = LightColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -74,8 +69,8 @@ fun JobPilotTheme(
             window?.let {
                 it.statusBarColor = colorScheme.background.toArgb()
                 it.navigationBarColor = colorScheme.surface.toArgb()
-                WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = !isDark
-                WindowCompat.getInsetsController(it, view).isAppearanceLightNavigationBars = !isDark
+                WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = true
+                WindowCompat.getInsetsController(it, view).isAppearanceLightNavigationBars = true
             }
         }
     }
@@ -90,21 +85,21 @@ fun JobPilotTheme(
 
 val MaterialTheme.textPrimary: Color
     @Composable
-    get() = if (colorScheme.background == Color(0xFF0F172A)) Color.White else Slate900
+    get() = Slate900
 
 val MaterialTheme.textSecondary: Color
     @Composable
-    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFFE2E8F0) else Slate600
+    get() = Slate700
 
 val MaterialTheme.textMuted: Color
     @Composable
-    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFF94A3B8) else Slate400
+    get() = Slate500
 
 val MaterialTheme.cardBg: Color
     @Composable
-    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0xFF1E293B) else BgWhite
+    get() = BgWhite
 
 val MaterialTheme.cardBorder: Color
     @Composable
-    get() = if (colorScheme.background == Color(0xFF0F172A)) Color(0x33FF6A00) else Color(0x260F172A)
+    get() = Slate200
 

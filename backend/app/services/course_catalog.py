@@ -1551,6 +1551,548 @@ CSE_COURSE_CATALOG: Dict[str, Dict[str, Any]] = {
             }
         ]
     },
+    "android-kotlin": {
+        "id": "android-kotlin",
+        "title": "Android App Development (Kotlin & Jetpack Compose)",
+        "category": "Mobile Development",
+        "badge": "Native Android",
+        "description": "Build modern, reactive Android apps with Kotlin, Jetpack Compose, Coroutines/Flow, Clean Architecture, and Retrofit.",
+        "skills": ["Android", "Kotlin", "Jetpack Compose", "Coroutines", "Flow", "StateFlow", "Retrofit", "Room DB"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Kotlin Foundations & Declarative Jetpack Compose UI",
+                "description": "Master Kotlin language idiomatic syntax and build declarative UIs with Jetpack Compose.",
+                "project_title": "Modern Recipe & Nutrition Explorer App",
+                "project_description": "Build a responsive multi-screen Compose app with dynamic lists, search filter, and custom theming.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Kotlin Idioms, Null Safety & Data Classes",
+                        "learning_objective": "Master Kotlin syntax essentials: val/var, nullability operators (?, ?:), data classes, lambdas, and extension functions.",
+                        "subtopics": ["Null safety and smart casting", "Data classes and sealed interfaces", "Lambdas and higher-order functions", "Kotlin extension functions"],
+                        "practice_tasks": ["Create a model hierarchy using sealed interfaces and data classes", "Write extension functions for Date and String formatting"],
+                        "resources": [
+                            {"title": "Kotlin Official Documentation", "url": "https://kotlinlang.org/docs/home.html", "language": "English", "resource_type": "doc", "source": "KotlinLang"},
+                            {"title": "Kotlin Full Course in Telugu", "url": "https://www.youtube.com/results?search_query=kotlin+full+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Kotlin for Android in Hindi", "url": "https://www.youtube.com/results?search_query=kotlin+android+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Jetpack Compose: Layouts, Modifiers & State",
+                        "learning_objective": "Build reactive UI with remember, mutableStateOf, Column/Row/Box, and LazyColumn for smooth list rendering.",
+                        "subtopics": ["Composable lifecycle and recomposition", "remember and rememberSaveable", "LazyColumn vs LazyRow performance", "Modifiers chaining rules"],
+                        "practice_tasks": ["Build an interactive todo item card with animated swipe dismissal", "Render an infinite scrolling feed with LazyColumn"],
+                        "resources": [
+                            {"title": "Jetpack Compose Pathway", "url": "https://developer.android.com/courses/pathways/compose", "language": "English", "resource_type": "doc", "source": "Android Developers"},
+                            {"title": "Jetpack Compose in Telugu", "url": "https://www.youtube.com/results?search_query=jetpack+compose+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Jetpack Compose Tutorial in Hindi", "url": "https://www.youtube.com/results?search_query=jetpack+compose+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "phase_number": 2,
+                "title": "MVVM, Coroutines, Retrofit & Room SQLite",
+                "description": "Architect robust apps with StateFlow, Coroutine Dispatchers, Retrofit REST client, and Room local persistence.",
+                "project_title": "Offline-First GitHub Repository Tracker",
+                "project_description": "Author a complete production app that caches GitHub repos locally in Room and syncs via Retrofit.",
+                "days": [
+                    {
+                        "day_number": 3,
+                        "topic": "Kotlin Coroutines, Dispatchers & Flow / StateFlow",
+                        "learning_objective": "Handle asynchronous background operations without blocking the Android main thread using suspend functions and StateFlow.",
+                        "subtopics": ["Dispatchers.IO vs Dispatchers.Main", "viewModelScope and lifecycle-aware collection", "Flow transformations: map, filter, combine", "StateFlow vs SharedFlow"],
+                        "practice_tasks": ["Refactor a blocking network call to async coroutine with viewModelScope", "Expose UI state as a single immutable StateFlow"],
+                        "resources": [
+                            {"title": "Kotlin Coroutines on Android", "url": "https://developer.android.com/kotlin/coroutines", "language": "English", "resource_type": "doc", "source": "Android Developers"}
+                        ]
+                    },
+                    {
+                        "day_number": 4,
+                        "topic": "Retrofit 2 REST Integration & Room Persistence",
+                        "learning_objective": "Consume REST APIs with Retrofit and Moshi/Gson, and persist structured data in Room SQLite.",
+                        "subtopics": ["Retrofit OkHttpClient logging interceptors", "Room Entity, DAO and Database classes", "Offline-first repository pattern", "Hilt dependency injection overview"],
+                        "practice_tasks": ["Create a Room DAO with Coroutines Flow return types", "Implement an offline-cache repository layer"],
+                        "resources": [
+                            {"title": "Save data in a local database using Room", "url": "https://developer.android.com/training/data-storage/room", "language": "English", "resource_type": "doc", "source": "Android Developers"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "ios-swift": {
+        "id": "ios-swift",
+        "title": "iOS App Development (Swift & SwiftUI)",
+        "category": "Mobile Development",
+        "badge": "Apple Ecosystem",
+        "description": "Master modern iOS application engineering with Swift 5+, SwiftUI, Combine, URLSession, and CoreData.",
+        "skills": ["iOS", "Swift", "SwiftUI", "Combine", "URLSession", "CoreData", "MVVM", "Xcode"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Swift Language & SwiftUI Declarative UI",
+                "description": "Foundations of Swift syntax, Optionals, Protocols, and building declarative views in SwiftUI.",
+                "project_title": "Daily Habit & Streak Tracker iOS App",
+                "project_description": "Build an iOS habit tracking app using SwiftUI Lists, NavigationStack, and custom SF Symbols.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Swift Language Fundamentals, Optionals & Protocols",
+                        "learning_objective": "Master Swift type system: Optional unwrapping (if let, guard let), structs vs classes, and protocols.",
+                        "subtopics": ["Optional binding and nil-coalescing", "Value types vs Reference types in Swift", "Protocol-oriented programming", "Closures and trailing syntax"],
+                        "practice_tasks": ["Model a domain hierarchy using Protocols and Codable structs", "Handle deep optional parsing safely with guard let"],
+                        "resources": [
+                            {"title": "Swift.org Tour", "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/guidedtour/", "language": "English", "resource_type": "doc", "source": "Swift.org"},
+                            {"title": "Swift & iOS in Telugu", "url": "https://www.youtube.com/results?search_query=swift+ios+tutorial+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "iOS App Development in Hindi", "url": "https://www.youtube.com/results?search_query=ios+development+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "SwiftUI Declarative Views & State Management",
+                        "learning_objective": "Build modern iOS views with @State, @Binding, @Observable, and NavigationStack.",
+                        "subtopics": ["VStack, HStack, ZStack composition", "@State and @Binding bidirectional sync", "List with dynamic Identifiable items", "SF Symbols and Apple Human Interface Guidelines"],
+                        "practice_tasks": ["Build a multi-step onboarding wizard in SwiftUI", "Implement a dark/light mode toggle with environment variables"],
+                        "resources": [
+                            {"title": "100 Days of SwiftUI", "url": "https://www.hackingwithswift.com/100/swiftui", "language": "English", "resource_type": "article", "source": "Hacking with Swift"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "phase_number": 2,
+                "title": "Networking, Persistence & Architecture",
+                "description": "Connect SwiftUI apps to REST backends with async/await URLSession and persist data with CoreData / SwiftData.",
+                "project_title": "Cryptocurrency Portfolio Watcher",
+                "project_description": "Fetch live crypto prices asynchronously, store watchlist in SwiftData, and render dynamic charts.",
+                "days": [
+                    {
+                        "day_number": 3,
+                        "topic": "Async / Await Networking with URLSession",
+                        "learning_objective": "Master Swift modern concurrency (async/await, Tasks, MainActor) and JSON decoding.",
+                        "subtopics": ["URLSession.shared.data(from:)", "JSONDecoder with Codable protocols", "@MainActor UI dispatching", "Error handling with custom Swift enums"],
+                        "practice_tasks": ["Fetch paginated JSON from a public API using async/await", "Handle network errors with a user-facing banner"],
+                        "resources": [
+                            {"title": "Swift Concurrency Guide", "url": "https://developer.apple.com/documentation/swift/concurrency", "language": "English", "resource_type": "doc", "source": "Apple Developer"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "flutter-dart": {
+        "id": "flutter-dart",
+        "title": "Cross-Platform Mobile Dev (Flutter & Dart)",
+        "category": "Mobile Development",
+        "badge": "Multiplatform",
+        "description": "Develop high-performance cross-platform iOS and Android apps from a single codebase with Flutter and Dart.",
+        "skills": ["Flutter", "Dart", "Widgets", "Provider", "BLoC", "State Management", "REST APIs", "Dio"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Dart Language & Flutter Widget Architecture",
+                "description": "Master Dart language concepts and core Flutter widget tree composition.",
+                "project_title": "Campus Event Discovery & Ticket Booking App",
+                "project_description": "Build an event catalog with card animations, category chips, and search filtering.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Dart Fundamentals & Flutter Widget Tree",
+                        "learning_objective": "Master Dart OOP, sound null safety, and building Stateless vs Stateful widgets.",
+                        "subtopics": ["Sound null safety in Dart", "StatelessWidget vs StatefulWidget lifecycle", "Container, Column, Row, Stack", "Scaffold, AppBar, FloatingActionButton"],
+                        "practice_tasks": ["Create a responsive profile card with custom Avatar and Badge", "Implement dynamic counter with setState"],
+                        "resources": [
+                            {"title": "Dart Language Tour", "url": "https://dart.dev/guides/language/language-tour", "language": "English", "resource_type": "doc", "source": "Dart.dev"},
+                            {"title": "Flutter Full Course in Telugu", "url": "https://www.youtube.com/results?search_query=flutter+full+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Flutter Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=flutter+full+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Navigation, State Management & Dio Networking",
+                        "learning_objective": "Implement multi-screen routing, state management with Riverpod/Provider, and REST integration with Dio.",
+                        "subtopics": ["Navigator 2.0 / GoRouter", "Provider and ChangeNotifier", "Dio HTTP client with interceptors", "JSON serialization with build_runner"],
+                        "practice_tasks": ["Build a master-detail navigation flow passing typed arguments", "Fetch and render API data with a loading shimmer indicator"],
+                        "resources": [
+                            {"title": "Flutter Documentation", "url": "https://docs.flutter.dev/", "language": "English", "resource_type": "doc", "source": "Flutter.dev"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "react-native": {
+        "id": "react-native",
+        "title": "Cross-Platform Mobile Dev (React Native & Expo)",
+        "category": "Mobile Development",
+        "badge": "Cross-Platform",
+        "description": "Create native mobile apps using JavaScript, TypeScript, React Native, Expo, and native device bridge APIs.",
+        "skills": ["React Native", "TypeScript", "Expo", "React Hooks", "AsyncStorage", "React Navigation", "Native Modules"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "React Native Fundamentals, Flexbox & Navigation",
+                "description": "Build mobile user interfaces with React primitives, Flexbox styling, and React Navigation.",
+                "project_title": "Food Delivery Ordering & Cart App",
+                "project_description": "Build a React Native mobile application with restaurant listings, item cart, and checkout summary.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "React Native Core Components & Flexbox Layouts",
+                        "learning_objective": "Learn React Native primitives (View, Text, Image, FlatList, TouchableOpacity) and mobile Flexbox.",
+                        "subtopics": ["React Native architecture (Hermes engine, TurboModules)", "Flexbox in React Native (column default, alignItems, justifyContent)", "FlatList optimization (keyExtractor, getItemLayout)", "StyleSheet API"],
+                        "practice_tasks": ["Build an Instagram-style post card with image, caption, and like button", "Render a virtualized list with FlatList"],
+                        "resources": [
+                            {"title": "React Native Official Docs", "url": "https://reactnative.dev/docs/getting-started", "language": "English", "resource_type": "doc", "source": "ReactNative.dev"},
+                            {"title": "React Native in Telugu", "url": "https://www.youtube.com/results?search_query=react+native+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "React Native in Hindi", "url": "https://www.youtube.com/results?search_query=react+native+full+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Navigation, Global State & Device Storage",
+                        "learning_objective": "Master Stack and BottomTab navigation, state management with Zustand, and offline storage with AsyncStorage.",
+                        "subtopics": ["@react-navigation/native-stack & bottom-tabs", "Zustand lightweight state store", "AsyncStorage key-value persistence", "Handling keyboard avoiding views"],
+                        "practice_tasks": ["Set up bottom navigation with 3 tabs and persist user theme preference", "Build a shopping cart with Zustand store"],
+                        "resources": [
+                            {"title": "React Navigation Docs", "url": "https://reactnavigation.org/docs/getting-started", "language": "English", "resource_type": "doc", "source": "ReactNavigation"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "deep-learning-pytorch": {
+        "id": "deep-learning-pytorch",
+        "title": "Deep Learning with PyTorch",
+        "category": "AI & Data Science",
+        "badge": "Deep Learning",
+        "description": "Train and evaluate deep neural networks, CNNs, RNNs, and custom architectures using PyTorch and GPU acceleration.",
+        "skills": ["PyTorch", "Deep Learning", "Tensors", "Neural Networks", "CNN", "RNN", "Loss Functions", "CUDA"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Tensors, Autograd & Multi-Layer Perceptrons",
+                "description": "Understand tensor computation, automatic differentiation, loss functions, and backpropagation in PyTorch.",
+                "project_title": "MNIST Digit & Fashion Classification Network",
+                "project_description": "Implement a custom PyTorch MLP classifier achieving >97% accuracy on benchmark test sets.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "PyTorch Tensors, Autograd & Computation Graphs",
+                        "learning_objective": "Master PyTorch tensor indexing, shapes, GPU allocation with .to(device), and autograd backward pass.",
+                        "subtopics": ["Tensor shapes, slicing, reshaping (view vs reshape)", "requires_grad and computational graphs", "torch.cuda.is_available() and device agnostic code", "Dataset and DataLoader classes"],
+                        "practice_tasks": ["Implement linear regression from scratch using pure PyTorch tensors and autograd", "Create a custom Dataset subclass with batch shuffling"],
+                        "resources": [
+                            {"title": "Deep Learning with PyTorch: A 60 Minute Blitz", "url": "https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html", "language": "English", "resource_type": "doc", "source": "PyTorch.org"},
+                            {"title": "PyTorch Deep Learning in Telugu", "url": "https://www.youtube.com/results?search_query=pytorch+deep+learning+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "PyTorch Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=pytorch+full+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Convolutional Neural Networks (CNN) & Transfer Learning",
+                        "learning_objective": "Build and train CNNs with Conv2d, MaxPool2d, Dropout, BatchNorm, and fine-tune pre-trained torchvision ResNet.",
+                        "subtopics": ["Convolution math (kernel size, stride, padding)", "Pooling and spatial dimension reduction", "Transfer learning with torchvision.models", "Model saving and checkpointing (torch.save)"],
+                        "practice_tasks": ["Train a 3-layer CNN on CIFAR-10 with data augmentation", "Fine-tune a pre-trained ResNet18 on custom image classes"],
+                        "resources": [
+                            {"title": "Transfer Learning for Computer Vision Tutorial", "url": "https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html", "language": "English", "resource_type": "doc", "source": "PyTorch.org"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "generative-ai-llms": {
+        "id": "generative-ai-llms",
+        "title": "Generative AI & Large Language Models (LLMs & RAG)",
+        "category": "AI & Data Science",
+        "badge": "Trending AI",
+        "description": "Engineer production LLM applications using LangChain, Prompt Engineering, Vector Databases, and Retrieval-Augmented Generation (RAG).",
+        "skills": ["Generative AI", "LLMs", "LangChain", "RAG", "Vector Databases", "ChromaDB", "Prompt Engineering", "OpenAI / Anthropic APIs"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Prompt Engineering, Function Calling & LangChain Foundations",
+                "description": "Master structured prompting strategies, LLM APIs, LangChain chains, and JSON output parsing.",
+                "project_title": "Automated Technical Resume Screener Agent",
+                "project_description": "Build an LLM-powered candidate screening tool that evaluates resumes against job descriptions with structured JSON output.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Prompt Engineering & Structured Model Outputs",
+                        "learning_objective": "Master system prompt design, Few-shot learning, temperature tuning, and guaranteed JSON schema output.",
+                        "subtopics": ["Zero-shot vs Few-shot prompt engineering", "Temperature, top_p, and hallucinations mitigation", "Structured outputs via Pydantic schema validation", "Token budgeting and context window management"],
+                        "practice_tasks": ["Write an extraction prompt that parses unstructured job postings into Pydantic models", "Benchmark prompt variations for hallucination reduction"],
+                        "resources": [
+                            {"title": "Prompt Engineering Guide", "url": "https://www.promptingguide.ai/", "language": "English", "resource_type": "article", "source": "DAIR.AI"},
+                            {"title": "Generative AI in Telugu", "url": "https://www.youtube.com/results?search_query=generative+ai+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Generative AI & LLMs in Hindi", "url": "https://www.youtube.com/results?search_query=generative+ai+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "RAG Pipelines with Embeddings & Vector Databases",
+                        "learning_objective": "Construct end-to-end Retrieval-Augmented Generation pipelines using sentence embeddings and ChromaDB.",
+                        "subtopics": ["Text chunking strategies (RecursiveCharacterTextSplitter)", "Dense embeddings (OpenAI, Hugging Face)", "Vector similarity search (Cosine, Dot Product)", "ChromaDB vector store collection management"],
+                        "practice_tasks": ["Index a 50-page PDF document into ChromaDB", "Build a Q&A pipeline that cites specific source page references"],
+                        "resources": [
+                            {"title": "LangChain Official Documentation", "url": "https://python.langchain.com/docs/get_started/introduction", "language": "English", "resource_type": "doc", "source": "LangChain"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "data-analytics": {
+        "id": "data-analytics",
+        "title": "Data Analytics & Visualization",
+        "category": "AI & Data Science",
+        "badge": "Business Intelligence",
+        "description": "Extract actionable business insights through exploratory data analysis, statistical modeling, Pandas, and interactive dashboards.",
+        "skills": ["Data Analytics", "Python", "Pandas", "NumPy", "Matplotlib", "Seaborn", "SQL", "Tableau"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Data Wrangling, Aggregations & Visual Storytelling",
+                "description": "Clean messy datasets, compute statistical summaries with Pandas, and create compelling charts with Seaborn.",
+                "project_title": "E-Commerce Customer Retention & Churn Analysis",
+                "project_description": "Analyze 100K transaction records to detect customer churn drivers and present an executive visual report.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Pandas Data Cleaning, Filtering & GroupBy Aggregations",
+                        "learning_objective": "Master DataFrame transformations: handling missing values, dtype casting, pivot tables, and groupby aggregations.",
+                        "subtopics": ["Handling null values (dropna, fillna, interpolate)", "Multi-index and Pivot tables", "GroupBy with custom aggregate functions", "Merging and joining DataFrames"],
+                        "practice_tasks": ["Clean a raw messy sales dataset with inconsistent dates and currencies", "Calculate 30-day rolling average revenue per customer segment"],
+                        "resources": [
+                            {"title": "Pandas User Guide", "url": "https://pandas.pydata.org/docs/user_guide/index.html", "language": "English", "resource_type": "doc", "source": "Pandas.pydata.org"},
+                            {"title": "Data Analytics in Telugu", "url": "https://www.youtube.com/results?search_query=data+analytics+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Data Analysis with Python in Hindi", "url": "https://www.youtube.com/results?search_query=data+analysis+python+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Exploratory Data Analysis (EDA) & Statistical Charts",
+                        "learning_objective": "Create production-ready data visualizations using Seaborn and Matplotlib.",
+                        "subtopics": ["Distribution plots (histplot, kdeplot)", "Correlation heatmaps", "Boxplots and outlier identification", "Data storytelling best practices"],
+                        "practice_tasks": ["Generate an EDA dashboard with 4 coordinated charts and insight callouts", "Identify and treat outliers using the IQR method"],
+                        "resources": [
+                            {"title": "Seaborn Tutorial", "url": "https://seaborn.pydata.org/tutorial.html", "language": "English", "resource_type": "doc", "source": "Seaborn.pydata.org"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "nlp-transformers": {
+        "id": "nlp-transformers",
+        "title": "Natural Language Processing & Transformers",
+        "category": "AI & Data Science",
+        "badge": "Applied NLP",
+        "description": "Master NLP from TF-IDF tokenization to Hugging Face Transformers, BERT embeddings, and semantic search.",
+        "skills": ["NLP", "Transformers", "BERT", "Hugging Face", "Tokenization", "TF-IDF", "Semantic Search", "Cosine Similarity"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Text Processing, Embeddings & Transformer Architectures",
+                "description": "Learn classical text tokenization, vector space models, and self-attention mechanisms in Transformers.",
+                "project_title": "Semantic Job Description to Resume Matcher",
+                "project_description": "Author an NLP matching engine that scores resume relevance using pre-trained sentence transformer embeddings.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Tokenization, Stemming, TF-IDF & Cosine Similarity",
+                        "learning_objective": "Understand NLP preprocessing pipelines and calculate semantic vector similarities.",
+                        "subtopics": ["N-grams, stopword removal, and lemmatization", "TF-IDF vectorizer parameters (max_df, min_df)", "Cosine similarity math and sparse matrix representations", "Word2Vec and GloVe concepts"],
+                        "practice_tasks": ["Build a TF-IDF text similarity calculator from scratch", "Extract top 10 keywords from technical job descriptions"],
+                        "resources": [
+                            {"title": "NLTK Book: Natural Language Processing with Python", "url": "https://www.nltk.org/book/", "language": "English", "resource_type": "article", "source": "NLTK.org"},
+                            {"title": "NLP Tutorial in Telugu", "url": "https://www.youtube.com/results?search_query=nlp+tutorial+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "NLP Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=nlp+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Self-Attention, BERT & Hugging Face Pipelines",
+                        "learning_objective": "Understand Transformer self-attention mechanisms and use Hugging Face for sentiment and classification.",
+                        "subtopics": ["Scaled dot-product attention equation", "BERT bidirectional encoder representations", "Hugging Face pipeline() API", "Fine-tuning with Trainer API overview"],
+                        "practice_tasks": ["Classify customer feedback sentiment using a Hugging Face pipeline", "Compute sentence embedding similarities using SentenceTransformers"],
+                        "resources": [
+                            {"title": "Hugging Face NLP Course", "url": "https://huggingface.co/learn/nlp-course", "language": "English", "resource_type": "doc", "source": "Hugging Face"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "rust-lang": {
+        "id": "rust-lang",
+        "title": "Rust Systems Programming",
+        "category": "Programming Languages",
+        "badge": "Memory Safe",
+        "description": "Build blazingly fast, memory-safe system software with Rust, ownership, borrowing, lifetimes, and fearless concurrency.",
+        "skills": ["Rust", "Systems Programming", "Ownership", "Borrowing", "Lifetimes", "Cargo", "Concurrency", "Tokio"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Ownership, Borrowing, Lifetimes & Fearless Concurrency",
+                "description": "Master the Rust compiler: zero-cost abstractions, borrow checker rules, and thread safety.",
+                "project_title": "High-Throughput Multi-Threaded HTTP Proxy",
+                "project_description": "Build a fast concurrent reverse proxy in Rust using Tokio and cross-thread message passing.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Rust Ownership, Borrowing & Lifetimes",
+                        "learning_objective": "Understand how Rust enforces memory safety without a garbage collector through ownership rules.",
+                        "subtopics": ["Ownership rules: move semantics vs Copy trait", "References and borrowing (& vs &mut)", "Slices and string types (String vs &str)", "Match pattern matching and Result<T, E> error handling"],
+                        "practice_tasks": ["Write a command-line string parser with zero memory allocations", "Implement a custom binary tree with safe Box pointers"],
+                        "resources": [
+                            {"title": "The Rust Programming Language (The Book)", "url": "https://doc.rust-lang.org/book/", "language": "English", "resource_type": "doc", "source": "Rust-lang.org"},
+                            {"title": "Rust Tutorial in Telugu", "url": "https://www.youtube.com/results?search_query=rust+programming+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "Rust Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=rust+programming+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Fearless Concurrency & Async Tokio",
+                        "learning_objective": "Safely share state across threads using Arc, Mutex, and mpsc channels, and write async tasks with Tokio.",
+                        "subtopics": ["std::thread and Send/Sync marker traits", "Arc<Mutex<T>> thread-safe state sharing", "mpsc channels for message passing", "Tokio runtime and async/await"],
+                        "practice_tasks": ["Implement a thread-safe in-memory cache with reader-writer locks", "Author an async HTTP fetcher with Tokio and Reqwest"],
+                        "resources": [
+                            {"title": "Tokio Async Rust Tutorial", "url": "https://tokio.rs/tokio/tutorial", "language": "English", "resource_type": "doc", "source": "Tokio.rs"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "typescript-lang": {
+        "id": "typescript-lang",
+        "title": "TypeScript & Modern Typed JavaScript",
+        "category": "Programming Languages",
+        "badge": "Web Standard",
+        "description": "Level up JavaScript codebases with robust type safety, generics, utility types, and strict compiler configs.",
+        "skills": ["TypeScript", "JavaScript", "Generics", "Type Inference", "Interfaces", "Union Types", "tsconfig"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Type System, Interfaces, Generics & Utility Types",
+                "description": "Master advanced TypeScript features, union narrowing, generic constraints, and strict configuration.",
+                "project_title": "Type-Safe REST API Client & Form Validation Library",
+                "project_description": "Build a zero-dependency type-safe HTTP client with compile-time query and body inference.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Type Annotations, Interfaces & Discriminated Unions",
+                        "learning_objective": "Master static typing in TypeScript, type aliases vs interfaces, and discriminated union patterns.",
+                        "subtopics": ["Primitive and literal types", "Interfaces vs Type Aliases (declaration merging)", "Discriminated unions and exhaustive switch checks", "Type narrowing with typeof, instanceof, and custom type guards"],
+                        "practice_tasks": ["Model a complex financial transaction state machine with discriminated unions", "Write custom type guards that validate external API responses"],
+                        "resources": [
+                            {"title": "TypeScript Handbook", "url": "https://www.typescriptlang.org/docs/handbook/intro.html", "language": "English", "resource_type": "doc", "source": "TypeScriptLang.org"},
+                            {"title": "TypeScript in Telugu", "url": "https://www.youtube.com/results?search_query=typescript+tutorial+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "TypeScript Course in Hindi", "url": "https://www.youtube.com/results?search_query=typescript+course+in+hindi+chai+aur+code", "language": "Hindi", "resource_type": "video", "source": "Chai aur Code"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Generics, Utility Types & tsconfig Best Practices",
+                        "learning_objective": "Write reusable generic code and leverage built-in utility types (Partial, Pick, Omit, Record).",
+                        "subtopics": ["Generic functions, interfaces, and constraints (extends)", "Built-in utility types: Partial, Pick, Omit, Record, Readonly", "keyof and typeof operators", "Strict tsconfig configurations (noImplicitAny, strictNullChecks)"],
+                        "practice_tasks": ["Implement a strongly typed EventEmitter with generic event payloads", "Create a deep Partial utility type for nested object updates"],
+                        "resources": [
+                            {"title": "Total TypeScript Tutorials", "url": "https://www.totaltypescript.com/tutorials", "language": "English", "resource_type": "article", "source": "Matt Pocock"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "csharp-lang": {
+        "id": "csharp-lang",
+        "title": "C# & .NET Enterprise Development",
+        "category": "Programming Languages",
+        "badge": "Enterprise",
+        "description": "Develop robust enterprise backends, web APIs, and desktop software with modern C# 12 and .NET 8.",
+        "skills": ["C#", ".NET 8", "ASP.NET Core", "Entity Framework Core", "LINQ", "Dependency Injection", "REST APIs"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "C# OOP, LINQ & ASP.NET Core Web API",
+                "description": "Master modern C# 12 features, LINQ data queries, Dependency Injection, and building REST APIs.",
+                "project_title": "Enterprise Inventory & Order Management API",
+                "project_description": "Build an ASP.NET Core Web API with Entity Framework Core, SQL Server/PostgreSQL, and JWT auth.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Modern C# Syntax, Records, Pattern Matching & LINQ",
+                        "learning_objective": "Master C# language primitives, primary constructors, immutable records, pattern matching, and LINQ.",
+                        "subtopics": ["Records vs Classes and value equality", "Pattern matching (switch expressions, property patterns)", "LINQ queries (Select, Where, OrderBy, GroupBy)", "Async/Await with Task and Task<T>"],
+                        "practice_tasks": ["Write complex data aggregation queries using LINQ fluent syntax", "Model immutable domain events using C# records"],
+                        "resources": [
+                            {"title": "C# Documentation - Microsoft Learn", "url": "https://learn.microsoft.com/en-us/dotnet/csharp/", "language": "English", "resource_type": "doc", "source": "Microsoft Learn"},
+                            {"title": "C# Full Course in Telugu", "url": "https://www.youtube.com/results?search_query=c%23+full+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "C# and .NET in Hindi", "url": "https://www.youtube.com/results?search_query=c%23+dotnet+course+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "ASP.NET Core Minimal APIs & Entity Framework Core",
+                        "learning_objective": "Build modern REST endpoints, configure Dependency Injection, and map relational databases with EF Core.",
+                        "subtopics": ["Minimal APIs vs Controller-based APIs", "Dependency Injection lifetimes (Transient, Scoped, Singleton)", "EF Core DbContext, migrations, and LINQ-to-Entities", "Swagger / OpenAPI documentation"],
+                        "practice_tasks": ["Create a CRUD REST service using ASP.NET Core Minimal APIs", "Perform database migrations with dotnet-ef CLI"],
+                        "resources": [
+                            {"title": "Tutorial: Create a minimal web API with ASP.NET Core", "url": "https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api", "language": "English", "resource_type": "doc", "source": "Microsoft Learn"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "php-lang": {
+        "id": "php-lang",
+        "title": "Modern PHP 8 & Laravel Framework",
+        "category": "Programming Languages",
+        "badge": "Web Backend",
+        "description": "Build secure, scalable full-stack web applications using modern PHP 8 features, Composer, and the Laravel framework.",
+        "skills": ["PHP 8", "Laravel", "Composer", "Eloquent ORM", "MVC", "Blade", "MySQL", "Authentication"],
+        "phases": [
+            {
+                "phase_number": 1,
+                "title": "Modern PHP 8 Syntax & Laravel Architecture",
+                "description": "Master PHP 8 constructor promotion, match expressions, Composer dependencies, and Laravel MVC architecture.",
+                "project_title": "Multi-Tenant SaaS Helpdesk & Ticket Portal",
+                "project_description": "Build a complete web application with Laravel, Blade templates, Eloquent relationships, and authentication.",
+                "days": [
+                    {
+                        "day_number": 1,
+                        "topic": "Modern PHP 8 Syntax, OOP & Composer",
+                        "learning_objective": "Master PHP 8 typed properties, constructor property promotion, match expressions, and Composer autoloading.",
+                        "subtopics": ["PHP 8 match expression vs switch", "Constructor property promotion and named arguments", "Namespaces, PSR-4 standards, and Composer", "Error handling with Throwable and custom exceptions"],
+                        "practice_tasks": ["Build an autoloader package complying with PSR-4 standards", "Refactor legacy PHP code to modern PHP 8 type declarations"],
+                        "resources": [
+                            {"title": "PHP The Right Way", "url": "https://phptherightway.com/", "language": "English", "resource_type": "article", "source": "PHPTheRightWay"},
+                            {"title": "PHP Full Course in Telugu", "url": "https://www.youtube.com/results?search_query=php+full+course+in+telugu", "language": "Telugu", "resource_type": "video", "source": "YouTube Telugu"},
+                            {"title": "PHP Full Course in Hindi", "url": "https://www.youtube.com/results?search_query=php+tutorial+in+hindi", "language": "Hindi", "resource_type": "video", "source": "YouTube Hindi"}
+                        ]
+                    },
+                    {
+                        "day_number": 2,
+                        "topic": "Laravel Routing, Controllers, Eloquent ORM & Blade",
+                        "learning_objective": "Master Laravel request lifecycle, Eloquent relationships, migrations, and Blade templating.",
+                        "subtopics": ["Artisan CLI commands", "Eloquent relationships (hasMany, belongsTo)", "Database migrations and seeders", "Blade components and layouts"],
+                        "practice_tasks": ["Create a one-to-many relationship with Eloquent and write eager loading queries", "Build an authenticated admin panel with Laravel Breeze"],
+                        "resources": [
+                            {"title": "Laravel Documentation", "url": "https://laravel.com/docs", "language": "English", "resource_type": "doc", "source": "Laravel.com"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
 
 }
 

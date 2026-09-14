@@ -45,12 +45,12 @@ class AuthService:
         db.add(user)
         db.flush()
 
-        # Create associated clean empty CareerProfile (Zero-Fabrication)
+        # Create associated clean empty CareerProfile (Strictly 0% until sections added)
         profile = CareerProfile(
             user_id=user.id,
             headline=None,
             summary=None,
-            profile_strength=20
+            profile_strength=0
         )
         db.add(profile)
         db.flush()

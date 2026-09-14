@@ -16,14 +16,26 @@ def test_course_catalog():
     assert response.status_code == 200
     data = response.json()
     assert "courses" in data
-    assert len(data["courses"]) >= 8
+    assert len(data["courses"]) >= 28
 
-    # Verify DSA and Python Developer courses are present
+    # Verify DSA, Mobile Dev, AI & Language tracks are all present
     ids = [c["id"] for c in data["courses"]]
     assert "dsa-cse" in ids
     assert "python-dev" in ids
     assert "java-dev" in ids
     assert "os-cse" in ids
+    assert "android-kotlin" in ids
+    assert "ios-swift" in ids
+    assert "flutter-dart" in ids
+    assert "react-native" in ids
+    assert "deep-learning-pytorch" in ids
+    assert "generative-ai-llms" in ids
+    assert "data-analytics" in ids
+    assert "nlp-transformers" in ids
+    assert "rust-lang" in ids
+    assert "typescript-lang" in ids
+    assert "csharp-lang" in ids
+    assert "php-lang" in ids
 
 
 def test_generate_from_multiple_courses(auth_headers):
