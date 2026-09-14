@@ -52,7 +52,7 @@ fun RoadmapHubScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BgWarmWhite)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {

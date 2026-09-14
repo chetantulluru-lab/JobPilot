@@ -137,3 +137,35 @@ class LLMRoadmapStructure(BaseModel):
     duration: str
     skills_learned: List[str]
     phases: List[LLMPhase]
+
+
+# --- Course Catalog & Curriculum Assistant Schemas ---
+class CourseCatalogItem(BaseModel):
+    id: str
+    title: str
+    category: str
+    badge: str
+    description: str
+    skills: List[str]
+    total_days: int
+    total_phases: int
+
+
+class CourseCatalogResponse(BaseModel):
+    courses: List[CourseCatalogItem]
+
+
+class RoadmapGenerateFromCoursesRequest(BaseModel):
+    course_ids: List[str]
+    duration: str = "6 Months"
+
+
+class CurriculumAssistantRequest(BaseModel):
+    topic: str
+    question: str
+    day_number: Optional[int] = None
+
+
+class CurriculumAssistantResponse(BaseModel):
+    answer: str
+    topic: str

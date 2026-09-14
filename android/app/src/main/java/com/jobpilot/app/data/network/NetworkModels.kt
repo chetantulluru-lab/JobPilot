@@ -613,6 +613,37 @@ data class RoadmapGenerateRequestDto(
     @SerializedName("duration") val duration: String = "6 Months"
 )
 
+data class CourseCatalogItemDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("category") val category: String,
+    @SerializedName("badge") val badge: String = "Popular",
+    @SerializedName("description") val description: String,
+    @SerializedName("skills") val skills: List<String> = emptyList(),
+    @SerializedName("total_days") val totalDays: Int = 10,
+    @SerializedName("total_phases") val totalPhases: Int = 2
+)
+
+data class CourseCatalogResponseDto(
+    @SerializedName("courses") val courses: List<CourseCatalogItemDto> = emptyList()
+)
+
+data class RoadmapGenerateFromCoursesRequestDto(
+    @SerializedName("course_ids") val courseIds: List<String>,
+    @SerializedName("duration") val duration: String = "6 Months"
+)
+
+data class CurriculumAssistantRequestDto(
+    @SerializedName("topic") val topic: String,
+    @SerializedName("question") val question: String,
+    @SerializedName("day_number") val dayNumber: Int? = null
+)
+
+data class CurriculumAssistantResponseDto(
+    @SerializedName("answer") val answer: String,
+    @SerializedName("topic") val topic: String
+)
+
 data class PracticeTaskDto(
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String,

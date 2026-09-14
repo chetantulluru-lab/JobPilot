@@ -10,5 +10,6 @@ class JobPilotApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         container = DefaultAppContainer(this)
+        com.jobpilot.app.ui.theme.ThemeManager.init(this)
     }
 }

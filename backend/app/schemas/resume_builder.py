@@ -54,3 +54,21 @@ class ResumeTailorResponse(BaseModel):
     matched_keywords_to_emphasize: List[str]
     missing_skills_notice: List[str]
     is_fallback: bool
+
+
+class StudentResumeCreateRequest(BaseModel):
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    college: Optional[str] = None
+    branch: Optional[str] = None
+    cgpa: Optional[str] = None
+    grad_year: Optional[str] = None
+    github: Optional[str] = None
+    linkedin: Optional[str] = None
+    portfolio: Optional[str] = None
+    skills: List[str] = []
+    projects: List[Dict[str, Any]] = []
+    experience: Optional[str] = None
+    achievements: Optional[str] = None
+    template_type: str = "Modern"

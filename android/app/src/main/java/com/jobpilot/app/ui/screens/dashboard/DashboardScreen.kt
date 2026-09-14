@@ -60,7 +60,7 @@ fun DashboardScreen(
                     Text(
                         text = "Career Cockpit",
                         style = MaterialTheme.typography.headlineLarge,
-                        color = Slate900,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -71,7 +71,7 @@ fun DashboardScreen(
                 )
             }
         },
-        containerColor = BgWarmWhite
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier

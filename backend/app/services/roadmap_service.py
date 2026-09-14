@@ -646,3 +646,149 @@ class RoadmapService:
             skills_learned=[f"{goal} Fundamentals", f"{goal} Architecture", "Debugging", "Testing"],
             phases=phases
         )
+
+    @classmethod
+    def get_catalog_courses(cls) -> List[Dict[str, Any]]:
+        from app.services.course_catalog import get_all_catalog_courses
+        return get_all_catalog_courses()
+
+    @classmethod
+    def generate_from_courses(
+        cls, db: Session, user_id: str, course_ids: List[str], duration: str = "6 Months"
+    ) -> RoadmapDetailResponse:
+        from app.services.course_catalog import CSE_COURSE_CATALOG
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+        if not course_ids:
+            course_ids = ["dsa-cse", "python-dev"]
+
+        selected_courses = [CSE_COURSE_CATALOG[cid] for cid in course_ids if cid in CSE_COURSE_CATALOG]
+        if not selected_courses:
+            selected_courses = [next(iter(CSE_COURSE_CATALOG.values()))]
+
+        title_parts = [c["title"] for c in selected_courses]
+        if len(title_parts) == 1:
+            title = f"{title_parts[0]} Roadmap"
+        else:
+            title = f"Master Track: {' + '.join(title_parts)}"
+
+        all_skills = []
+        for c in selected_courses:
+            for s in c.get("skills", []):
+                if s not in all_skills:
+                    all_skills.append(s)
+
+        roadmap = Roadmap(
+            user_id=user_id,
+            title=title,
+            goal=" + ".join(title_parts),
+            duration=duration,
+            total_days=0,
+            completed_days=0,
+            progress_percentage=0,
+            is_completed=False,
+            skills_learned_json=json.dumps(all_skills)
+        )
+        db.add(roadmap)
+        db.flush()
+
+        current_phase_num = 1
+        current_day_num = 1
+        total_days_count = 0
+
+        for c in selected_courses:
+            for phase_data in c.get("phases", []):
+                phase_title = f"{phase_data['title']} ({c['title']})" if len(selected_courses) > 1 else phase_data['title']
+                phase = RoadmapPhase(
+                    roadmap_id=roadmap.id,
+                    phase_number=current_phase_num,
+                    title=phase_title,
+                    description=phase_data.get("description", ""),
+                    is_unlocked=(current_phase_num == 1),
+                    is_completed=False,
+                    project_title=phase_data.get("project_title", ""),
+                    project_description=phase_data.get("project_description", "")
+                )
+                db.add(phase)
+                db.flush()
+
+                for day_data in phase_data.get("days", []):
+                    practice_tasks_formatted = []
+                    for t in day_data.get("practice_tasks", []):
+                        if isinstance(t, str):
+                            practice_tasks_formatted.append({"title": t, "description": t})
+                        elif isinstance(t, dict):
+                            practice_tasks_formatted.append(t)
+
+                    day = RoadmapDay(
+                        roadmap_id=roadmap.id,
+                        phase_id=phase.id,
+                        day_number=current_day_num,
+                        topic=day_data["topic"],
+                        learning_objective=day_data.get("learning_objective", ""),
+                        subtopics_json=json.dumps(day_data.get("subtopics", [])),
+                        practice_tasks_json=json.dumps(practice_tasks_formatted),
+                        is_completed=False
+                    )
+                    db.add(day)
+                    db.flush()
+
+                    for res in day_data.get("resources", []):
+                        db.add(RoadmapResource(
+                            day_id=day.id,
+                            phase_id=phase.id,
+                            title=res["title"],
+                            url=res["url"],
+                            language=res.get("language", "English"),
+                            resource_type=res.get("resource_type", "article"),
+                            source=res.get("source", "Web")
+                        ))
+
+                    current_day_num += 1
+                    total_days_count += 1
+
+                current_phase_num += 1
+
+        roadmap.total_days = total_days_count
+        db.commit()
+
+        return cls.get_roadmap_detail(db, user_id, roadmap.id)
+
+    @classmethod
+    def ask_curriculum_assistant(
+        cls, topic: str, question: str, day_number: Optional[int] = None
+    ) -> Dict[str, str]:
+        prompt = (
+            f"You are the JobPilot AI Curriculum Assistant for Computer Science students.\n"
+            f"Topic: {topic}\n"
+            f"{f'Day: {day_number}' if day_number else ''}\n"
+            f"Student Question: {question}\n\n"
+            f"Provide a clear, encouraging, and pedagogically sound explanation with code examples if applicable."
+        )
+
+        try:
+            if ai_service.provider.is_available:
+                resp = ai_service.provider.complete(
+                    AIRequest(
+                        messages=[AIMessage(role="user", content=prompt)],
+                        temperature=0.3,
+                        max_tokens=800
+                    )
+                )
+                content = resp.content.strip()
+                if content:
+                    return {"answer": content, "topic": topic}
+        except Exception as e:
+            logger.warning(f"Curriculum Assistant AI error: {e}")
+
+        fallback = (
+            f"### Understanding {topic}\n\n"
+            f"Regarding: **{question}**\n\n"
+            f"1. **Core Concept**: Break down '{topic}' into core steps and trace execution with small inputs.\n"
+            f"2. **Best Practice**: Always check boundaries, edge cases, and memory allocations.\n"
+            f"3. **Practical Tip**: Write a unit test or debug prints to verify output against expected results.\n\n"
+            f"Keep practicing! You can consult the curated resources attached to this day for deep dives."
+        )
+        return {"answer": fallback, "topic": topic}

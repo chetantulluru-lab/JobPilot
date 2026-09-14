@@ -44,6 +44,7 @@ import com.jobpilot.app.ui.screens.onboarding.CareerProfileOnboardingScreen
 import com.jobpilot.app.ui.screens.onboarding.OnboardingScreen
 import com.jobpilot.app.ui.screens.profile.ProfileScreen
 import com.jobpilot.app.ui.screens.profile.SmartCompletionScreen
+import com.jobpilot.app.ui.screens.resume.CreateResumeScreen
 import com.jobpilot.app.ui.screens.resume.ResumeBuilderScreen
 import com.jobpilot.app.ui.screens.resume.ResumeHubScreen
 import com.jobpilot.app.ui.screens.resume.ResumeUploadFlowScreen
@@ -338,12 +339,12 @@ fun JobPilotNavGraph(
                 )
             }
 
-            // 12. Tab 3: Resume Hub
+            // 12. Tab 3: Create Resume
             composable(Screen.ResumeHub.route) {
-                ResumeHubScreen(
-                    viewModel = resumeViewModel,
-                    onNavigateToUpload = { navController.navigate(Screen.ResumeUpload.route) },
-                    onNavigateToBuilder = { navController.navigate(Screen.ResumeBuilder.route) }
+                CreateResumeScreen(
+                    resumeViewModel = resumeViewModel,
+                    profileViewModel = profileViewModel,
+                    roadmapViewModel = roadmapViewModel
                 )
             }
 

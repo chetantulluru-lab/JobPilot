@@ -18,7 +18,8 @@ from app.schemas.resume_builder import (
     SavedResumeUpdate,
     SavedResumeResponse,
     ResumeTailorRequest,
-    ResumeTailorResponse
+    ResumeTailorResponse,
+    StudentResumeCreateRequest
 )
 from app.services.ai.service import ai_service
 from app.services.pdf_generator_service import ResumePdfGenerator
@@ -126,6 +127,78 @@ def generate_resume_from_profile(
         projects_json=resume_data["projects"],
         education_json=resume_data["education"],
         certifications_json=resume_data["certifications"],
+        is_tailored=False
+    )
+    db.add(saved)
+    db.commit()
+    db.refresh(saved)
+    return saved
+
+
+@router.post("/create-ats-resume", response_model=SavedResumeResponse)
+def create_student_ats_resume(
+    req: StudentResumeCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Creates or updates an ATS-friendly single-page student resume with
+    college, branch, CGPA, GitHub, LinkedIn, projects, and skills.
+    """
+    contact = {
+        "name": req.full_name,
+        "email": req.email,
+        "phone": req.phone,
+        "location": None,
+        "github": req.github,
+        "linkedin": req.linkedin,
+        "portfolio": req.portfolio
+    }
+
+    education = []
+    if req.college or req.branch or req.cgpa:
+        education.append({
+            "institution": req.college or "University",
+            "degree": "B.Tech" if "b.tech" in (req.branch or "").lower() else "Bachelor's Degree",
+            "field_of_study": req.branch or "Computer Science & Engineering",
+            "cgpa": req.cgpa,
+            "end_year": req.grad_year or "2026"
+        })
+
+    skills = [{"name": s.strip(), "category": "Technical", "proficiency": "Proficient"} for s in req.skills if s.strip()]
+
+    experience = []
+    if req.experience and req.experience.strip():
+        experience.append({
+            "company": "Internship / Practical Experience",
+            "title": "Software Engineering Intern",
+            "start_date": "2025",
+            "end_date": "Present",
+            "description": req.experience.strip()
+        })
+
+    formatted_projects = []
+    for p in req.projects:
+        formatted_projects.append({
+            "title": p.get("title", "Project"),
+            "tech_stack": p.get("tech_stack", ""),
+            "description": p.get("description", ""),
+            "github_url": p.get("github_url", "")
+        })
+
+    summary = f"Motivated Computer Science student specializing in {skills[0]['name'] if skills else 'software development'} with hands-on project experience."
+
+    saved = SavedResume(
+        user_id=current_user.id,
+        title=f"{req.full_name} - ATS Resume",
+        template_type=req.template_type,
+        contact_json=contact,
+        summary_text=summary,
+        skills_json=skills,
+        experience_json=experience,
+        projects_json=formatted_projects,
+        education_json=education,
+        certifications_json=[{"name": req.achievements.strip()}] if req.achievements and req.achievements.strip() else [],
         is_tailored=False
     )
     db.add(saved)

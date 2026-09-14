@@ -39,16 +39,6 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val profile = uiState.profile
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            val bytes = context.contentResolver.openInputStream(uri)?.readBytes()
-            if (bytes != null) {
-                viewModel.uploadProfilePhoto(bytes, "profile_photo.jpg")
-            }
-        }
-    }
 
     var showAddSkillDialog by remember { mutableStateOf(false) }
     var showEditPersonalDialog by remember { mutableStateOf(false) }
@@ -59,7 +49,7 @@ fun ProfileScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Career Profile", style = MaterialTheme.typography.headlineMedium) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgWarmWhite),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 actions = {
                     IconButton(onClick = onNavigateToSmartCompletion) {
                         Icon(
@@ -71,7 +61,7 @@ fun ProfileScreen(
                 }
             )
         },
-        containerColor = BgWarmWhite
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -136,32 +126,23 @@ fun ProfileScreen(
 
                             Box(
                                 modifier = Modifier
-                                    .size(64.dp)
+                                    .size(60.dp)
                                     .clip(CircleShape)
-                                    .background(Orange100),
+                                    .background(Orange500),
                                 contentAlignment = Alignment.Center
                             ) {
-                                if (!fullAvatarUrl.isNullOrBlank()) {
-                                    AsyncImage(
-                                        model = fullAvatarUrl,
-                                        contentDescription = "Profile Photo",
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                } else {
-                                    val initials = profile.personalInfo.fullName
-                                        .split(" ")
-                                        .filter { it.isNotBlank() }
-                                        .take(2)
-                                        .map { it.first().uppercase() }
-                                        .joinToString("")
-                                    Text(
-                                        text = initials.ifEmpty { "JP" },
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Orange600
-                                    )
-                                }
+                                val initials = profile.personalInfo.fullName
+                                    .split(" ")
+                                    .filter { it.isNotBlank() }
+                                    .take(2)
+                                    .map { it.first().uppercase() }
+                                    .joinToString("")
+                                Text(
+                                    text = initials.ifEmpty { "JP" },
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = androidx.compose.ui.graphics.Color.White
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(16.dp))
@@ -170,13 +151,13 @@ fun ProfileScreen(
                                 Text(
                                     text = profile.personalInfo.fullName.ifBlank { "Candidate" },
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = Slate900
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (profile.personalInfo.age != null) {
                                     Text(
                                         text = "Age: ${profile.personalInfo.age}",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Slate600
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 Text(
@@ -184,42 +165,6 @@ fun ProfileScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Slate500
                                 )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            OutlinedButton(
-                                onClick = {
-                                    photoPickerLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                    )
-                                },
-                                shape = JobPilotShapes.small,
-                                modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(vertical = 6.dp)
-                            ) {
-                                Icon(Icons.Default.PhotoCamera, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Upload Photo", fontSize = 12.sp)
-                            }
-
-                            if (!profile.personalInfo.avatarUrl.isNullOrBlank()) {
-                                OutlinedButton(
-                                    onClick = { viewModel.deleteProfilePhoto() },
-                                    shape = JobPilotShapes.small,
-                                    modifier = Modifier.weight(1f),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                                    contentPadding = PaddingValues(vertical = 6.dp)
-                                ) {
-                                    Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Remove", fontSize = 12.sp)
-                                }
                             }
                         }
 

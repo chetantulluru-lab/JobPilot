@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jobpilot.app.data.model.*
 import com.jobpilot.app.data.repository.ProfileRepository
 import com.jobpilot.app.data.repository.RoadmapRepository
+import com.jobpilot.app.data.network.CourseCatalogItemDto
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,10 @@ data class RoadmapUiState(
     val phaseResources: List<RoadmapResource> = emptyList(),
     val selectedLanguage: String = "English",
     val searchSuggestions: List<String> = emptyList(),
+    val catalogCourses: List<CourseCatalogItemDto> = emptyList(),
+    val selectedCourseIds: Set<String> = emptySet(),
+    val assistantAnswer: String? = null,
+    val isAssistantLoading: Boolean = false,
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
     val errorMessage: String? = null,
@@ -39,6 +44,7 @@ class RoadmapViewModel(
 
     init {
         loadRoadmaps()
+        loadCatalog()
     }
 
     fun loadRoadmaps() {
@@ -57,6 +63,82 @@ class RoadmapViewModel(
                 )
             }
         }
+    }
+
+    fun loadCatalog() {
+        viewModelScope.launch {
+            val result = roadmapRepository.getCourseCatalog()
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    catalogCourses = result.getOrDefault(emptyList())
+                )
+            }
+        }
+    }
+
+    fun toggleCourseSelection(courseId: String) {
+        val current = _uiState.value.selectedCourseIds.toMutableSet()
+        if (current.contains(courseId)) {
+            current.remove(courseId)
+        } else {
+            current.add(courseId)
+        }
+        _uiState.value = _uiState.value.copy(selectedCourseIds = current)
+    }
+
+    fun clearSelectedCourses() {
+        _uiState.value = _uiState.value.copy(selectedCourseIds = emptySet())
+    }
+
+    fun generateRoadmapFromSelectedCourses(duration: String = "6 Months", onSuccess: (String) -> Unit) {
+        viewModelScope.launch {
+            val courseIds = _uiState.value.selectedCourseIds.toList()
+            if (courseIds.isEmpty()) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Please select at least one course track.")
+                return@launch
+            }
+
+            _uiState.value = _uiState.value.copy(isGenerating = true, errorMessage = null)
+            val result = roadmapRepository.generateRoadmapFromCourses(courseIds = courseIds, duration = duration)
+            if (result.isSuccess) {
+                val detail = result.getOrNull()!!
+                _uiState.value = _uiState.value.copy(
+                    isGenerating = false,
+                    currentRoadmap = detail,
+                    errorMessage = null
+                )
+                loadRoadmaps()
+                onSuccess(detail.id)
+            } else {
+                val errorMsg = result.exceptionOrNull()?.message ?: "Failed to generate roadmap from selected courses."
+                _uiState.value = _uiState.value.copy(
+                    isGenerating = false,
+                    errorMessage = errorMsg
+                )
+            }
+        }
+    }
+
+    fun askCurriculumAssistant(topic: String, question: String, dayNumber: Int? = null) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isAssistantLoading = true, assistantAnswer = null)
+            val result = roadmapRepository.askCurriculumAssistant(topic, question, dayNumber)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isAssistantLoading = false,
+                    assistantAnswer = result.getOrNull()
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isAssistantLoading = false,
+                    assistantAnswer = "Could not reach AI Curriculum Assistant. Please verify connection and try again."
+                )
+            }
+        }
+    }
+
+    fun clearAssistantAnswer() {
+        _uiState.value = _uiState.value.copy(assistantAnswer = null, isAssistantLoading = false)
     }
 
     fun onQueryChanged(query: String) {

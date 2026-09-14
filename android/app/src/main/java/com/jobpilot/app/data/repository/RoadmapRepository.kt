@@ -8,6 +8,9 @@ import org.json.JSONObject
 private const val TAG = "RoadmapRepository"
 
 interface RoadmapRepository {
+    suspend fun getCourseCatalog(): Result<List<CourseCatalogItemDto>>
+    suspend fun generateRoadmapFromCourses(courseIds: List<String>, duration: String = "6 Months"): Result<RoadmapDetail>
+    suspend fun askCurriculumAssistant(topic: String, question: String, dayNumber: Int? = null): Result<String>
     suspend fun getSuggestions(query: String): Result<List<String>>
     suspend fun generateRoadmap(goal: String, duration: String = "6 Months"): Result<RoadmapDetail>
     suspend fun getRoadmaps(): Result<List<RoadmapSummary>>
@@ -21,6 +24,54 @@ interface RoadmapRepository {
 class NetworkRoadmapRepository(
     private val apiService: JobPilotApiService
 ) : RoadmapRepository {
+
+    override suspend fun getCourseCatalog(): Result<List<CourseCatalogItemDto>> {
+        return try {
+            val response = apiService.getCourseCatalog()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.courses)
+            } else {
+                Result.success(emptyList())
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "getCourseCatalog error: ${e.message}")
+            Result.success(emptyList())
+        }
+    }
+
+    override suspend fun generateRoadmapFromCourses(courseIds: List<String>, duration: String): Result<RoadmapDetail> {
+        return try {
+            val response = apiService.generateRoadmapFromCourses(
+                RoadmapGenerateFromCoursesRequestDto(courseIds = courseIds, duration = duration)
+            )
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(mapDetailDtoToModel(response.body()!!))
+            } else {
+                val errorJson = response.errorBody()?.string()
+                val message = parseErrorMessage(errorJson) ?: "Failed to generate roadmap from selected courses."
+                Result.failure(Exception(message))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "generateRoadmapFromCourses error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun askCurriculumAssistant(topic: String, question: String, dayNumber: Int?): Result<String> {
+        return try {
+            val response = apiService.askCurriculumAssistant(
+                CurriculumAssistantRequestDto(topic = topic, question = question, dayNumber = dayNumber)
+            )
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.answer)
+            } else {
+                Result.failure(Exception("Could not get answer from Curriculum Assistant"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "askCurriculumAssistant error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
 
     override suspend fun getSuggestions(query: String): Result<List<String>> {
         return try {
@@ -258,6 +309,11 @@ class NetworkRoadmapRepository(
 }
 
 class MockRoadmapRepository : RoadmapRepository {
+    override suspend fun getCourseCatalog(): Result<List<CourseCatalogItemDto>> = Result.success(emptyList())
+    override suspend fun generateRoadmapFromCourses(courseIds: List<String>, duration: String): Result<RoadmapDetail> =
+        Result.failure(Exception("Mock unavailable"))
+    override suspend fun askCurriculumAssistant(topic: String, question: String, dayNumber: Int?): Result<String> =
+        Result.success("Curriculum Assistant answer for $topic")
     override suspend fun getSuggestions(query: String): Result<List<String>> = Result.success(emptyList())
     override suspend fun generateRoadmap(goal: String, duration: String): Result<RoadmapDetail> =
         Result.failure(Exception("Roadmap couldn't be generated. Please try again."))

@@ -8,11 +8,48 @@ from app.schemas.roadmap import (
     RoadmapGenerateRequest, RoadmapSuggestionResponse,
     RoadmapDetailResponse, RoadmapSummaryResponse,
     RoadmapResourceResponse, DayCompleteResponse,
-    AddSkillsToResumeResponse
+    AddSkillsToResumeResponse, CourseCatalogResponse,
+    RoadmapGenerateFromCoursesRequest,
+    CurriculumAssistantRequest, CurriculumAssistantResponse
 )
 from app.services.roadmap_service import RoadmapService
 
 router = APIRouter(prefix="/roadmaps", tags=["Roadmaps & Learning"])
+
+
+@router.get("/catalog", response_model=CourseCatalogResponse)
+def get_course_catalog():
+    """
+    Returns the comprehensive catalog of 100+ Computer Science courses,
+    core subjects, and developer tracks.
+    """
+    courses = RoadmapService.get_catalog_courses()
+    return CourseCatalogResponse(courses=courses)
+
+
+@router.post("/generate-from-courses", response_model=RoadmapDetailResponse, status_code=status.HTTP_201_CREATED)
+def generate_roadmap_from_courses(
+    req: RoadmapGenerateFromCoursesRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Assembles an instant, structured career roadmap from selected course modules.
+    Supports single or multi-subject master tracks (e.g. DSA + Java).
+    """
+    return RoadmapService.generate_from_courses(db, current_user.id, req.course_ids, req.duration)
+
+
+@router.post("/assistant/ask", response_model=CurriculumAssistantResponse)
+def ask_curriculum_assistant(
+    req: CurriculumAssistantRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Interactive AI Curriculum Assistant for clarifying doubts and receiving code explanations on daily topics.
+    """
+    res = RoadmapService.ask_curriculum_assistant(req.topic, req.question, req.day_number)
+    return CurriculumAssistantResponse(answer=res["answer"], topic=res["topic"])
 
 
 @router.get("/suggestions", response_model=RoadmapSuggestionResponse)

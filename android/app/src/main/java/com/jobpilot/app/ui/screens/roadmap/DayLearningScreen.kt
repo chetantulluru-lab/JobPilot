@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -64,7 +65,7 @@ fun DayLearningScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BgWarmWhite),
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Orange500)
@@ -77,7 +78,7 @@ fun DayLearningScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgWarmWhite)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -302,7 +303,125 @@ fun DayLearningScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // AI Curriculum Assistant Section
+        var userQuestion by remember { mutableStateOf("") }
+        Text(
+            text = "AI Curriculum Assistant",
+            fontWeight = FontWeight.Bold,
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Have doubts on ${day.topic}? Ask your AI assistant for explanations or code hints.",
+            fontSize = 11.sp,
+            color = Slate500
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        GlassCard(
+            modifier = Modifier.fillMaxWidth(),
+            backgroundColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = userQuestion,
+                    onValueChange = { userQuestion = it },
+                    placeholder = { Text("Ask a question about ${day.topic}...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = JobPilotShapes.medium,
+                    singleLine = false,
+                    maxLines = 3
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    val promptSuggestions = listOf("Explain with example", "Common interview question", "How to practice?")
+                    promptSuggestions.forEach { suggestion ->
+                        Surface(
+                            shape = JobPilotShapes.small,
+                            color = Orange50,
+                            modifier = Modifier.clickable {
+                                userQuestion = "$suggestion for ${day.topic}"
+                                viewModel.askCurriculumAssistant(day.topic, "$suggestion for ${day.topic}", day.dayNumber)
+                            }
+                        ) {
+                            Text(
+                                text = suggestion,
+                                fontSize = 10.sp,
+                                color = Orange600,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = {
+                            if (userQuestion.isNotBlank()) {
+                                viewModel.askCurriculumAssistant(day.topic, userQuestion, day.dayNumber)
+                            }
+                        },
+                        enabled = userQuestion.isNotBlank() && !uiState.isAssistantLoading,
+                        shape = JobPilotShapes.small,
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                    ) {
+                        if (uiState.isAssistantLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Thinking...", fontSize = 12.sp)
+                        } else {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Ask Assistant", fontSize = 12.sp)
+                        }
+                    }
+                }
+
+                if (uiState.assistantAnswer != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Surface(
+                        shape = JobPilotShapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Assistant Response", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Orange600)
+                                IconButton(onClick = { viewModel.clearAssistantAnswer() }, modifier = Modifier.size(20.dp)) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = uiState.assistantAnswer ?: "",
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Complete Day Button
         if (!day.isCompleted) {

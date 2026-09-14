@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.jobpilot.app.ui.navigation.JobPilotNavGraph
-import com.jobpilot.app.ui.theme.BgWarmWhite
 import com.jobpilot.app.ui.theme.JobPilotTheme
+import com.jobpilot.app.ui.theme.ThemeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,10 +27,11 @@ class MainActivity : ComponentActivity() {
         handleOAuthIntent(intent)
 
         setContent {
-            JobPilotTheme {
+            val themeMode by ThemeManager.themeMode.collectAsState()
+            JobPilotTheme(themeMode = themeMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = BgWarmWhite
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     JobPilotNavGraph(container = app.container)
                 }

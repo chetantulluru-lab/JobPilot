@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jobpilot.app.ui.theme.*
 
+import androidx.compose.material3.MaterialTheme
+
 /**
  * Reusable Glassmorphism Card for JobPilot
  */
@@ -22,13 +24,22 @@ import com.jobpilot.app.ui.theme.*
 fun GlassCard(
     modifier: Modifier = Modifier,
     shape: Shape = CardShapeLarge,
-    backgroundColor: Color = BgGlass,
+    backgroundColor: Color = Color.Unspecified,
     borderColor: Color = BorderGlass,
     elevation: Dp = 2.dp,
     contentPadding: Dp = 18.dp,
     onClick: (() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF0F172A)
+    val resolvedBg = if (backgroundColor == Color.Unspecified) {
+        if (isDark) MaterialTheme.colorScheme.surface else BgGlass
+    } else if (isDark && (backgroundColor == BgWhite || backgroundColor == BgGlass || backgroundColor == BgSurfaceLight)) {
+        MaterialTheme.colorScheme.surface
+    } else {
+        backgroundColor
+    }
+
     val cardModifier = if (onClick != null) {
         modifier.clickable(onClick = onClick)
     } else {
@@ -39,7 +50,7 @@ fun GlassCard(
         modifier = cardModifier,
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
+            containerColor = resolvedBg
         ),
         border = BorderStroke(1.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)

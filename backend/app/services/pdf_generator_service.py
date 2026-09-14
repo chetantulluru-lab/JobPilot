@@ -237,8 +237,10 @@ class ResumePdfGenerator:
                 title = proj.get("title") or proj.get("name", "Project")
                 tech = proj.get("tech_stack") or ", ".join(proj.get("technologies", []))
                 tech_display = f" ({tech})" if tech else ""
+                proj_link = proj.get("github_url") or proj.get("link")
+                link_display = f" [ {proj_link} ]" if proj_link else ""
 
-                story.append(Paragraph(f"{title}{tech_display}", item_title_style))
+                story.append(Paragraph(f"{title}{tech_display}{link_display}", item_title_style))
                 desc = proj.get("description")
                 if desc:
                     for line in desc.split("\n"):
@@ -260,10 +262,13 @@ class ResumePdfGenerator:
                 degree = edu.get("degree", "Degree")
                 field = edu.get("field_of_study") or edu.get("field", "")
                 inst = edu.get("institution", "Institution")
+                cgpa = edu.get("cgpa") or edu.get("grade")
+                field_str = f" in {field}" if field else ""
+                cgpa_str = f" | CGPA: {cgpa}" if cgpa else ""
                 years = f"{edu.get('start_year', '')} - {edu.get('end_year', '')}".strip(" - ")
 
                 row_table = Table(
-                    [[Paragraph(f"{degree} in {field} — {inst}", item_title_style), Paragraph(years, date_style)]],
+                    [[Paragraph(f"{degree}{field_str} — {inst}{cgpa_str}", item_title_style), Paragraph(years, date_style)]],
                     colWidths=[400, 140]
                 )
                 row_table.setStyle(TableStyle([

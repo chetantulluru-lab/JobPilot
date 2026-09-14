@@ -229,6 +229,15 @@ interface JobPilotApiService {
     suspend fun markAllNotificationsRead(): Response<Unit>
 
     // --- Roadmaps ---
+    @GET("roadmaps/catalog")
+    suspend fun getCourseCatalog(): Response<CourseCatalogResponseDto>
+
+    @POST("roadmaps/generate-from-courses")
+    suspend fun generateRoadmapFromCourses(@Body req: RoadmapGenerateFromCoursesRequestDto): Response<RoadmapDetailResponseDto>
+
+    @POST("roadmaps/assistant/ask")
+    suspend fun askCurriculumAssistant(@Body req: CurriculumAssistantRequestDto): Response<CurriculumAssistantResponseDto>
+
     @GET("roadmaps/suggestions")
     suspend fun getRoadmapSuggestions(@Query("query") query: String): Response<RoadmapSuggestionResponseDto>
 

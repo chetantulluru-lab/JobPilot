@@ -33,8 +33,9 @@ fun SettingsScreen(
     authViewModel: AuthViewModel,
     onLogout: () -> Unit
 ) {
+    val currentThemeMode by com.jobpilot.app.ui.theme.ThemeManager.themeMode.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
-    var selectedTheme by remember { mutableStateOf("System Default") }
+    var selectedTheme by remember(currentThemeMode) { mutableStateOf(currentThemeMode.displayName) }
 
     var showPasswordDialog by remember { mutableStateOf(false) }
     var currentPassword by remember { mutableStateOf("") }
@@ -106,10 +107,10 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Settings", style = MaterialTheme.typography.headlineMedium) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgWarmWhite)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
-        containerColor = BgWarmWhite
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -203,7 +204,12 @@ fun SettingsScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { showThemeDialog = false },
+                    onClick = {
+                        val mode = com.jobpilot.app.ui.theme.ThemeMode.values().find { it.displayName == selectedTheme }
+                            ?: com.jobpilot.app.ui.theme.ThemeMode.SYSTEM
+                        com.jobpilot.app.ui.theme.ThemeManager.setThemeMode(mode)
+                        showThemeDialog = false
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Orange500)
                 ) {
                     Text("Apply", color = androidx.compose.ui.graphics.Color.White)
