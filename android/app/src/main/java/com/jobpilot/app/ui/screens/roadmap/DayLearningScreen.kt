@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -481,12 +480,11 @@ private fun PracticeTaskCard(
             )
             if (!task.expectedOutput.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                val isDark = isSystemInDarkTheme()
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(JobPilotShapes.small)
-                        .background(if (isDark) Color(0xFF0F172A) else Slate100)
+                        .background(Slate100)
                         .padding(8.dp)
                 ) {
                     Column {

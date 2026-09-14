@@ -3,7 +3,6 @@ package com.jobpilot.app.ui.screens.assistant
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -282,7 +281,6 @@ private fun MessageBubble(
             modifier = Modifier.widthIn(max = 300.dp),
             horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
         ) {
-            val isDark = isSystemInDarkTheme()
             Surface(
                 shape = RoundedCornerShape(
                     topStart = 16.dp,
@@ -320,10 +318,10 @@ private fun MessageBubble(
                     message.suggestedActions.forEach { action ->
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isDark) Color(0xFF1E293B) else Orange50,
+                            color = Orange50,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.dp,
-                                if (isDark) Orange500.copy(alpha = 0.3f) else Orange200
+                                Orange200
                             ),
                             modifier = Modifier.clickable { onSuggestedActionClick(action) }
                         ) {

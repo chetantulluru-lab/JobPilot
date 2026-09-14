@@ -2,7 +2,6 @@ package com.jobpilot.app.ui.screens.roadmap
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -145,7 +144,6 @@ private fun RoadmapCard(
     roadmap: RoadmapSummary,
     onClick: () -> Unit
 ) {
-    val isDark = isSystemInDarkTheme()
     GlassCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -177,7 +175,7 @@ private fun RoadmapCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(JobPilotShapes.small)
-                        .background(if (isDark) Color(0xFF1E293B) else Orange50)
+                        .background(Orange50)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Icon(

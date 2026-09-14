@@ -3,7 +3,6 @@ package com.jobpilot.app.ui.screens.roadmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -224,8 +223,6 @@ private fun PhaseCard(
     onOpenDay: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(phase.isUnlocked) }
-    val isDark = isSystemInDarkTheme()
-
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         backgroundColor = MaterialTheme.cardBg
@@ -251,8 +248,8 @@ private fun PhaseCard(
                             .background(
                                 when {
                                     phase.isCompleted -> SuccessGreen.copy(alpha = 0.15f)
-                                    phase.isUnlocked -> if (isDark) Color(0xFF1E293B) else Orange50
-                                    else -> if (isDark) Color(0xFF334155) else Slate200
+                                    phase.isUnlocked -> Orange50
+                                    else -> Slate100
                                 }
                             ),
                         contentAlignment = Alignment.Center
@@ -349,18 +346,17 @@ private fun DayRowItem(
     day: RoadmapDay,
     onClick: () -> Unit
 ) {
-    val isDark = isSystemInDarkTheme()
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(JobPilotShapes.small)
             .background(
-                if (day.isCompleted) SuccessGreen.copy(alpha = 0.12f)
-                else (if (isDark) Color(0xFF0F172A) else BgWarmWhite)
+                if (day.isCompleted) SuccessGreenBg
+                else BgWhite
             )
             .border(
                 1.dp,
-                if (day.isCompleted) SuccessGreen.copy(alpha = 0.3f) else MaterialTheme.cardBorder,
+                if (day.isCompleted) SuccessGreen.copy(alpha = 0.4f) else Slate200,
                 JobPilotShapes.small
             )
             .clickable(onClick = onClick)
@@ -411,13 +407,12 @@ private fun PhaseProjectBadge(
     title: String,
     description: String?
 ) {
-    val isDark = isSystemInDarkTheme()
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(JobPilotShapes.medium)
-            .background(if (isDark) Color(0xFF1E293B) else Orange50)
-            .border(1.dp, if (isDark) Orange500.copy(alpha = 0.3f) else Orange200, JobPilotShapes.medium)
+            .background(Orange50)
+            .border(1.dp, Orange200, JobPilotShapes.medium)
             .padding(12.dp)
     ) {
         Column {

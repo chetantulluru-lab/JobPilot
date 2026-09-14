@@ -3,7 +3,6 @@ package com.jobpilot.app.ui.screens.roadmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -50,8 +49,8 @@ fun RoadmapCreateScreen(
             badge = "Core Foundation",
             description = "Master arrays, linked lists, trees, graphs, sorting, and dynamic programming with LeetCode patterns.",
             skills = listOf("Arrays", "Trees", "Graphs", "Dynamic Programming", "LeetCode"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 40,
+            totalPhases = 4
         ),
         CourseCatalogItemDto(
             id = "python-dev",
@@ -60,8 +59,8 @@ fun RoadmapCreateScreen(
             badge = "High Demand",
             description = "Python 3 OOP, Asyncio, FastAPI microservices, PostgreSQL, Alembic, and Docker containers.",
             skills = listOf("Python 3", "FastAPI", "PostgreSQL", "Asyncio", "Docker"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "java-dev",
@@ -70,8 +69,8 @@ fun RoadmapCreateScreen(
             badge = "Enterprise Core",
             description = "Core Java, Collections, Multithreading, Spring Boot 3, Hibernate/JPA, and Microservices.",
             skills = listOf("Java 17/21", "Spring Boot", "JPA/Hibernate", "Microservices"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "android-kotlin",
@@ -80,8 +79,8 @@ fun RoadmapCreateScreen(
             badge = "Native Android",
             description = "Build modern, reactive Android apps with Kotlin, Jetpack Compose, Coroutines/Flow, Clean Architecture, and Retrofit.",
             skills = listOf("Android", "Kotlin", "Jetpack Compose", "Coroutines", "Flow", "StateFlow", "Retrofit", "Room DB"),
-            totalDays = 4,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "ios-swift",
@@ -90,8 +89,8 @@ fun RoadmapCreateScreen(
             badge = "Apple Ecosystem",
             description = "Master modern iOS application engineering with Swift 5+, SwiftUI, Combine, URLSession, and CoreData.",
             skills = listOf("iOS", "Swift", "SwiftUI", "Combine", "URLSession", "CoreData", "MVVM"),
-            totalDays = 3,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "flutter-dart",
@@ -100,8 +99,8 @@ fun RoadmapCreateScreen(
             badge = "Multiplatform",
             description = "Develop high-performance cross-platform iOS and Android apps from a single codebase with Flutter and Dart.",
             skills = listOf("Flutter", "Dart", "Widgets", "Provider", "BLoC", "REST APIs", "Dio"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "react-native",
@@ -110,8 +109,8 @@ fun RoadmapCreateScreen(
             badge = "Cross-Platform",
             description = "Create native mobile apps using JavaScript, TypeScript, React Native, Expo, and native device bridge APIs.",
             skills = listOf("React Native", "TypeScript", "Expo", "React Hooks", "AsyncStorage", "React Navigation"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "deep-learning-pytorch",
@@ -120,8 +119,8 @@ fun RoadmapCreateScreen(
             badge = "Deep Learning",
             description = "Train and evaluate deep neural networks, CNNs, RNNs, and custom architectures using PyTorch and GPU acceleration.",
             skills = listOf("PyTorch", "Deep Learning", "Tensors", "Neural Networks", "CNN", "CUDA"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "generative-ai-llms",
@@ -130,8 +129,8 @@ fun RoadmapCreateScreen(
             badge = "Trending AI",
             description = "Engineer production LLM applications using LangChain, Prompt Engineering, Vector Databases, and Retrieval-Augmented Generation (RAG).",
             skills = listOf("Generative AI", "LLMs", "LangChain", "RAG", "ChromaDB", "Prompt Engineering"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "nlp-transformers",
@@ -140,8 +139,8 @@ fun RoadmapCreateScreen(
             badge = "Applied NLP",
             description = "Master NLP from TF-IDF tokenization to Hugging Face Transformers, BERT embeddings, and semantic search.",
             skills = listOf("NLP", "Transformers", "BERT", "Hugging Face", "Tokenization", "TF-IDF"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "data-analytics",
@@ -150,8 +149,8 @@ fun RoadmapCreateScreen(
             badge = "Business Intelligence",
             description = "Extract actionable business insights through exploratory data analysis, statistical modeling, Pandas, and interactive dashboards.",
             skills = listOf("Data Analytics", "Python", "Pandas", "NumPy", "Matplotlib", "Seaborn", "SQL"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "rust-lang",
@@ -160,8 +159,8 @@ fun RoadmapCreateScreen(
             badge = "Memory Safe",
             description = "Build blazingly fast, memory-safe system software with Rust, ownership, borrowing, lifetimes, and fearless concurrency.",
             skills = listOf("Rust", "Systems Programming", "Ownership", "Borrowing", "Lifetimes", "Tokio"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 25,
+            totalPhases = 2
         ),
         CourseCatalogItemDto(
             id = "typescript-lang",
@@ -170,8 +169,8 @@ fun RoadmapCreateScreen(
             badge = "Web Standard",
             description = "Level up JavaScript codebases with robust type safety, generics, utility types, and strict compiler configs.",
             skills = listOf("TypeScript", "JavaScript", "Generics", "Type Inference", "Interfaces"),
-            totalDays = 2,
-            totalPhases = 1
+            totalDays = 25,
+            totalPhases = 2
         ),
         CourseCatalogItemDto(
             id = "ml-ai-dev",
@@ -180,8 +179,8 @@ fun RoadmapCreateScreen(
             badge = "Cutting Edge",
             description = "NumPy, Pandas, Scikit-Learn, Deep Learning, PyTorch, LLM RAG pipelines, and HuggingFace.",
             skills = listOf("Machine Learning", "PyTorch", "NumPy", "NLP", "LLMs"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "fullstack-web",
@@ -190,8 +189,8 @@ fun RoadmapCreateScreen(
             badge = "Popular",
             description = "Modern React, Tailwind CSS, Node.js, Express, PostgreSQL with Prisma, and Full-Stack deployment.",
             skills = listOf("React", "JavaScript", "Node.js", "Express", "Tailwind"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "os-cse",
@@ -200,8 +199,8 @@ fun RoadmapCreateScreen(
             badge = "Core Subject",
             description = "Kernel architecture, CPU scheduling, thread synchronization, semaphores, paging, and deadlocks.",
             skills = listOf("Process Management", "Concurrency", "Semaphores", "Virtual Memory"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "dbms-cse",
@@ -210,8 +209,8 @@ fun RoadmapCreateScreen(
             badge = "Core Subject",
             description = "ER modeling, complex SQL, window functions, B+ tree indexing, Normalization, and ACID transactions.",
             skills = listOf("SQL", "Relational DB", "Indexing", "Normalization", "ACID"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "cn-cse",
@@ -220,8 +219,8 @@ fun RoadmapCreateScreen(
             badge = "Core Subject",
             description = "OSI 7 Layers, TCP/IP, CIDR subnetting, 3-way handshake, routing protocols, HTTP/HTTPS, and sockets.",
             skills = listOf("TCP/IP", "HTTP/HTTPS", "Subnetting", "DNS", "Sockets"),
-            totalDays = 10,
-            totalPhases = 2
+            totalDays = 30,
+            totalPhases = 3
         ),
         CourseCatalogItemDto(
             id = "system-design-cse",
@@ -230,7 +229,97 @@ fun RoadmapCreateScreen(
             badge = "Advanced Core",
             description = "Horizontal scaling, load balancing, Redis caching, database sharding, message queues, and microservices.",
             skills = listOf("Scalability", "Microservices", "Load Balancing", "Redis", "Kafka"),
-            totalDays = 10,
+            totalDays = 30,
+            totalPhases = 3
+        ),
+        CourseCatalogItemDto(
+            id = "python-lang",
+            title = "Python Programming (Beginner to Advanced)",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Comprehensive Python language mastery from basic syntax to advanced OOP, decorators, generators, and packaging.",
+            skills = listOf("Python", "OOP", "Decorators", "Generators", "Typing", "Pytest"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "java-lang",
+            title = "Java Core & OOP Mastery",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Deep dive into Java 17/21 language syntax, object-oriented design, collections framework, and streams.",
+            skills = listOf("Java", "OOP", "Collections", "Generics", "Streams API", "Multithreading"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "cpp-lang",
+            title = "C++ Programming & STL Mastery",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Master modern C++ (C++17/20), memory pointers, manual memory allocation, RAII, templates, and the STL.",
+            skills = listOf("C++", "Pointers", "RAII", "STL", "Templates", "Smart Pointers"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "c-lang",
+            title = "C Programming & Low-Level Foundations",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Master the C language, pointers, memory addressing, structs, bitwise operations, and memory allocation.",
+            skills = listOf("C", "Pointers", "Memory Allocation", "Structs", "Bitwise Operations"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "js-lang",
+            title = "Modern JavaScript (ES6+ & Async)",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Master JavaScript execution contexts, closures, asynchronous event loops, Promises, and modern browser APIs.",
+            skills = listOf("JavaScript", "ES6+", "Async/Await", "Event Loop", "Closures", "Promises"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "sql-lang",
+            title = "SQL & Relational Database Querying",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Master ANSI SQL, complex multi-table joins, subqueries, aggregations, window functions, and indexing.",
+            skills = listOf("SQL", "Joins", "Aggregations", "Window Functions", "CTEs", "PostgreSQL"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "golang-lang",
+            title = "Go (Golang) Systems & Microservices",
+            category = "Languages",
+            badge = "Language Core",
+            description = "Master Go language mechanics, memory pointers, goroutines, channels, interfaces, and microservices.",
+            skills = listOf("Go", "Goroutines", "Channels", "Interfaces", "Pointers", "Concurrency"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "csharp-lang",
+            title = "C# & .NET Enterprise Development",
+            category = "Programming Languages",
+            badge = "Enterprise Core",
+            description = "Master modern C# 12 and .NET 8, object-oriented design, LINQ queries, async/await, and ASP.NET Core.",
+            skills = listOf("C#", ".NET", "LINQ", "Async/Await", "ASP.NET Core", "Entity Framework"),
+            totalDays = 25,
+            totalPhases = 2
+        ),
+        CourseCatalogItemDto(
+            id = "php-lang",
+            title = "Modern PHP 8 & Laravel Framework",
+            category = "Programming Languages",
+            badge = "Web Core",
+            description = "Master modern PHP 8 features, object-oriented architecture, Composer, Eloquent ORM, and Laravel.",
+            skills = listOf("PHP 8", "Laravel", "Composer", "Eloquent ORM", "OOP", "Blade"),
+            totalDays = 25,
             totalPhases = 2
         )
     )
@@ -322,10 +411,9 @@ fun RoadmapCreateScreen(
 
         // Selection Summary Tray
         if (uiState.selectedCourseIds.isNotEmpty()) {
-            val isDark = isSystemInDarkTheme()
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = if (isDark) Color(0xFF1E293B) else Orange50
+                backgroundColor = Orange50
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -401,7 +489,6 @@ fun RoadmapCreateScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            val isDark = isSystemInDarkTheme()
             filteredCourses.forEach { course ->
                 val isChecked = uiState.selectedCourseIds.contains(course.id)
 
@@ -445,14 +532,14 @@ fun RoadmapCreateScreen(
                                 )
                                 Surface(
                                     shape = JobPilotShapes.small,
-                                    color = if (course.category == "Core CSE") (if (isDark) Color(0xFF1E3A8A) else InfoBlueBg) else (if (isDark) Color(0xFF7C2D12) else Orange100),
+                                    color = if (course.category == "Core CSE") InfoBlueBg else Orange100,
                                     modifier = Modifier.padding(start = 6.dp)
                                 ) {
                                     Text(
                                         text = course.badge,
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (course.category == "Core CSE") (if (isDark) Color(0xFF93C5FD) else InfoBlue) else Orange500,
+                                        color = if (course.category == "Core CSE") InfoBlue else Orange500,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                     )
                                 }
@@ -474,12 +561,12 @@ fun RoadmapCreateScreen(
                                 course.skills.take(4).forEach { skill ->
                                     Surface(
                                         shape = JobPilotShapes.small,
-                                        color = if (isDark) Color(0xFF334155) else Slate100
+                                        color = Slate100
                                     ) {
                                         Text(
                                             text = skill,
                                             fontSize = 10.sp,
-                                            color = if (isDark) Color.White else Slate700,
+                                            color = Slate700,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }

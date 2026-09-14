@@ -91,7 +91,7 @@ class RoadmapService:
         # Determine number of phases and days per phase based on duration
         duration_clean = req.duration.strip()
         num_phases = 6 if "12" in duration_clean else (5 if "6" in duration_clean else 4)
-        days_per_phase = 5  # Highly focused, structured daily lessons per phase
+        days_per_phase = 10 if ("6" in duration_clean or "12" in duration_clean) else 8
 
         prompt = (
             f"You are a master curriculum designer for software engineers.\n"
@@ -508,21 +508,22 @@ class RoadmapService:
         day.completed_at = now
 
         # Recalculate completed days in roadmap
-        all_days = db.query(RoadmapDay).filter(RoadmapDay.roadmap_id == roadmap_id).all()
+        all_days = db.query(RoadmapDay).filter(RoadmapDay.roadmap_id == actual_roadmap_id).all()
         completed_count = sum(1 for d in all_days if d.is_completed)
         roadmap.completed_days = completed_count
+        roadmap.total_days = len(all_days)
         roadmap.progress_percentage = int((completed_count / len(all_days)) * 100) if all_days else 0
 
         # Check if current phase is fully completed
         phase_days = [d for d in all_days if d.phase_id == phase.id]
-        phase_completed = all(d.is_completed for d in phase_days)
+        phase_completed = all(d.is_completed for d in phase_days) if phase_days else False
         phase_unlocked_now = False
 
         if phase_completed:
             phase.is_completed = True
             # Unlock next phase
             next_phase = db.query(RoadmapPhase).filter(
-                RoadmapPhase.roadmap_id == roadmap_id,
+                RoadmapPhase.roadmap_id == actual_roadmap_id,
                 RoadmapPhase.phase_number == phase.phase_number + 1
             ).first()
             if next_phase and not next_phase.is_unlocked:
@@ -530,9 +531,11 @@ class RoadmapService:
                 phase_unlocked_now = True
 
         # Check if entire roadmap is completed
-        roadmap_completed = (completed_count == len(all_days))
+        roadmap_completed = (len(all_days) > 0 and completed_count >= len(all_days))
         if roadmap_completed:
             roadmap.is_completed = True
+        else:
+            roadmap.is_completed = False
 
         # Deterministic Streak Update
         today = now.date()
@@ -722,62 +725,171 @@ class RoadmapService:
         db.add(roadmap)
         db.flush()
 
+        all_phases_data = []
+        for c in selected_courses:
+            for phase_data in c.get("phases", []):
+                phase_title = f"{phase_data['title']} ({c['title']})" if len(selected_courses) > 1 else phase_data['title']
+                all_phases_data.append((phase_title, phase_data))
+
+        base_days_total = sum(len(p_data.get("days", [])) for _, p_data in all_phases_data)
+
+        # Target minimum days based on requested duration
+        duration_clean = duration.strip().lower()
+        if "12" in duration_clean:
+            min_target_days = 90
+        elif "6" in duration_clean:
+            min_target_days = 60
+        elif "3" in duration_clean:
+            min_target_days = 45
+        else:
+            min_target_days = 30
+
+        extra_days_needed = max(0, min_target_days - base_days_total)
+        extra_allocations = [0] * len(all_phases_data)
+        if extra_days_needed > 0 and len(all_phases_data) > 0:
+            base_extra = extra_days_needed // len(all_phases_data)
+            remainder = extra_days_needed % len(all_phases_data)
+            for idx in range(len(all_phases_data)):
+                extra_allocations[idx] = base_extra + (1 if idx < remainder else 0)
+
+        EXTRA_TEMPLATES = [
+            (
+                "Hands-On Lab & Practical Implementation",
+                "Deep-dive hands-on programming laboratory applying concepts to a real-world scenario.",
+                ["Complex edge case exploration", "Production coding patterns", "Refactoring and code hygiene"],
+                ["Implement end-to-end practical solution", "Write unit tests covering boundary scenarios"]
+            ),
+            (
+                "Edge Cases, Debugging & Error Recovery",
+                "Identify subtle edge cases, debug unexpected states, and implement defensive failure handling.",
+                ["Common runtime errors and pitfalls", "Defensive programming techniques", "Debugging and tracing best practices"],
+                ["Reproduce and resolve 3 edge-case failures", "Implement comprehensive exception barriers"]
+            ),
+            (
+                "Performance Profiling & Optimization",
+                "Measure latency, profile memory footprint, and optimize algorithmic efficiency.",
+                ["Time/Space bottleneck identification", "Memory management and cache locality", "Benchmarking and profiling tools"],
+                ["Profile critical execution paths", "Optimize algorithm throughput by at least 2x"]
+            ),
+            (
+                "Design Patterns & Clean Architecture",
+                "Apply clean architecture principles, decoupling, and modular design patterns.",
+                ["Design patterns in modern systems", "Decoupling dependencies and SOLID compliance", "Code maintainability inspection"],
+                ["Refactor module into clean decoupled interfaces", "Author code review checklist"]
+            ),
+            (
+                "Technical Interview & Mock Assessment",
+                "Solve competitive problem challenges and answer interview conceptual questions.",
+                ["Frequently asked interview topics", "Time and space complexity defense", "Alternative solution trade-offs"],
+                ["Solve 2 timed technical challenges", "Document approach and architectural trade-offs"]
+            ),
+            (
+                "Phase Milestone Project Polish & Review",
+                "Finalize phase milestone deliverables, polish code documentation, and prepare for next phase.",
+                ["End-to-end milestone integration", "README documentation and setup guide", "Milestone evaluation rubric"],
+                ["Complete milestone project testing", "Run automated test suite and verify sign-off"]
+            )
+        ]
+
         current_phase_num = 1
         current_day_num = 1
         total_days_count = 0
 
-        for c in selected_courses:
-            for phase_data in c.get("phases", []):
-                phase_title = f"{phase_data['title']} ({c['title']})" if len(selected_courses) > 1 else phase_data['title']
-                phase = RoadmapPhase(
+        for p_idx, (phase_title, phase_data) in enumerate(all_phases_data):
+            phase = RoadmapPhase(
+                roadmap_id=roadmap.id,
+                phase_number=current_phase_num,
+                title=phase_title,
+                description=phase_data.get("description", ""),
+                is_unlocked=(current_phase_num == 1),
+                is_completed=False,
+                project_title=phase_data.get("project_title", ""),
+                project_description=phase_data.get("project_description", "")
+            )
+            db.add(phase)
+            db.flush()
+
+            # Add catalog days for this phase
+            for day_data in phase_data.get("days", []):
+                practice_tasks_formatted = []
+                for t in day_data.get("practice_tasks", []):
+                    if isinstance(t, str):
+                        practice_tasks_formatted.append({"title": t, "description": t})
+                    elif isinstance(t, dict):
+                        practice_tasks_formatted.append(t)
+
+                day = RoadmapDay(
                     roadmap_id=roadmap.id,
-                    phase_number=current_phase_num,
-                    title=phase_title,
-                    description=phase_data.get("description", ""),
-                    is_unlocked=(current_phase_num == 1),
-                    is_completed=False,
-                    project_title=phase_data.get("project_title", ""),
-                    project_description=phase_data.get("project_description", "")
+                    phase_id=phase.id,
+                    day_number=current_day_num,
+                    topic=day_data["topic"],
+                    learning_objective=day_data.get("learning_objective", ""),
+                    subtopics_json=json.dumps(day_data.get("subtopics", [])),
+                    practice_tasks_json=json.dumps(practice_tasks_formatted),
+                    is_completed=False
                 )
-                db.add(phase)
+                db.add(day)
                 db.flush()
 
-                for day_data in phase_data.get("days", []):
-                    practice_tasks_formatted = []
-                    for t in day_data.get("practice_tasks", []):
-                        if isinstance(t, str):
-                            practice_tasks_formatted.append({"title": t, "description": t})
-                        elif isinstance(t, dict):
-                            practice_tasks_formatted.append(t)
-
-                    day = RoadmapDay(
-                        roadmap_id=roadmap.id,
+                for res in day_data.get("resources", []):
+                    db.add(RoadmapResource(
+                        day_id=day.id,
                         phase_id=phase.id,
-                        day_number=current_day_num,
-                        topic=day_data["topic"],
-                        learning_objective=day_data.get("learning_objective", ""),
-                        subtopics_json=json.dumps(day_data.get("subtopics", [])),
-                        practice_tasks_json=json.dumps(practice_tasks_formatted),
-                        is_completed=False
-                    )
-                    db.add(day)
-                    db.flush()
+                        title=res["title"],
+                        url=res["url"],
+                        language=res.get("language", "English"),
+                        resource_type=res.get("resource_type", "article"),
+                        source=res.get("source", "Web")
+                    ))
 
-                    for res in day_data.get("resources", []):
-                        db.add(RoadmapResource(
-                            day_id=day.id,
-                            phase_id=phase.id,
-                            title=res["title"],
-                            url=res["url"],
-                            language=res.get("language", "English"),
-                            resource_type=res.get("resource_type", "article"),
-                            source=res.get("source", "Web")
-                        ))
+                current_day_num += 1
+                total_days_count += 1
 
-                    current_day_num += 1
-                    total_days_count += 1
+            # Add extra days if needed for duration scaling
+            extra_count = extra_allocations[p_idx] if p_idx < len(extra_allocations) else 0
+            for e_idx in range(extra_count):
+                tmpl = EXTRA_TEMPLATES[e_idx % len(EXTRA_TEMPLATES)]
+                extra_topic = f"{phase_title}: {tmpl[0]}"
+                extra_tasks = [{"title": t, "description": t} for t in tmpl[3]]
+                day = RoadmapDay(
+                    roadmap_id=roadmap.id,
+                    phase_id=phase.id,
+                    day_number=current_day_num,
+                    topic=extra_topic,
+                    learning_objective=tmpl[1],
+                    subtopics_json=json.dumps(tmpl[2]),
+                    practice_tasks_json=json.dumps(extra_tasks),
+                    is_completed=False
+                )
+                db.add(day)
+                db.flush()
 
-                current_phase_num += 1
+                q_en = urllib.parse.quote_plus(f"{extra_topic} tutorial")
+                q_te = urllib.parse.quote_plus(f"{extra_topic} telugu")
+                q_hi = urllib.parse.quote_plus(f"{extra_topic} hindi")
+                db.add(RoadmapResource(
+                    day_id=day.id, phase_id=phase.id,
+                    title=f"{extra_topic} — Video Guide",
+                    url=f"https://www.youtube.com/results?search_query={q_en}",
+                    language="English", resource_type="video", source="YouTube"
+                ))
+                db.add(RoadmapResource(
+                    day_id=day.id, phase_id=phase.id,
+                    title=f"{extra_topic} in Telugu",
+                    url=f"https://www.youtube.com/results?search_query={q_te}",
+                    language="Telugu", resource_type="video", source="YouTube Telugu"
+                ))
+                db.add(RoadmapResource(
+                    day_id=day.id, phase_id=phase.id,
+                    title=f"{extra_topic} in Hindi",
+                    url=f"https://www.youtube.com/results?search_query={q_hi}",
+                    language="Hindi", resource_type="video", source="YouTube Hindi"
+                ))
+
+                current_day_num += 1
+                total_days_count += 1
+
+            current_phase_num += 1
 
         roadmap.total_days = total_days_count
         db.commit()
