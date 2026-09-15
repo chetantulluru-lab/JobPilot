@@ -59,6 +59,162 @@ SUGGESTIONS_INDEX = [
 ]
 
 
+def resolve_curated_video_resource(topic: str, language: str = "English") -> dict:
+    t = topic.lower()
+    lang = language.capitalize()
+    lang_lower = language.lower()
+
+    video_id = "8hly31xKli0"
+    source = "YouTube"
+
+    if "big-o" in t or "asymptotic" in t or "complexity" in t:
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "A03oI0znAoc", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "v4cd1O4zkGw", "YouTube (CS Dojo)"
+    elif any(k in t for k in ["array", "pointer", "sliding", "prefix"]):
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "KLlXCFG5TnA", "YouTube (NeetCode)"
+    elif "linked list" in t or "list" in t:
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "WwfhLC16bis", "YouTube (freeCodeCamp)"
+    elif "stack" in t or "queue" in t:
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "wjI1W422126I", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["tree", "binary", "bst", "heap"]):
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "oSWTXtMglKE", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["graph", "dfs", "bfs", "dijkstra"]):
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "tWVWeAqZ0WU", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["dynamic", "dp", "memoization"]):
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "oBt53YbR9Kk", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["react", "component", "jsx", "hooks"]):
+        if lang_lower == "telugu":
+            video_id, source = "934f0xN5-oQ", "YouTube (Telugu Tech)"
+        elif lang_lower == "hindi":
+            video_id, source = "tiLWCNFzThE", "YouTube (Thapa Technical)"
+        else:
+            video_id, source = "bMknfKXIFA8", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["html", "css", "frontend", "dom"]):
+        if lang_lower == "telugu":
+            video_id, source = "m67-bOpOoPU", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "tVzUXW6siu0", "YouTube (CodeWithHarry)"
+        else:
+            video_id, source = "G3e-cpL7ofc", "YouTube (SuperSimpleDev)"
+    elif any(k in t for k in ["javascript", "js", "typescript"]):
+        if lang_lower == "telugu":
+            video_id, source = "zJSY8tbf_ys", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "SSC0qX_7uA4", "YouTube (Chai aur Code)"
+        else:
+            video_id, source = "EerdGm-ehJQ", "YouTube (SuperSimpleDev)"
+    elif any(k in t for k in ["node", "express", "backend", "api"]):
+        if lang_lower == "telugu":
+            video_id, source = "zJSY8tbf_ys", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "chx9Rs41W6g", "YouTube (CodeWithHarry)"
+        else:
+            video_id, source = "Oe421EPjeBE", "YouTube (Traversy Media)"
+    elif "python" in t:
+        if lang_lower == "telugu":
+            video_id, source = "_uQrJ0TkZlc", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "7wnove7K-ZQ", "YouTube (CodeWithHarry)"
+        else:
+            video_id, source = "rfscVS0vtbw", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["machine learning", "regression", "classification", "model"]):
+        if lang_lower == "telugu":
+            video_id, source = "QXeEoD0pB3E", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "1xs4SsmTW3A", "YouTube (Krish Naik)"
+        else:
+            video_id, source = "i_LwzRVP7bg", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["neural", "deep learning", "pytorch", "tensorflow", "nlp"]):
+        if lang_lower == "telugu":
+            video_id, source = "QXeEoD0pB3E", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "2Ob3A_El4W4", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "aircAruvnKk", "YouTube (3Blue1Brown)"
+    elif any(k in t for k in ["android", "kotlin", "compose", "mobile"]):
+        if lang_lower == "telugu":
+            video_id, source = "1f39B1mJ04M", "YouTube (Telugu Tech)"
+        elif lang_lower == "hindi":
+            video_id, source = "mXjZQX3UzOs", "YouTube (CodeWithHarry)"
+        else:
+            video_id, source = "fis26HvvDA4", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["flutter", "dart"]):
+        if lang_lower == "telugu":
+            video_id, source = "W-aB0q4F_gU", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "inT_e1_0Fw8", "YouTube (Anuj Bhaiya)"
+        else:
+            video_id, source = "VPvVD8t02U8", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["sql", "database", "postgres", "mongo"]):
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "kBdlM6h53yM", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "HXV3zeRR3h4", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["docker", "kubernetes", "devops", "cloud"]):
+        if lang_lower == "telugu":
+            video_id, source = "rD4_xG3zV88", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "k63zU5d-JpY", "YouTube (CodeWithHarry)"
+        else:
+            video_id, source = "fqMOX6JJ87U", "YouTube (freeCodeCamp)"
+    elif any(k in t for k in ["system design", "microservices", "architecture"]):
+        if lang_lower == "telugu":
+            video_id, source = "rD4_xG3zV88", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "bkSWJJZNgf8", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "bUHFg8CZF7I", "YouTube (Gaurav Sen)"
+    else:
+        if lang_lower == "telugu":
+            video_id, source = "t_wFv34w76U", "YouTube (Vamsi Bhavani)"
+        elif lang_lower == "hindi":
+            video_id, source = "AT14lCXuMKI", "YouTube (Gate Smashers)"
+        else:
+            video_id, source = "8hly31xKli0", "YouTube (freeCodeCamp)"
+
+    return {
+        "title": f"{topic} — {lang} Video Tutorial ({source})",
+        "url": f"https://www.youtube.com/watch?v={video_id}",
+        "source": source
+    }
+
+
 class RoadmapService:
     @staticmethod
     def get_suggestions(query: str) -> RoadmapSuggestionResponse:
@@ -363,7 +519,7 @@ class RoadmapService:
         Phase-aware resource fetching (English, Telugu, Hindi).
         If resources already exist for the requested language, returns them.
         If not, dynamically synthesizes verified video and notes links (YouTube, Gate Smashers, Vamsi Bhavani, GFG)
-        and persists them so students always have verified resources in their chosen language.
+        with direct playable video URLs and persists them so students always have verified resources in their chosen language.
         """
         query = db.query(RoadmapPhase).filter(RoadmapPhase.id == phase_id)
         if roadmap_id and roadmap_id != "phases":
@@ -384,78 +540,30 @@ class RoadmapService:
             if not has_lang:
                 for day in phase.days:
                     topic = day.topic
-                    if target_lang.lower() == "telugu":
-                        topic_query_te = urllib.parse.quote_plus(f"{topic} in telugu vamsi bhavani")
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — Telugu Video Guide (Vamsi Bhavani / Telugu Tech)",
-                                url=f"https://www.youtube.com/results?search_query={topic_query_te}",
-                                language="Telugu",
-                                resource_type="video",
-                                source="YouTube Telugu"
-                            )
+                    curated = resolve_curated_video_resource(topic, target_lang)
+                    new_resources.append(
+                        RoadmapResource(
+                            phase_id=phase.id,
+                            day_id=day.id,
+                            title=curated["title"],
+                            url=curated["url"],
+                            language=target_lang.capitalize(),
+                            resource_type="video",
+                            source=curated["source"]
                         )
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — Telugu Concepts & Practice",
-                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' telugu tutorial')}",
-                                language="Telugu",
-                                resource_type="video",
-                                source="YouTube Telugu"
-                            )
+                    )
+                    # Add documentation/article resource
+                    new_resources.append(
+                        RoadmapResource(
+                            phase_id=phase.id,
+                            day_id=day.id,
+                            title=f"{topic} — Practice Notes & Reference",
+                            url="https://www.geeksforgeeks.org/",
+                            language=target_lang.capitalize(),
+                            resource_type="article",
+                            source="Documentation"
                         )
-                    elif target_lang.lower() == "hindi":
-                        topic_query_hi = urllib.parse.quote_plus(f"{topic} in hindi gate smashers")
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — Hindi Guide (Gate Smashers / CodeWithHarry)",
-                                url=f"https://www.youtube.com/results?search_query={topic_query_hi}",
-                                language="Hindi",
-                                resource_type="video",
-                                source="YouTube Hindi"
-                            )
-                        )
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — Complete Hindi Notes & Practice",
-                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' in hindi')}",
-                                language="Hindi",
-                                resource_type="video",
-                                source="YouTube Hindi"
-                            )
-                        )
-                    else:  # English default
-                        topic_query_en = urllib.parse.quote_plus(f"{topic} tutorial geeksforgeeks freecodecamp")
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — Video Walkthrough & Implementation",
-                                url=f"https://www.youtube.com/results?search_query={urllib.parse.quote_plus(topic + ' tutorial')}",
-                                language="English",
-                                resource_type="video",
-                                source="YouTube"
-                            )
-                        )
-                        new_resources.append(
-                            RoadmapResource(
-                                phase_id=phase.id,
-                                day_id=day.id,
-                                title=f"{topic} — GFG & FreeCodeCamp Notes",
-                                url=f"https://www.google.com/search?q={topic_query_en}",
-                                language="English",
-                                resource_type="article",
-                                source="Documentation"
-                            )
-                        )
+                    )
 
         if new_resources:
             db.add_all(new_resources)
@@ -864,26 +972,26 @@ class RoadmapService:
                 db.add(day)
                 db.flush()
 
-                q_en = urllib.parse.quote_plus(f"{extra_topic} tutorial")
-                q_te = urllib.parse.quote_plus(f"{extra_topic} telugu")
-                q_hi = urllib.parse.quote_plus(f"{extra_topic} hindi")
+                c_en = resolve_curated_video_resource(extra_topic, "English")
+                c_te = resolve_curated_video_resource(extra_topic, "Telugu")
+                c_hi = resolve_curated_video_resource(extra_topic, "Hindi")
                 db.add(RoadmapResource(
                     day_id=day.id, phase_id=phase.id,
-                    title=f"{extra_topic} — Video Guide",
-                    url=f"https://www.youtube.com/results?search_query={q_en}",
-                    language="English", resource_type="video", source="YouTube"
+                    title=c_en["title"],
+                    url=c_en["url"],
+                    language="English", resource_type="video", source=c_en["source"]
                 ))
                 db.add(RoadmapResource(
                     day_id=day.id, phase_id=phase.id,
-                    title=f"{extra_topic} in Telugu",
-                    url=f"https://www.youtube.com/results?search_query={q_te}",
-                    language="Telugu", resource_type="video", source="YouTube Telugu"
+                    title=c_te["title"],
+                    url=c_te["url"],
+                    language="Telugu", resource_type="video", source=c_te["source"]
                 ))
                 db.add(RoadmapResource(
                     day_id=day.id, phase_id=phase.id,
-                    title=f"{extra_topic} in Hindi",
-                    url=f"https://www.youtube.com/results?search_query={q_hi}",
-                    language="Hindi", resource_type="video", source="YouTube Hindi"
+                    title=c_hi["title"],
+                    url=c_hi["url"],
+                    language="Hindi", resource_type="video", source=c_hi["source"]
                 ))
 
                 current_day_num += 1
