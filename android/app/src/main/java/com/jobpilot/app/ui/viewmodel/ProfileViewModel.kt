@@ -53,6 +53,13 @@ class ProfileViewModel(
         }
     }
 
+    fun updateEducation(education: Education) {
+        viewModelScope.launch {
+            profileRepository.updateEducation(education)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Education record updated")
+        }
+    }
+
     fun removeEducation(id: String) {
         viewModelScope.launch {
             profileRepository.removeEducation(id)
@@ -75,6 +82,7 @@ class ProfileViewModel(
     fun removeSkill(id: String) {
         viewModelScope.launch {
             profileRepository.removeSkill(id)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Skill removed")
         }
     }
 
@@ -85,9 +93,17 @@ class ProfileViewModel(
         }
     }
 
+    fun updateExperience(exp: Experience) {
+        viewModelScope.launch {
+            profileRepository.updateExperience(exp)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Experience updated")
+        }
+    }
+
     fun removeExperience(id: String) {
         viewModelScope.launch {
             profileRepository.removeExperience(id)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Experience removed")
         }
     }
 
@@ -98,9 +114,17 @@ class ProfileViewModel(
         }
     }
 
+    fun updateProject(proj: Project) {
+        viewModelScope.launch {
+            profileRepository.updateProject(proj)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Project updated")
+        }
+    }
+
     fun removeProject(id: String) {
         viewModelScope.launch {
             profileRepository.removeProject(id)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Project removed")
         }
     }
 
@@ -111,9 +135,17 @@ class ProfileViewModel(
         }
     }
 
+    fun updateCertification(cert: Certification) {
+        viewModelScope.launch {
+            profileRepository.updateCertification(cert)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Certification updated")
+        }
+    }
+
     fun removeCertification(id: String) {
         viewModelScope.launch {
             profileRepository.removeCertification(id)
+            _uiState.value = _uiState.value.copy(feedbackMessage = "Certification removed")
         }
     }
 

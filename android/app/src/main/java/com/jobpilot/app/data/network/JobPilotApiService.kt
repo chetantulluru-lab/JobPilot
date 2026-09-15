@@ -46,6 +46,9 @@ interface JobPilotApiService {
     @POST("profile/education")
     suspend fun addEducation(@Body req: EducationDto): Response<EducationDto>
 
+    @PUT("profile/education/{id}")
+    suspend fun updateEducation(@Path("id") id: String, @Body req: EducationDto): Response<EducationDto>
+
     @DELETE("profile/education/{id}")
     suspend fun deleteEducation(@Path("id") id: String): Response<Unit>
 
@@ -58,8 +61,38 @@ interface JobPilotApiService {
     @POST("profile/projects")
     suspend fun addProject(@Body req: ProjectDto): Response<ProjectDto>
 
+    @PUT("profile/projects/{id}")
+    suspend fun updateProject(@Path("id") id: String, @Body req: ProjectDto): Response<ProjectDto>
+
     @DELETE("profile/projects/{id}")
     suspend fun deleteProject(@Path("id") id: String): Response<Unit>
+
+    @POST("profile/experience")
+    suspend fun addExperience(@Body req: ExperienceDto): Response<ExperienceDto>
+
+    @PUT("profile/experience/{id}")
+    suspend fun updateExperience(@Path("id") id: String, @Body req: ExperienceDto): Response<ExperienceDto>
+
+    @DELETE("profile/experience/{id}")
+    suspend fun deleteExperience(@Path("id") id: String): Response<Unit>
+
+    @POST("profile/certifications")
+    suspend fun addCertification(@Body req: CertificationDto): Response<CertificationDto>
+
+    @PUT("profile/certifications/{id}")
+    suspend fun updateCertification(@Path("id") id: String, @Body req: CertificationDto): Response<CertificationDto>
+
+    @DELETE("profile/certifications/{id}")
+    suspend fun deleteCertification(@Path("id") id: String): Response<Unit>
+
+    @POST("profile/social-profiles")
+    suspend fun addSocialProfile(@Body req: SocialProfileDto): Response<SocialProfileDto>
+
+    @DELETE("profile/social-profiles/{id}")
+    suspend fun deleteSocialProfile(@Path("id") id: String): Response<Unit>
+
+    @POST("profile/preferences")
+    suspend fun setJobPreferences(@Body req: JobPreferenceDto): Response<JobPreferenceDto>
 
     @Multipart
     @POST("profile/photo")

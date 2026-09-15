@@ -25,6 +25,7 @@ from app.schemas.profile import (
     ProjectUpdate,
     ProjectResponse,
     CertificationCreate,
+    CertificationUpdate,
     CertificationResponse,
     SocialProfileCreate,
     SocialProfileResponse,
@@ -195,6 +196,17 @@ def add_certification(
 ):
     """Add an industry certification."""
     return ProfileService.add_certification(db, current_user.id, cert_in)
+
+
+@router.put("/certifications/{cert_id}", response_model=CertificationResponse)
+def update_certification(
+    cert_id: str,
+    cert_in: CertificationUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update a certification."""
+    return ProfileService.update_certification(db, current_user.id, cert_id, cert_in)
 
 
 @router.delete("/certifications/{cert_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -66,7 +66,7 @@ data class EducationDto(
     @SerializedName("id") val id: String? = null,
     @SerializedName("institution") val institution: String,
     @SerializedName("degree") val degree: String,
-    @SerializedName("field_of_study") val fieldOfStudy: String,
+    @SerializedName("field_of_study") val fieldOfStudy: String? = null,
     @SerializedName("start_year") val startYear: Int? = null,
     @SerializedName("end_year") val endYear: Int? = null,
     @SerializedName("grade_or_cgpa") val gradeOrCgpa: String? = null
@@ -102,6 +102,31 @@ data class ProjectDto(
     @SerializedName("end_date") val endDate: String? = null
 )
 
+data class CertificationDto(
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("name") val name: String,
+    @SerializedName("issuer") val issuer: String,
+    @SerializedName("issue_date") val issueDate: String? = null,
+    @SerializedName("expiration_date") val expirationDate: String? = null,
+    @SerializedName("credential_url") val credentialUrl: String? = null
+)
+
+data class SocialProfileDto(
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("platform") val platform: String,
+    @SerializedName("url") val url: String,
+    @SerializedName("username") val username: String? = null
+)
+
+data class JobPreferenceDto(
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("desired_roles") val desiredRoles: String? = null,
+    @SerializedName("preferred_locations") val preferredLocations: String? = null,
+    @SerializedName("work_modes") val workModes: String? = null,
+    @SerializedName("min_expected_salary") val minExpectedSalary: Int? = null,
+    @SerializedName("max_expected_salary") val maxExpectedSalary: Int? = null
+)
+
 data class PersonalInfoDto(
     @SerializedName("id") val id: String? = null,
     @SerializedName("full_name") val fullName: String? = null,
@@ -130,7 +155,10 @@ data class CareerProfileDto(
     @SerializedName("education") val education: List<EducationDto> = emptyList(),
     @SerializedName("skills") val skills: List<SkillDto> = emptyList(),
     @SerializedName("experience") val experience: List<ExperienceDto> = emptyList(),
-    @SerializedName("projects") val projects: List<ProjectDto> = emptyList()
+    @SerializedName("projects") val projects: List<ProjectDto> = emptyList(),
+    @SerializedName("certifications") val certifications: List<CertificationDto> = emptyList(),
+    @SerializedName("social_profiles") val socialProfiles: List<SocialProfileDto> = emptyList(),
+    @SerializedName("job_preferences") val jobPreferences: List<JobPreferenceDto> = emptyList()
 )
 
 // --- Job DTOs ---

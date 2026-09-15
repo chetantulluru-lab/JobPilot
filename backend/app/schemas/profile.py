@@ -48,7 +48,7 @@ class PersonalInfoResponse(PersonalInfoBase):
 class EducationBase(BaseModel):
     institution: str
     degree: str
-    field_of_study: str
+    field_of_study: Optional[str] = ""
     start_year: Optional[int] = None
     end_year: Optional[int] = None
     grade_or_cgpa: Optional[str] = None
@@ -168,6 +168,14 @@ class CertificationBase(BaseModel):
 
 class CertificationCreate(CertificationBase):
     pass
+
+
+class CertificationUpdate(BaseModel):
+    name: Optional[str] = None
+    issuer: Optional[str] = None
+    issue_date: Optional[str] = None
+    expiration_date: Optional[str] = None
+    credential_url: Optional[str] = None
 
 
 class CertificationResponse(CertificationBase):

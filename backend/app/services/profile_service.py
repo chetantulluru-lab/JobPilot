@@ -22,6 +22,7 @@ from app.schemas.profile import (
     ProjectCreate,
     ProjectUpdate,
     CertificationCreate,
+    CertificationUpdate,
     SocialProfileCreate,
     JobPreferenceCreate
 )
@@ -68,8 +69,8 @@ class ProfileService:
         # 5. Practical Experience (at least 1 entry): 15%
         if profile.experience and len(profile.experience) >= 1:
             score += 15
-        # 6. Social / Professional Profiles (LinkedIn or GitHub): 10%
-        if profile.social_profiles and len(profile.social_profiles) >= 1:
+        # 6. Social / Certifications (LinkedIn, GitHub, or Certifications): 10%
+        if (profile.social_profiles and len(profile.social_profiles) >= 1) or (profile.certifications and len(profile.certifications) >= 1):
             score += 10
         return min(score, 100)
 
@@ -246,6 +247,20 @@ class ProfileService:
         profile = cls.get_or_create_profile(db, user_id)
         cert = Certification(profile_id=profile.id, **cert_in.model_dump())
         db.add(cert)
+        profile.profile_strength = cls.calculate_profile_strength(profile)
+        db.commit()
+        db.refresh(cert)
+        return cert
+
+    @classmethod
+    def update_certification(cls, db: Session, user_id: str, cert_id: str, cert_in: CertificationUpdate) -> Certification:
+        profile = cls.get_or_create_profile(db, user_id)
+        cert = db.query(Certification).filter(Certification.id == cert_id, Certification.profile_id == profile.id).first()
+        if not cert:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certification not found.")
+        for field, val in cert_in.model_dump(exclude_unset=True).items():
+            setattr(cert, field, val)
+        profile.profile_strength = cls.calculate_profile_strength(profile)
         db.commit()
         db.refresh(cert)
         return cert
@@ -257,6 +272,7 @@ class ProfileService:
         if not cert:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certification not found.")
         db.delete(cert)
+        profile.profile_strength = cls.calculate_profile_strength(profile)
         db.commit()
 
     # --- Social Profiles CRUD ---

@@ -471,6 +471,34 @@ class NetworkProfileRepository(
             )
         }
 
+        val mappedCertifications = dto.certifications.map { cert ->
+            Certification(
+                id = cert.id ?: java.util.UUID.randomUUID().toString(),
+                name = cert.name,
+                issuingOrganization = cert.issuer,
+                date = cert.issueDate ?: "",
+                credentialUrl = cert.credentialUrl
+            )
+        }
+
+        val mappedSocial = dto.socialProfiles.map { sp ->
+            SocialProfile(
+                id = sp.id ?: java.util.UUID.randomUUID().toString(),
+                platform = sp.platform,
+                url = sp.url
+            )
+        }
+
+        val firstPref = dto.jobPreferences.firstOrNull()
+        val mappedJobPrefs = JobPreference(
+            targetRoles = firstPref?.desiredRoles?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList(),
+            preferredLocations = firstPref?.preferredLocations?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList(),
+            workMode = firstPref?.workModes ?: "Remote",
+            employmentType = "Full-time",
+            salaryExpectation = if (firstPref?.minExpectedSalary != null) "${firstPref.minExpectedSalary} - ${firstPref.maxExpectedSalary ?: ""}" else "",
+            preferredTechnologies = emptyList()
+        )
+
         return CareerProfile(
             id = dto.id,
             userId = dto.userId,
@@ -479,18 +507,13 @@ class NetworkProfileRepository(
             skills = mappedSkills,
             experience = mappedExperience,
             projects = mappedProjects,
+            certifications = mappedCertifications,
+            socialProfiles = mappedSocial,
+            jobPreferences = mappedJobPrefs,
             profileStrengthScore = dto.profileStrength,
             currentStreak = dto.currentStreak,
             longestStreak = dto.longestStreak,
-            lastActivityDate = dto.lastActivityDate,
-            jobPreferences = JobPreference(
-                targetRoles = emptyList(),
-                preferredLocations = emptyList(),
-                workMode = "Remote",
-                employmentType = "Full-time",
-                salaryExpectation = "",
-                preferredTechnologies = emptyList()
-            )
+            lastActivityDate = dto.lastActivityDate
         )
     }
 
@@ -515,7 +538,7 @@ class NetworkProfileRepository(
     override suspend fun updatePersonalInfo(personalInfo: PersonalInfo) {
         _profile.update { it.copy(personalInfo = personalInfo) }
         try {
-            apiService.updatePersonalInfo(
+            val res = apiService.updatePersonalInfo(
                 PersonalInfoUpdateRequestDto(
                     fullName = personalInfo.fullName,
                     email = personalInfo.email,
@@ -528,6 +551,9 @@ class NetworkProfileRepository(
                     bio = personalInfo.professionalSummary
                 )
             )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync updatePersonalInfo: ${e.message}")
         }
@@ -543,6 +569,7 @@ class NetworkProfileRepository(
                 _profile.update {
                     it.copy(personalInfo = it.personalInfo.copy(avatarUrl = avatarUrl))
                 }
+                refreshProfile()
                 Result.success(avatarUrl)
             } else {
                 val error = response.errorBody()?.string() ?: "Failed to upload photo"
@@ -561,6 +588,7 @@ class NetworkProfileRepository(
                 _profile.update {
                     it.copy(personalInfo = it.personalInfo.copy(avatarUrl = null))
                 }
+                refreshProfile()
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Failed to delete photo"))
@@ -574,23 +602,53 @@ class NetworkProfileRepository(
     override suspend fun addEducation(education: Education) {
         _profile.update { it.copy(education = it.education + education) }
         try {
-            apiService.addEducation(
+            val res = apiService.addEducation(
                 EducationDto(
                     institution = education.college,
                     degree = education.degree,
                     fieldOfStudy = education.branch,
+                    startYear = education.startDate.toIntOrNull(),
+                    endYear = education.endDate.toIntOrNull(),
                     gradeOrCgpa = education.grade
                 )
             )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync addEducation to backend: ${e.message}")
+        }
+    }
+
+    override suspend fun updateEducation(education: Education) {
+        _profile.update { it.copy(education = it.education.map { edu -> if (edu.id == education.id) education else edu }) }
+        try {
+            val res = apiService.updateEducation(
+                id = education.id,
+                req = EducationDto(
+                    institution = education.college,
+                    degree = education.degree,
+                    fieldOfStudy = education.branch,
+                    startYear = education.startDate.toIntOrNull(),
+                    endYear = education.endDate.toIntOrNull(),
+                    gradeOrCgpa = education.grade
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync updateEducation to backend: ${e.message}")
         }
     }
 
     override suspend fun removeEducation(educationId: String) {
         _profile.update { it.copy(education = it.education.filterNot { edu -> edu.id == educationId }) }
         try {
-            apiService.deleteEducation(educationId)
+            val res = apiService.deleteEducation(educationId)
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync deleteEducation to backend: ${e.message}")
         }
@@ -599,13 +657,16 @@ class NetworkProfileRepository(
     override suspend fun addSkill(skill: Skill) {
         _profile.update { it.copy(skills = it.skills + skill) }
         try {
-            apiService.addSkill(
+            val res = apiService.addSkill(
                 SkillDto(
                     name = skill.name,
                     category = skill.category.name,
                     proficiency = skill.proficiencyLevel
                 )
             )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync addSkill to backend: ${e.message}")
         }
@@ -614,7 +675,10 @@ class NetworkProfileRepository(
     override suspend fun removeSkill(skillId: String) {
         _profile.update { it.copy(skills = it.skills.filterNot { s -> s.id == skillId }) }
         try {
-            apiService.deleteSkill(skillId)
+            val res = apiService.deleteSkill(skillId)
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync deleteSkill to backend: ${e.message}")
         }
@@ -622,16 +686,61 @@ class NetworkProfileRepository(
 
     override suspend fun addExperience(experience: Experience) {
         _profile.update { it.copy(experience = it.experience + experience) }
+        try {
+            val res = apiService.addExperience(
+                ExperienceDto(
+                    company = experience.company,
+                    title = experience.role,
+                    startDate = experience.startDate,
+                    endDate = experience.endDate,
+                    description = experience.description
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync addExperience to backend: ${e.message}")
+        }
+    }
+
+    override suspend fun updateExperience(experience: Experience) {
+        _profile.update { it.copy(experience = it.experience.map { exp -> if (exp.id == experience.id) experience else exp }) }
+        try {
+            val res = apiService.updateExperience(
+                id = experience.id,
+                req = ExperienceDto(
+                    company = experience.company,
+                    title = experience.role,
+                    startDate = experience.startDate,
+                    endDate = experience.endDate,
+                    description = experience.description
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync updateExperience to backend: ${e.message}")
+        }
     }
 
     override suspend fun removeExperience(experienceId: String) {
         _profile.update { it.copy(experience = it.experience.filterNot { exp -> exp.id == experienceId }) }
+        try {
+            val res = apiService.deleteExperience(experienceId)
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync deleteExperience to backend: ${e.message}")
+        }
     }
 
     override suspend fun addProject(project: Project) {
         _profile.update { it.copy(projects = it.projects + project) }
         try {
-            apiService.addProject(
+            val res = apiService.addProject(
                 ProjectDto(
                     title = project.name,
                     description = project.description,
@@ -640,15 +749,42 @@ class NetworkProfileRepository(
                     liveUrl = project.liveUrl
                 )
             )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync addProject to backend: ${e.message}")
+        }
+    }
+
+    override suspend fun updateProject(project: Project) {
+        _profile.update { it.copy(projects = it.projects.map { p -> if (p.id == project.id) project else p }) }
+        try {
+            val res = apiService.updateProject(
+                id = project.id,
+                req = ProjectDto(
+                    title = project.name,
+                    description = project.description,
+                    techStack = project.technologies.joinToString(", "),
+                    githubUrl = project.githubUrl,
+                    liveUrl = project.liveUrl
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync updateProject to backend: ${e.message}")
         }
     }
 
     override suspend fun removeProject(projectId: String) {
         _profile.update { it.copy(projects = it.projects.filterNot { p -> p.id == projectId }) }
         try {
-            apiService.deleteProject(projectId)
+            val res = apiService.deleteProject(projectId)
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to sync deleteProject to backend: ${e.message}")
         }
@@ -656,14 +792,71 @@ class NetworkProfileRepository(
 
     override suspend fun addCertification(certification: Certification) {
         _profile.update { it.copy(certifications = it.certifications + certification) }
+        try {
+            val res = apiService.addCertification(
+                CertificationDto(
+                    name = certification.name,
+                    issuer = certification.issuingOrganization,
+                    issueDate = certification.date,
+                    credentialUrl = certification.credentialUrl
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync addCertification to backend: ${e.message}")
+        }
+    }
+
+    override suspend fun updateCertification(certification: Certification) {
+        _profile.update { it.copy(certifications = it.certifications.map { c -> if (c.id == certification.id) certification else c }) }
+        try {
+            val res = apiService.updateCertification(
+                id = certification.id,
+                req = CertificationDto(
+                    name = certification.name,
+                    issuer = certification.issuingOrganization,
+                    issueDate = certification.date,
+                    credentialUrl = certification.credentialUrl
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync updateCertification to backend: ${e.message}")
+        }
     }
 
     override suspend fun removeCertification(certificationId: String) {
         _profile.update { it.copy(certifications = it.certifications.filterNot { c -> c.id == certificationId }) }
+        try {
+            val res = apiService.deleteCertification(certificationId)
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync deleteCertification to backend: ${e.message}")
+        }
     }
 
     override suspend fun updateJobPreferences(preferences: JobPreference) {
         _profile.update { it.copy(jobPreferences = preferences) }
+        try {
+            val res = apiService.setJobPreferences(
+                JobPreferenceDto(
+                    desiredRoles = preferences.targetRoles.joinToString(", "),
+                    preferredLocations = preferences.preferredLocations.joinToString(", "),
+                    workModes = preferences.workMode
+                )
+            )
+            if (res.isSuccessful) {
+                refreshProfile()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to sync preferences to backend: ${e.message}")
+        }
     }
 }
 

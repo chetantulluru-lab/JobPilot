@@ -104,3 +104,36 @@ def test_empty_profile_strength_starts_at_zero(client, db):
     prof_data = prof_res.json()
     assert prof_data["profile_strength"] == 0, f"Expected 0% for empty profile, got {prof_data['profile_strength']}%"
 
+
+def test_certifications_and_preferences_crud(client, user_a_headers):
+    # Add certification
+    cert_payload = {
+        "name": "AWS Certified Solutions Architect",
+        "issuer": "Amazon Web Services",
+        "issue_date": "2024",
+        "credential_url": "https://aws.amazon.com/verify/123"
+    }
+    res_add = client.post("/api/v1/profile/certifications", json=cert_payload, headers=user_a_headers)
+    assert res_add.status_code == 201
+    cert_id = res_add.json()["id"]
+    assert res_add.json()["name"] == "AWS Certified Solutions Architect"
+
+    # Update certification
+    res_upd = client.put(f"/api/v1/profile/certifications/{cert_id}", json={"name": "AWS Certified Solutions Architect - Associate"}, headers=user_a_headers)
+    assert res_upd.status_code == 200
+    assert res_upd.json()["name"] == "AWS Certified Solutions Architect - Associate"
+
+    # Delete certification
+    res_del = client.delete(f"/api/v1/profile/certifications/{cert_id}", headers=user_a_headers)
+    assert res_del.status_code == 204
+
+    # Preferences
+    pref_payload = {
+        "desired_roles": "Backend Engineer, Cloud Architect",
+        "preferred_locations": "Bengaluru, Remote",
+        "work_modes": "Remote"
+    }
+    res_pref = client.post("/api/v1/profile/preferences", json=pref_payload, headers=user_a_headers)
+    assert res_pref.status_code == 200
+    assert res_pref.json()["desired_roles"] == "Backend Engineer, Cloud Architect"
+

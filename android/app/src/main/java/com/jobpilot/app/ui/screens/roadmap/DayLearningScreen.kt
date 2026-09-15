@@ -29,10 +29,26 @@ import com.jobpilot.app.data.model.PracticeTask
 import com.jobpilot.app.data.model.RoadmapDay
 import com.jobpilot.app.data.model.RoadmapResource
 import com.jobpilot.app.ui.components.GlassCard
-import com.jobpilot.app.ui.components.InAppVideoPlayer
 import com.jobpilot.app.ui.components.JobPilotButton
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.RoadmapViewModel
+
+private fun launchYouTubeVideo(context: android.content.Context, videoUrl: String?) {
+    val url = videoUrl?.takeIf { it.isNotBlank() } ?: "https://www.youtube.com"
+    try {
+        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            setPackage("com.google.android.youtube")
+        }
+        context.startActivity(appIntent)
+    } catch (_: Exception) {
+        try {
+            val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(webIntent)
+        } catch (_: Exception) {
+            Toast.makeText(context, "Cannot open YouTube URL", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
 
 @Composable
 fun DayLearningScreen(
@@ -94,7 +110,6 @@ fun DayLearningScreen(
         .firstOrNull { it.resourceType == "video" && (it.dayId == null || it.dayId == day.id) }
         ?.url
 
-    val languages = listOf("English", "Telugu", "Hindi")
     val tabTitles = listOf("🎥 Video Lesson", "📖 Concepts", "💻 Practice Lab", "🤖 AI Tutor")
 
     Column(
@@ -280,18 +295,11 @@ fun DayLearningScreen(
                 0 -> VideoLessonTab(
                     day = day,
                     currentVideoUrl = currentVideoUrl,
-                    selectedLanguage = uiState.selectedLanguage,
-                    languages = languages,
                     resources = uiState.phaseResources,
-                    onLanguageChange = { lang ->
-                        userCustomVideoUrl = null
-                        viewModel.changeResourceLanguage(day.phaseId, lang)
+                    onOpenVideo = { url ->
+                        launchYouTubeVideo(context, url)
                     },
-                    onSelectVideoResource = { url ->
-                        userCustomVideoUrl = url
-                        Toast.makeText(context, "Playing video in app player", Toast.LENGTH_SHORT).show()
-                    },
-                    onSelectArticleResource = { url ->
+                    onOpenArticle = { url ->
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             context.startActivity(intent)
@@ -336,18 +344,15 @@ fun DayLearningScreen(
 }
 
 /**
- * Tab 1: Video Lesson — In-App Player with 3-language switcher and curated video index.
+ * Tab 1: Video Lesson — Opens curated video directly on YouTube with one clean language.
  */
 @Composable
 private fun VideoLessonTab(
     day: RoadmapDay,
     currentVideoUrl: String?,
-    selectedLanguage: String,
-    languages: List<String>,
     resources: List<RoadmapResource>,
-    onLanguageChange: (String) -> Unit,
-    onSelectVideoResource: (String) -> Unit,
-    onSelectArticleResource: (String) -> Unit,
+    onOpenVideo: (String) -> Unit,
+    onOpenArticle: (String) -> Unit,
     onGoToPractice: () -> Unit
 ) {
     Column(
@@ -356,120 +361,113 @@ private fun VideoLessonTab(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Embedded In-App Video Player
-        InAppVideoPlayer(
-            videoUrl = currentVideoUrl,
-            topic = day.topic,
-            language = selectedLanguage,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // Language Switcher Chips
-        Text(
-            text = "Video Audio Language:",
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp,
-            color = MaterialTheme.textPrimary
-        )
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        Row(
+        // Direct YouTube Hero Card
+        GlassCard(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            backgroundColor = BgWhite
         ) {
-            languages.forEach { lang ->
-                val isSelected = lang == selectedLanguage
-                val label = when (lang) {
-                    "Telugu" -> "తెలుగు (Telugu)"
-                    "Hindi" -> "हिन्दी (Hindi)"
-                    else -> "English"
-                }
-
-                Surface(
-                    shape = JobPilotShapes.small,
-                    color = if (isSelected) Orange500 else MaterialTheme.cardBg,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        if (isSelected) Orange500 else MaterialTheme.cardBorder
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onLanguageChange(lang) }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Verified,
+                            contentDescription = null,
+                            tint = Orange500,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Curated Engineering Video",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            color = Orange500
+                        )
+                    }
+
+                    Surface(
+                        shape = JobPilotShapes.small,
+                        color = Color(0xFFFFEBEB),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFCDD2))
                     ) {
                         Text(
-                            text = label,
-                            fontSize = 11.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) Color.White else MaterialTheme.textPrimary,
-                            maxLines = 1
+                            text = "YouTube HD",
+                            color = Color(0xFFD32F2F),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Active Lesson Overview Card
-        GlassCard(
-            modifier = Modifier.fillMaxWidth(),
-            backgroundColor = MaterialTheme.cardBg
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Verified,
-                        contentDescription = null,
-                        tint = Orange500,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Curated Engineering Video",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.sp,
-                        color = Orange500
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = day.topic,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
+                    fontSize = 17.sp,
                     color = MaterialTheme.textPrimary
                 )
 
                 if (!day.learningObjective.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = day.learningObjective,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.textSecondary
+                        fontSize = 13.sp,
+                        color = MaterialTheme.textSecondary,
+                        lineHeight = 18.sp
                     )
                 }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Big prominent direct YouTube launcher button
+                Button(
+                    onClick = { onOpenVideo(currentVideoUrl ?: "https://www.youtube.com") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = JobPilotShapes.medium,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE50914))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play Video",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Watch Video on YouTube",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Opens directly on YouTube to start playing immediately without search results.",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.textMuted
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Related Video Lessons & Articles
         Text(
-            text = "Curated Learning Materials ($selectedLanguage)",
+            text = "Curated Learning Materials",
             fontWeight = FontWeight.Bold,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             color = MaterialTheme.textPrimary
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         if (resources.isEmpty()) {
             Box(
@@ -479,7 +477,7 @@ private fun VideoLessonTab(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Loading curated $selectedLanguage tutorials...",
+                    text = "Loading curated tutorials...",
                     fontSize = 12.sp,
                     color = MaterialTheme.textMuted
                 )
@@ -495,9 +493,9 @@ private fun VideoLessonTab(
                         .border(1.dp, MaterialTheme.cardBorder, JobPilotShapes.small)
                         .clickable {
                             if (isVideo) {
-                                onSelectVideoResource(res.url)
+                                onOpenVideo(res.url)
                             } else {
-                                onSelectArticleResource(res.url)
+                                onOpenArticle(res.url)
                             }
                         }
                         .padding(12.dp),
@@ -511,28 +509,28 @@ private fun VideoLessonTab(
                         Icon(
                             imageVector = if (isVideo) Icons.Default.PlayCircleOutline else Icons.Default.MenuBook,
                             contentDescription = null,
-                            tint = if (isVideo) ErrorRed else Orange500,
-                            modifier = Modifier.size(20.dp)
+                            tint = if (isVideo) Color(0xFFE50914) else Orange500,
+                            modifier = Modifier.size(22.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
                                 text = res.title,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp,
                                 color = MaterialTheme.textPrimary,
                                 maxLines = 1
                             )
                             Text(
-                                text = if (isVideo) "▶ Play inside app • ${res.source}" else "Documentation • ${res.source}",
-                                fontSize = 10.sp,
+                                text = if (isVideo) "▶ Watch on YouTube • ${res.source}" else "Documentation • ${res.source}",
+                                fontSize = 11.sp,
                                 color = if (isVideo) Orange500 else MaterialTheme.textMuted
                             )
                         }
                     }
 
                     Icon(
-                        imageVector = if (isVideo) Icons.Default.PlayArrow else Icons.Default.OpenInNew,
+                        imageVector = Icons.Default.OpenInNew,
                         contentDescription = null,
                         tint = Orange500,
                         modifier = Modifier.size(16.dp)
