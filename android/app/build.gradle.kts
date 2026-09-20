@@ -133,6 +133,14 @@ dependencies {
     // Image Loading: Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    // CameraX & ML Kit Face Detection
+    val cameraxVersion = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
+    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
+
     // Tooling & Testing
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

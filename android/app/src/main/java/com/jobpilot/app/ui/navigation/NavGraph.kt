@@ -55,6 +55,9 @@ import com.jobpilot.app.ui.screens.roadmap.RoadmapHubScreen
 import com.jobpilot.app.ui.screens.settings.ConnectedAccountsScreen
 import com.jobpilot.app.ui.screens.settings.SettingsScreen
 import com.jobpilot.app.ui.screens.splash.SplashScreen
+import com.jobpilot.app.ui.screens.interview.InterviewReportScreen
+import com.jobpilot.app.ui.screens.interview.InterviewSetupScreen
+import com.jobpilot.app.ui.screens.interview.LiveInterviewScreen
 import com.jobpilot.app.ui.theme.BgWarmWhite
 import com.jobpilot.app.ui.theme.Orange50
 import com.jobpilot.app.ui.theme.Orange500
@@ -103,6 +106,9 @@ fun JobPilotNavGraph(
         factory = JobPilotViewModelFactory(container)
     )
     val assistantViewModel: AssistantViewModel = viewModel(
+        factory = JobPilotViewModelFactory(container)
+    )
+    val interviewViewModel: InterviewViewModel = viewModel(
         factory = JobPilotViewModelFactory(container)
     )
 
@@ -277,7 +283,12 @@ fun JobPilotNavGraph(
                     onCreateRoadmap = { navController.navigate(Screen.RoadmapCreate.route) },
                     onNavigateToResume = { navController.navigate(Screen.ResumeHub.route) },
                     onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
-                    onNavigateToAssistant = { navController.navigate(Screen.AIAssistant.route) }
+                    onNavigateToAssistant = { navController.navigate(Screen.AIAssistant.route) },
+                    onNavigateToJobs = { navController.navigate(Screen.JobList.route) },
+                    onNavigateToApplications = { navController.navigate(Screen.ApplicationList.route) },
+                    onNavigateToInterview = { role ->
+                        navController.navigate(Screen.InterviewSetup.createRoute(role))
+                    }
                 )
             }
 
@@ -417,6 +428,9 @@ fun JobPilotNavGraph(
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToSkillGap = { id ->
                         navController.navigate(Screen.SkillGapDetail.createRoute(id))
+                    },
+                    onNavigateToInterview = { role ->
+                        navController.navigate(Screen.InterviewSetup.createRoute(role))
                     }
                 )
             }
@@ -475,6 +489,61 @@ fun JobPilotNavGraph(
                 AICareerAssistantScreen(
                     viewModel = assistantViewModel,
                     onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // 19. AI Mock Interview Setup
+            composable(
+                route = Screen.InterviewSetup.route,
+                arguments = listOf(navArgument("role") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                })
+            ) { backStackEntry ->
+                val roleArg = backStackEntry.arguments?.getString("role")
+                val decodedRole = if (!roleArg.isNullOrBlank()) {
+                    try {
+                        java.net.URLDecoder.decode(roleArg, "UTF-8")
+                    } catch (_: Exception) {
+                        roleArg
+                    }
+                } else null
+                InterviewSetupScreen(
+                    initialRole = decodedRole,
+                    viewModel = interviewViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onStartInterview = { navController.navigate(Screen.LiveInterview.route) },
+                    onViewReport = { sessionId ->
+                        navController.navigate(Screen.InterviewReport.createRoute(sessionId))
+                    }
+                )
+            }
+
+            // 20. Live AI Interview Room
+            composable(Screen.LiveInterview.route) {
+                LiveInterviewScreen(
+                    viewModel = interviewViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onInterviewComplete = { sessionId ->
+                        navController.navigate(Screen.InterviewReport.createRoute(sessionId)) {
+                            popUpTo(Screen.InterviewSetup.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            // 21. AI Interview Evaluation Report
+            composable(
+                route = Screen.InterviewReport.route,
+                arguments = listOf(navArgument("sessionId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val sessionId = backStackEntry.arguments?.getString("sessionId") ?: ""
+                InterviewReportScreen(
+                    sessionId = sessionId,
+                    viewModel = interviewViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToRoadmaps = { navController.navigate(Screen.RoadmapHub.route) }
                 )
             }
         }

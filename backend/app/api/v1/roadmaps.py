@@ -1,9 +1,12 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query, status
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db, get_current_user
 from app.models.user import User
+from app.models.roadmap import Roadmap, RoadmapPhase, RoadmapDay
+from app.models.roadmap_note import RoadmapNote
 from app.schemas.roadmap import (
     RoadmapGenerateRequest, RoadmapSuggestionResponse,
     RoadmapDetailResponse, RoadmapSummaryResponse,
@@ -12,7 +15,10 @@ from app.schemas.roadmap import (
     RoadmapGenerateFromCoursesRequest,
     CurriculumAssistantRequest, CurriculumAssistantResponse
 )
+from app.schemas.quiz import DailyQuizResponse, QuizSubmitRequest, QuizSubmitResponse
+from app.schemas.roadmap_note import RoadmapNoteRequest, RoadmapNoteResponse, BookmarkedDaySummary
 from app.services.roadmap_service import RoadmapService
+from app.services.quiz_service import QuizService
 
 router = APIRouter(prefix="/roadmaps", tags=["Roadmaps & Learning"])
 
@@ -175,3 +181,157 @@ def delete_roadmap(
     """Deletes a roadmap and its associated phases, days, and cached resources."""
     RoadmapService.delete_roadmap(db, current_user.id, roadmap_id)
     return None
+
+
+# --- Quiz Endpoints ---
+
+@router.get("/days/{day_id}/quiz", response_model=DailyQuizResponse)
+def get_day_quiz(
+    day_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Retrieves 3 interactive multiple-choice quiz questions for the day's topic."""
+    day = db.query(RoadmapDay).filter(RoadmapDay.id == day_id).first()
+    if not day:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap day not found.")
+    questions = QuizService.get_quiz_for_day(day)
+    return DailyQuizResponse(
+        day_id=day.id,
+        day_title=day.topic,
+        questions=questions
+    )
+
+
+@router.post("/days/{day_id}/quiz/submit", response_model=QuizSubmitResponse)
+def submit_day_quiz(
+    day_id: str,
+    req: QuizSubmitRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Evaluates submitted quiz answers. If score >= 70%, marks day completed,
+    increments the user's learning streak, and provides explanations.
+    """
+    day = db.query(RoadmapDay).filter(RoadmapDay.id == day_id).first()
+    if not day:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap day not found.")
+    return QuizService.evaluate_quiz(db, day, current_user, req.submissions)
+
+
+# --- Notes & Bookmarks Endpoints ---
+
+@router.get("/days/{day_id}/note", response_model=RoadmapNoteResponse)
+def get_day_note(
+    day_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Retrieves personal notes and bookmark state for a specific roadmap day."""
+    day = db.query(RoadmapDay).filter(RoadmapDay.id == day_id).first()
+    if not day:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap day not found.")
+
+    note = db.query(RoadmapNote).filter(
+        RoadmapNote.day_id == day_id,
+        RoadmapNote.user_id == current_user.id
+    ).first()
+
+    if not note:
+        phase = db.query(RoadmapPhase).filter(RoadmapPhase.id == day.phase_id).first()
+        return RoadmapNoteResponse(
+            id=f"temp-{day_id}",
+            roadmap_id=phase.roadmap_id if phase else "",
+            day_id=day_id,
+            note_text="",
+            is_bookmarked=False,
+            updated_at=datetime.now(timezone.utc)
+        )
+
+    return RoadmapNoteResponse(
+        id=note.id,
+        roadmap_id=note.roadmap_id,
+        day_id=note.day_id,
+        note_text=note.note_text,
+        is_bookmarked=note.is_bookmarked,
+        updated_at=note.updated_at
+    )
+
+
+@router.put("/days/{day_id}/note", response_model=RoadmapNoteResponse)
+def save_day_note(
+    day_id: str,
+    req: RoadmapNoteRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Saves or updates personal notes and bookmark status for a roadmap day."""
+    day = db.query(RoadmapDay).filter(RoadmapDay.id == day_id).first()
+    if not day:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap day not found.")
+
+    phase = db.query(RoadmapPhase).filter(RoadmapPhase.id == day.phase_id).first()
+    roadmap_id = phase.roadmap_id if phase else ""
+
+    note = db.query(RoadmapNote).filter(
+        RoadmapNote.day_id == day_id,
+        RoadmapNote.user_id == current_user.id
+    ).first()
+
+    if not note:
+        note = RoadmapNote(
+            user_id=current_user.id,
+            roadmap_id=roadmap_id,
+            day_id=day_id,
+            note_text=req.note_text,
+            is_bookmarked=req.is_bookmarked if req.is_bookmarked is not None else False
+        )
+        db.add(note)
+    else:
+        note.note_text = req.note_text
+        if req.is_bookmarked is not None:
+            note.is_bookmarked = req.is_bookmarked
+
+    db.commit()
+    db.refresh(note)
+
+    return RoadmapNoteResponse(
+        id=note.id,
+        roadmap_id=note.roadmap_id,
+        day_id=note.day_id,
+        note_text=note.note_text,
+        is_bookmarked=note.is_bookmarked,
+        updated_at=note.updated_at
+    )
+
+
+@router.get("/user/bookmarks", response_model=List[BookmarkedDaySummary])
+def list_user_bookmarks(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Lists all bookmarked days and saved notes for the user across all roadmaps."""
+    notes = db.query(RoadmapNote).filter(
+        RoadmapNote.user_id == current_user.id,
+        (RoadmapNote.is_bookmarked == True) | (RoadmapNote.note_text != "")
+    ).all()
+
+    summaries = []
+    for n in notes:
+        day = db.query(RoadmapDay).filter(RoadmapDay.id == n.day_id).first()
+        roadmap = db.query(Roadmap).filter(Roadmap.id == n.roadmap_id).first()
+        if day and roadmap:
+            summaries.append(
+                BookmarkedDaySummary(
+                    day_id=day.id,
+                    roadmap_id=roadmap.id,
+                    roadmap_title=roadmap.title,
+                    day_number=day.day_number,
+                    day_title=day.topic,
+                    note_text=n.note_text,
+                    is_bookmarked=n.is_bookmarked
+                )
+            )
+    return summaries
+

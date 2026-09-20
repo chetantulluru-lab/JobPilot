@@ -2,8 +2,16 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
+from app.core.database import Base, engine
+import app.models  # noqa: F401
 from app.api.v1 import api_router
 from app.api.v1.health import router as health_router
+
+# Ensure all database tables exist
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 # Initialize FastAPI application
 app = FastAPI(

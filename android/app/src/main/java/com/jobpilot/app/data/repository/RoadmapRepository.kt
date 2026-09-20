@@ -19,6 +19,11 @@ interface RoadmapRepository {
     suspend fun getPhaseResources(phaseId: String, language: String? = null): Result<List<RoadmapResource>>
     suspend fun addSkillsToResume(roadmapId: String): Result<AddSkillsResult>
     suspend fun deleteRoadmap(roadmapId: String): Result<Unit>
+    suspend fun getDayQuiz(dayId: String): Result<DailyQuiz>
+    suspend fun submitDayQuiz(dayId: String, selectedAnswers: Map<Int, Int>): Result<QuizResult>
+    suspend fun getDayNote(dayId: String): Result<RoadmapNote>
+    suspend fun saveDayNote(dayId: String, noteText: String, isBookmarked: Boolean? = null): Result<RoadmapNote>
+    suspend fun getUserBookmarks(): Result<List<BookmarkedDay>>
 }
 
 class NetworkRoadmapRepository(
@@ -297,6 +302,145 @@ class NetworkRoadmapRepository(
         )
     }
 
+    override suspend fun getDayQuiz(dayId: String): Result<DailyQuiz> {
+        return try {
+            val response = apiService.getDayQuiz(dayId)
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    DailyQuiz(
+                        dayId = dto.dayId,
+                        dayTitle = dto.dayTitle,
+                        questions = dto.questions.map { q ->
+                            QuizQuestion(
+                                id = q.id,
+                                question = q.question,
+                                options = q.options,
+                                explanation = q.explanation,
+                                correctOptionIndex = q.correctOptionIndex
+                            )
+                        }
+                    )
+                )
+            } else {
+                Result.failure(Exception("Failed to load daily quiz"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getDayQuiz error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun submitDayQuiz(dayId: String, selectedAnswers: Map<Int, Int>): Result<QuizResult> {
+        return try {
+            val req = QuizSubmitRequestDto(
+                submissions = selectedAnswers.map { QuizAnswerSubmissionDto(it.key, it.value) }
+            )
+            val response = apiService.submitDayQuiz(dayId, req)
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    QuizResult(
+                        dayId = dto.dayId,
+                        totalQuestions = dto.totalQuestions,
+                        correctAnswers = dto.correctAnswers,
+                        scorePercentage = dto.scorePercentage,
+                        passed = dto.passed,
+                        dayCompleted = dto.dayCompleted,
+                        currentStreak = dto.currentStreak,
+                        feedback = dto.feedback,
+                        questionResults = dto.questionResults.map { qr ->
+                            QuizQuestionResult(
+                                questionId = qr.questionId,
+                                isCorrect = qr.isCorrect,
+                                correctOptionIndex = qr.correctOptionIndex,
+                                selectedOptionIndex = qr.selectedOptionIndex,
+                                explanation = qr.explanation
+                            )
+                        }
+                    )
+                )
+            } else {
+                Result.failure(Exception("Failed to submit quiz"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "submitDayQuiz error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getDayNote(dayId: String): Result<RoadmapNote> {
+        return try {
+            val response = apiService.getDayNote(dayId)
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    RoadmapNote(
+                        id = dto.id,
+                        roadmapId = dto.roadmapId,
+                        dayId = dto.dayId,
+                        noteText = dto.noteText,
+                        isBookmarked = dto.isBookmarked
+                    )
+                )
+            } else {
+                Result.failure(Exception("Failed to load note"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getDayNote error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun saveDayNote(dayId: String, noteText: String, isBookmarked: Boolean?): Result<RoadmapNote> {
+        return try {
+            val response = apiService.saveDayNote(dayId, RoadmapNoteRequestDto(noteText = noteText, isBookmarked = isBookmarked))
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                Result.success(
+                    RoadmapNote(
+                        id = dto.id,
+                        roadmapId = dto.roadmapId,
+                        dayId = dto.dayId,
+                        noteText = dto.noteText,
+                        isBookmarked = dto.isBookmarked
+                    )
+                )
+            } else {
+                Result.failure(Exception("Failed to save note"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "saveDayNote error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUserBookmarks(): Result<List<BookmarkedDay>> {
+        return try {
+            val response = apiService.getUserBookmarks()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(
+                    response.body()!!.map { dto ->
+                        BookmarkedDay(
+                            dayId = dto.dayId,
+                            roadmapId = dto.roadmapId,
+                            roadmapTitle = dto.roadmapTitle,
+                            dayNumber = dto.dayNumber,
+                            dayTitle = dto.dayTitle,
+                            noteText = dto.noteText,
+                            isBookmarked = dto.isBookmarked
+                        )
+                    }
+                )
+            } else {
+                Result.success(emptyList())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getUserBookmarks error: ${e.message}", e)
+            Result.success(emptyList())
+        }
+    }
+
     private fun parseErrorMessage(json: String?): String? {
         if (json.isNullOrBlank()) return null
         return try {
@@ -327,5 +471,15 @@ class MockRoadmapRepository : RoadmapRepository {
     override suspend fun addSkillsToResume(roadmapId: String): Result<AddSkillsResult> =
         Result.failure(Exception("Backend unavailable"))
     override suspend fun deleteRoadmap(roadmapId: String): Result<Unit> = Result.success(Unit)
+    override suspend fun getDayQuiz(dayId: String): Result<DailyQuiz> =
+        Result.failure(Exception("Daily quiz unavailable in offline mode"))
+    override suspend fun submitDayQuiz(dayId: String, selectedAnswers: Map<Int, Int>): Result<QuizResult> =
+        Result.failure(Exception("Quiz submission unavailable in offline mode"))
+    override suspend fun getDayNote(dayId: String): Result<RoadmapNote> =
+        Result.success(RoadmapNote("mock-note", "", dayId, "", false))
+    override suspend fun saveDayNote(dayId: String, noteText: String, isBookmarked: Boolean?): Result<RoadmapNote> =
+        Result.success(RoadmapNote("mock-note", "", dayId, noteText, isBookmarked ?: false))
+    override suspend fun getUserBookmarks(): Result<List<BookmarkedDay>> =
+        Result.success(emptyList())
 }
 

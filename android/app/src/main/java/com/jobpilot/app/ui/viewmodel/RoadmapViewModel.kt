@@ -29,7 +29,15 @@ data class RoadmapUiState(
     val errorMessage: String? = null,
     val roadmapCompletedEvent: Boolean = false,
     val completedRoadmapSkills: List<String> = emptyList(),
-    val skillsAddedMessage: String? = null
+    val skillsAddedMessage: String? = null,
+    val dailyQuiz: DailyQuiz? = null,
+    val isQuizLoading: Boolean = false,
+    val quizResult: QuizResult? = null,
+    val isQuizSubmitting: Boolean = false,
+    val currentNote: RoadmapNote? = null,
+    val isNoteLoading: Boolean = false,
+    val isNoteSaving: Boolean = false,
+    val bookmarkedDays: List<BookmarkedDay> = emptyList()
 )
 
 class RoadmapViewModel(
@@ -289,5 +297,97 @@ class RoadmapViewModel(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun loadDayQuiz(dayId: String) {
+        _uiState.value = _uiState.value.copy(isQuizLoading = true, quizResult = null)
+        viewModelScope.launch {
+            val result = roadmapRepository.getDayQuiz(dayId)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isQuizLoading = false,
+                    dailyQuiz = result.getOrNull()
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isQuizLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message
+                )
+            }
+        }
+    }
+
+    fun submitDayQuiz(dayId: String, selectedAnswers: Map<Int, Int>, onDayCompleted: () -> Unit = {}) {
+        _uiState.value = _uiState.value.copy(isQuizSubmitting = true)
+        viewModelScope.launch {
+            val result = roadmapRepository.submitDayQuiz(dayId, selectedAnswers)
+            if (result.isSuccess) {
+                val qr = result.getOrNull()
+                _uiState.value = _uiState.value.copy(
+                    isQuizSubmitting = false,
+                    quizResult = qr
+                )
+                if (qr?.dayCompleted == true) {
+                    onDayCompleted()
+                }
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isQuizSubmitting = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to submit quiz"
+                )
+            }
+        }
+    }
+
+    fun clearQuizResult() {
+        _uiState.value = _uiState.value.copy(quizResult = null)
+    }
+
+    fun loadDayNote(dayId: String) {
+        _uiState.value = _uiState.value.copy(isNoteLoading = true)
+        viewModelScope.launch {
+            val result = roadmapRepository.getDayNote(dayId)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isNoteLoading = false,
+                    currentNote = result.getOrNull()
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(isNoteLoading = false)
+            }
+        }
+    }
+
+    fun saveDayNote(dayId: String, noteText: String, isBookmarked: Boolean? = null) {
+        _uiState.value = _uiState.value.copy(isNoteSaving = true)
+        viewModelScope.launch {
+            val result = roadmapRepository.saveDayNote(dayId, noteText, isBookmarked)
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isNoteSaving = false,
+                    currentNote = result.getOrNull()
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(isNoteSaving = false)
+            }
+        }
+    }
+
+    fun toggleDayBookmark(dayId: String) {
+        val current = _uiState.value.currentNote
+        val newBookmarked = !(current?.isBookmarked ?: false)
+        val noteText = current?.noteText ?: ""
+        saveDayNote(dayId, noteText, newBookmarked)
+    }
+
+    fun loadUserBookmarks() {
+        viewModelScope.launch {
+            val result = roadmapRepository.getUserBookmarks()
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    bookmarkedDays = result.getOrDefault(emptyList())
+                )
+            }
+        }
     }
 }

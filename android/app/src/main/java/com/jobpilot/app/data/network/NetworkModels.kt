@@ -453,15 +453,25 @@ data class SavedResumeResponseDto(
 data class ResumeTailorRequestDto(
     @SerializedName("target_job_id") val targetJobId: String? = null,
     @SerializedName("target_job_title") val targetJobTitle: String? = null,
+    @SerializedName("target_company") val targetCompany: String? = null,
     @SerializedName("raw_job_description") val rawJobDescription: String? = null
 )
 
 data class ResumeTailorResponseDto(
-    @SerializedName("saved_resume_id") val savedResumeId: String,
-    @SerializedName("tailored_summary") val tailoredSummary: String,
-    @SerializedName("matched_keywords_to_emphasize") val matchedKeywordsToEmphasize: List<String>,
-    @SerializedName("missing_skills_notice") val missingSkillsNotice: List<String>,
-    @SerializedName("is_fallback") val isFallback: Boolean
+    @SerializedName("original_resume_id") val originalResumeId: String = "",
+    @SerializedName("tailored_resume_id") val tailoredResumeId: String = "",
+    @SerializedName("target_job_title") val targetJobTitle: String = "",
+    @SerializedName("target_company") val targetCompany: String = "",
+    @SerializedName("match_score_before") val matchScoreBefore: Int = 0,
+    @SerializedName("match_score_after") val matchScoreAfter: Int = 0,
+    @SerializedName("matched_skills") val matchedSkills: List<String> = emptyList(),
+    @SerializedName("missing_skills") val missingSkills: List<String> = emptyList(),
+    @SerializedName("tailored_summary") val tailoredSummary: String = "",
+    @SerializedName("pdf_download_url") val pdfDownloadUrl: String? = null,
+    @SerializedName("saved_resume_id") val savedResumeId: String = "",
+    @SerializedName("matched_keywords_to_emphasize") val matchedKeywordsToEmphasize: List<String> = emptyList(),
+    @SerializedName("missing_skills_notice") val missingSkillsNotice: List<String> = emptyList(),
+    @SerializedName("is_fallback") val isFallback: Boolean = false
 )
 
 // --- Career Tools DTOs ---
@@ -763,5 +773,161 @@ data class AddSkillsToResumeResponseDto(
     @SerializedName("message") val message: String,
     @SerializedName("added_skills") val addedSkills: List<String> = emptyList()
 )
+
+// --- AI Mock Interview DTOs ---
+data class MockInterviewStartRequestDto(
+    @SerializedName("mode") val mode: String = "ROLE_BASED",
+    @SerializedName("target_role") val targetRole: String? = null,
+    @SerializedName("experience_level") val experienceLevel: String = "Entry-Level",
+    @SerializedName("resume_id") val resumeId: String? = null
+)
+
+data class InterviewQuestionDto(
+    @SerializedName("id") val id: Int,
+    @SerializedName("category") val category: String,
+    @SerializedName("question") val question: String,
+    @SerializedName("hints") val hints: List<String> = emptyList(),
+    @SerializedName("expected_concepts") val expectedConcepts: List<String> = emptyList()
+)
+
+data class MockInterviewSessionDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("mode") val mode: String,
+    @SerializedName("target_role") val targetRole: String,
+    @SerializedName("experience_level") val experienceLevel: String,
+    @SerializedName("status") val status: String,
+    @SerializedName("questions") val questions: List<InterviewQuestionDto> = emptyList(),
+    @SerializedName("overall_score") val overallScore: Int? = null,
+    @SerializedName("created_at") val createdAt: String
+)
+
+data class InterviewCandidateAnswerDto(
+    @SerializedName("question_id") val questionId: Int,
+    @SerializedName("answer_text") val answerText: String
+)
+
+data class MockInterviewSubmitRequestDto(
+    @SerializedName("answers") val answers: List<InterviewCandidateAnswerDto>,
+    @SerializedName("face_presence_score") val facePresenceScore: Float = 100f
+)
+
+data class QuestionEvaluationDto(
+    @SerializedName("question_id") val questionId: Int,
+    @SerializedName("category") val category: String,
+    @SerializedName("question") val question: String,
+    @SerializedName("candidate_answer") val candidateAnswer: String,
+    @SerializedName("score") val score: Int,
+    @SerializedName("feedback") val feedback: String,
+    @SerializedName("strengths") val strengths: List<String> = emptyList(),
+    @SerializedName("weaknesses") val weaknesses: List<String> = emptyList(),
+    @SerializedName("model_answer") val modelAnswer: String
+)
+
+data class MockInterviewReportDto(
+    @SerializedName("session_id") val sessionId: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("target_role") val targetRole: String,
+    @SerializedName("overall_score") val overallScore: Int,
+    @SerializedName("readiness_badge") val readinessBadge: String,
+    @SerializedName("technical_score") val technicalScore: Int,
+    @SerializedName("communication_score") val communicationScore: Int,
+    @SerializedName("problem_solving_score") val problemSolvingScore: Int,
+    @SerializedName("presence_score") val presenceScore: Int,
+    @SerializedName("summary") val summary: String,
+    @SerializedName("key_strengths") val keyStrengths: List<String> = emptyList(),
+    @SerializedName("areas_for_improvement") val areasForImprovement: List<String> = emptyList(),
+    @SerializedName("recommended_roadmap_topics") val recommendedRoadmapTopics: List<String> = emptyList(),
+    @SerializedName("question_evaluations") val questionEvaluations: List<QuestionEvaluationDto> = emptyList(),
+    @SerializedName("created_at") val createdAt: String
+)
+
+// --- Cold Outreach & Cover Letter DTOs ---
+data class OutreachGenerateRequestDto(
+    @SerializedName("job_id") val jobId: String? = null,
+    @SerializedName("role_title") val roleTitle: String? = null,
+    @SerializedName("job_title") val jobTitle: String? = null,
+    @SerializedName("company") val company: String? = null,
+    @SerializedName("job_description") val jobDescription: String? = null
+)
+
+data class OutreachResponseDto(
+    @SerializedName("job_title") val jobTitle: String,
+    @SerializedName("company") val company: String,
+    @SerializedName("linkedin_note") val linkedinNote: String,
+    @SerializedName("cold_email_subject") val coldEmailSubject: String,
+    @SerializedName("cold_email_body") val coldEmailBody: String,
+    @SerializedName("cover_letter") val coverLetter: String
+)
+
+// --- Roadmap Quiz DTOs ---
+data class QuizQuestionDto(
+    @SerializedName("id") val id: Int,
+    @SerializedName("question") val question: String,
+    @SerializedName("options") val options: List<String> = emptyList(),
+    @SerializedName("explanation") val explanation: String,
+    @SerializedName("correct_option_index") val correctOptionIndex: Int? = null
+)
+
+data class DailyQuizResponseDto(
+    @SerializedName("day_id") val dayId: String,
+    @SerializedName("day_title") val dayTitle: String,
+    @SerializedName("questions") val questions: List<QuizQuestionDto> = emptyList()
+)
+
+data class QuizAnswerSubmissionDto(
+    @SerializedName("question_id") val questionId: Int,
+    @SerializedName("selected_option_index") val selectedOptionIndex: Int
+)
+
+data class QuizSubmitRequestDto(
+    @SerializedName("submissions") val submissions: List<QuizAnswerSubmissionDto>
+)
+
+data class QuizQuestionResultDto(
+    @SerializedName("question_id") val questionId: Int,
+    @SerializedName("is_correct") val isCorrect: Boolean,
+    @SerializedName("correct_option_index") val correctOptionIndex: Int,
+    @SerializedName("selected_option_index") val selectedOptionIndex: Int,
+    @SerializedName("explanation") val explanation: String
+)
+
+data class QuizSubmitResponseDto(
+    @SerializedName("day_id") val dayId: String,
+    @SerializedName("total_questions") val totalQuestions: Int,
+    @SerializedName("correct_answers") val correctAnswers: Int,
+    @SerializedName("score_percentage") val scorePercentage: Int,
+    @SerializedName("passed") val passed: Boolean,
+    @SerializedName("day_completed") val dayCompleted: Boolean,
+    @SerializedName("current_streak") val currentStreak: Int,
+    @SerializedName("feedback") val feedback: String,
+    @SerializedName("question_results") val questionResults: List<QuizQuestionResultDto> = emptyList()
+)
+
+// --- Roadmap Notes & Bookmarks DTOs ---
+data class RoadmapNoteRequestDto(
+    @SerializedName("note_text") val noteText: String = "",
+    @SerializedName("is_bookmarked") val isBookmarked: Boolean? = null
+)
+
+data class RoadmapNoteResponseDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("roadmap_id") val roadmapId: String,
+    @SerializedName("day_id") val dayId: String,
+    @SerializedName("note_text") val noteText: String,
+    @SerializedName("is_bookmarked") val isBookmarked: Boolean,
+    @SerializedName("updated_at") val updatedAt: String
+)
+
+data class BookmarkedDaySummaryDto(
+    @SerializedName("day_id") val dayId: String,
+    @SerializedName("roadmap_id") val roadmapId: String,
+    @SerializedName("roadmap_title") val roadmapTitle: String,
+    @SerializedName("day_number") val dayNumber: Int,
+    @SerializedName("day_title") val dayTitle: String,
+    @SerializedName("note_text") val noteText: String,
+    @SerializedName("is_bookmarked") val isBookmarked: Boolean
+)
+
 
 

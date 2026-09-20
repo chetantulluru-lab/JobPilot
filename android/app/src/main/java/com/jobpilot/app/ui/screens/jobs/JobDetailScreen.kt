@@ -3,16 +3,12 @@ package com.jobpilot.app.ui.screens.jobs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +25,11 @@ fun JobDetailScreen(
     jobId: String,
     viewModel: JobViewModel,
     onNavigateBack: () -> Unit,
-    onNavigateToSkillGap: (String) -> Unit
+    onNavigateToSkillGap: (String) -> Unit,
+    onNavigateToInterview: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(jobId) {
         viewModel.selectJobById(jobId)
@@ -277,6 +275,59 @@ fun JobDetailScreen(
                     }
                 }
 
+                // AI Career Acceleration Tools
+                item {
+                    SectionHeader(title = "AI Career Acceleration Tools")
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // 1-Click Resume Tailor Button
+                        OutlinedButton(
+                            onClick = { viewModel.tailorResumeForSelectedJob() },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Orange600),
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Orange400)
+                        ) {
+                            if (uiState.isTailoring) {
+                                CircularProgressIndicator(color = Orange600, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Adapting Resume with AI...")
+                            } else {
+                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Orange500, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("⚡ 1-Click Tailor Resume for this Job", fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // Cold Outreach & Cover Letter Generator
+                        OutlinedButton(
+                            onClick = { viewModel.generateOutreachForSelectedJob() },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Slate800),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Slate300)
+                        ) {
+                            if (uiState.isGeneratingOutreach) {
+                                CircularProgressIndicator(color = Slate800, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Drafting Recruiter Outreach...")
+                            } else {
+                                Icon(Icons.Default.Send, contentDescription = null, tint = Slate600, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("✉️ AI Cold Outreach & Cover Letter", fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+
+                        // Practice Mock Interview
+                        Button(
+                            onClick = { onNavigateToInterview(job.title) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Slate900)
+                        ) {
+                            Icon(Icons.Default.Mic, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("🎙️ Practice Mock Interview for this Job", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
                 // Apply Action Button
                 item {
                     JobPilotButton(
@@ -286,5 +337,203 @@ fun JobDetailScreen(
                 }
             }
         }
+    }
+
+    // 1-Click Resume Tailor Dialog
+    val tailorResult = uiState.tailoredResumeResult
+    if (tailorResult != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissTailorDialog() },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Orange500)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("AI Tailored Resume Ready!", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                }
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Score Comparison Box
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Orange50)
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Before", fontSize = 11.sp, color = Slate500)
+                            Text("${tailorResult.matchScoreBefore}%", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Slate700)
+                        }
+                        Text("➔", fontSize = 18.sp, color = Orange500, fontWeight = FontWeight.Bold)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Tailored Match", fontSize = 11.sp, color = SuccessGreen, fontWeight = FontWeight.Bold)
+                            Text("${tailorResult.matchScoreAfter}%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = SuccessGreen)
+                        }
+                    }
+
+                    Text("Tailored Professional Summary:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Slate800)
+                    Text(
+                        text = tailorResult.tailoredSummary,
+                        fontSize = 12.sp,
+                        color = Slate700,
+                        lineHeight = 18.sp
+                    )
+
+                    if (tailorResult.matchedSkills.isNotEmpty()) {
+                        Text("Targeted Keywords Inserted:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Slate800)
+                        Text(
+                            tailorResult.matchedSkills.joinToString(", "),
+                            fontSize = 11.sp,
+                            color = Orange600,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.dismissTailorDialog() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                ) {
+                    Text("Done")
+                }
+            }
+        )
+    }
+
+    // AI Outreach & Cover Letter Dialog
+    val outreach = uiState.outreachContent
+    if (outreach != null) {
+        var selectedTab by remember { mutableStateOf(0) }
+        val tabs = listOf("LinkedIn Note", "Cold Email", "Cover Letter")
+
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissOutreachDialog() },
+            title = {
+                Text("Recruiter Outreach Suite", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TabRow(selectedTabIndex = selectedTab) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = { Text(title, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) }
+                            )
+                        }
+                    }
+
+                    when (selectedTab) {
+                        0 -> {
+                            // LinkedIn Note (<300 chars)
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Connection Note (${outreach.linkedinNote.length}/300 chars):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Slate500)
+                                    IconButton(
+                                        onClick = {
+                                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("LinkedIn Note", outreach.linkedinNote))
+                                            android.widget.Toast.makeText(context, "Copied LinkedIn note!", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Orange500, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Slate100)
+                                        .padding(10.dp)
+                                ) {
+                                    Text(outreach.linkedinNote, fontSize = 12.sp, color = Slate800, lineHeight = 18.sp)
+                                }
+                            }
+                        }
+                        1 -> {
+                            // Cold Email
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Cold Email Subject & Body:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Slate500)
+                                    IconButton(
+                                        onClick = {
+                                            val fullEmail = "Subject: ${outreach.coldEmailSubject}\n\n${outreach.coldEmailBody}"
+                                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Cold Email", fullEmail))
+                                            android.widget.Toast.makeText(context, "Copied cold email!", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Orange500, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Slate100)
+                                        .padding(10.dp)
+                                ) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text("Subject: ${outreach.coldEmailSubject}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Slate900)
+                                        Divider(color = Slate300)
+                                        Text(outreach.coldEmailBody, fontSize = 12.sp, color = Slate800, lineHeight = 18.sp)
+                                    }
+                                }
+                            }
+                        }
+                        2 -> {
+                            // Cover Letter
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Formal Cover Letter:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Slate500)
+                                    IconButton(
+                                        onClick = {
+                                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Cover Letter", outreach.coverLetter))
+                                            android.widget.Toast.makeText(context, "Copied cover letter!", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Orange500, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Slate100)
+                                        .padding(10.dp)
+                                ) {
+                                    Text(outreach.coverLetter, fontSize = 12.sp, color = Slate800, lineHeight = 18.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.dismissOutreachDialog() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                ) {
+                    Text("Done")
+                }
+            }
+        )
     }
 }

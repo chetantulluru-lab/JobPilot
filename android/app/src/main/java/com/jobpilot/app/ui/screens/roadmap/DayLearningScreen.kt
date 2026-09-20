@@ -25,13 +25,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jobpilot.app.data.model.PracticeTask
-import com.jobpilot.app.data.model.RoadmapDay
-import com.jobpilot.app.data.model.RoadmapResource
-import com.jobpilot.app.ui.components.GlassCard
-import com.jobpilot.app.ui.components.JobPilotButton
+import com.jobpilot.app.data.model.*
+import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
-import com.jobpilot.app.ui.viewmodel.RoadmapViewModel
+import com.jobpilot.app.ui.viewmodel.*
 
 private fun launchYouTubeVideo(context: android.content.Context, videoUrl: String?) {
     val url = videoUrl?.takeIf { it.isNotBlank() } ?: "https://www.youtube.com"
@@ -77,6 +74,8 @@ fun DayLearningScreen(
                 if (found != null) {
                     activeDay = found
                     viewModel.loadPhaseResources(found.phaseId, uiState.selectedLanguage)
+                    viewModel.loadDayQuiz(found.id)
+                    viewModel.loadDayNote(found.id)
                     break
                 }
             }
@@ -110,7 +109,7 @@ fun DayLearningScreen(
         .firstOrNull { it.resourceType == "video" && (it.dayId == null || it.dayId == day.id) }
         ?.url
 
-    val tabTitles = listOf("🎥 Video Lesson", "📖 Concepts", "💻 Practice Lab", "🤖 AI Tutor")
+    val tabTitles = listOf("🎥 Video", "📖 Concepts", "💻 Practice", "🏆 Quiz", "📝 Notes", "🤖 AI Tutor")
 
     Column(
         modifier = Modifier
@@ -153,6 +152,17 @@ fun DayLearningScreen(
                             text = "$phaseTitle • Day ${day.dayNumber} of ${allDays.size}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.textSecondary
+                        )
+                    }
+
+                    val isBookmarked = uiState.currentNote?.isBookmarked ?: false
+                    IconButton(
+                        onClick = { viewModel.toggleDayBookmark(day.id) }
+                    ) {
+                        Icon(
+                            imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            contentDescription = "Bookmark",
+                            tint = if (isBookmarked) Orange500 else MaterialTheme.textSecondary
                         )
                     }
 
@@ -333,7 +343,22 @@ fun DayLearningScreen(
                     }
                 )
 
-                3 -> AIAssistantTab(
+                3 -> DailyQuizTab(
+                    day = day,
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    onQuizCompleted = {
+                        activeDay = activeDay?.copy(isCompleted = true)
+                    }
+                )
+
+                4 -> PersonalNotesTab(
+                    day = day,
+                    uiState = uiState,
+                    viewModel = viewModel
+                )
+
+                5 -> AIAssistantTab(
                     day = day,
                     uiState = uiState,
                     viewModel = viewModel
@@ -1023,6 +1048,321 @@ private fun PracticeTaskCard(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Tab 4: Daily Quiz & Gamified Streaks
+ */
+@Composable
+private fun DailyQuizTab(
+    day: RoadmapDay,
+    uiState: RoadmapUiState,
+    viewModel: RoadmapViewModel,
+    onQuizCompleted: () -> Unit
+) {
+    val quiz = uiState.dailyQuiz
+    val quizResult = uiState.quizResult
+    val selectedAnswers = remember(day.id) { mutableStateMapOf<Int, Int>() }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Quiz Header Card
+        GlassCard(
+            modifier = Modifier.fillMaxWidth(),
+            backgroundColor = Orange50.copy(alpha = 0.7f),
+            borderColor = Orange300.copy(alpha = 0.5f)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "🔥", fontSize = 28.sp)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = "Daily Knowledge Check & Streak",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Orange700
+                    )
+                    Text(
+                        text = "Pass with 60%+ to extend your daily streak and mark Day ${day.dayNumber} complete!",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Slate700
+                    )
+                }
+            }
+        }
+
+        if (uiState.isQuizLoading) {
+            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                LoadingState(message = "Loading interactive questions...")
+            }
+        } else if (quizResult != null) {
+            // Result View
+            GlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = BgWhite
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = if (quizResult.passed) "🎉 Streak Extended!" else "Keep Trying!",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (quizResult.passed) SuccessGreen else GapOrange
+                    )
+                    Text(
+                        text = "${quizResult.scorePercentage}% Score (${quizResult.correctAnswers}/${quizResult.totalQuestions} Correct)",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Slate800
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "🔥 Streak: ${quizResult.currentStreak} Days", fontWeight = FontWeight.Bold, color = Orange600, fontSize = 14.sp)
+                    }
+                    Text(
+                        text = quizResult.feedback,
+                        fontSize = 12.sp,
+                        color = Slate600,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Button(
+                        onClick = {
+                            selectedAnswers.clear()
+                            viewModel.clearQuizResult()
+                            viewModel.loadDayQuiz(day.id)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                    ) {
+                        Text("Retake Quiz")
+                    }
+                }
+            }
+
+            // Question Details Breakdown
+            SectionHeader(title = "Detailed Review & Explanations")
+            quizResult.questionResults.forEachIndexed { idx, qr ->
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = BgWhite
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Question ${idx + 1}", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Slate900)
+                            Text(
+                                text = if (qr.isCorrect) "✓ Correct" else "✗ Incorrect",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = if (qr.isCorrect) SuccessGreen else GapOrange
+                            )
+                        }
+                        Divider(color = Slate100)
+                        Text(
+                            text = qr.explanation,
+                            fontSize = 12.sp,
+                            color = Slate700,
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
+            }
+        } else if (quiz != null) {
+            // Unsubmitted Question Form
+            quiz.questions.forEachIndexed { qIdx, question ->
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = BgWhite
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(
+                            text = "${qIdx + 1}. ${question.question}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Slate900,
+                            fontSize = 14.sp
+                        )
+
+                        question.options.forEachIndexed { optIdx, optText ->
+                            val isSelected = selectedAnswers[question.id] == optIdx
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) Orange50 else Slate100.copy(alpha = 0.5f))
+                                    .border(1.dp, if (isSelected) Orange500 else Color.Transparent, androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                                    .clickable { selectedAnswers[question.id] = optIdx }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = isSelected,
+                                    onClick = { selectedAnswers[question.id] = optIdx },
+                                    colors = RadioButtonDefaults.colors(selectedColor = Orange500)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = optText,
+                                    fontSize = 13.sp,
+                                    color = if (isSelected) Orange700 else Slate800
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Submit Button
+            val allAnswered = quiz.questions.all { selectedAnswers.containsKey(it.id) }
+            Button(
+                onClick = {
+                    viewModel.submitDayQuiz(day.id, selectedAnswers.toMap(), onDayCompleted = onQuizCompleted)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = allAnswered && !uiState.isQuizSubmitting,
+                colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+            ) {
+                if (uiState.isQuizSubmitting) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Submitting...")
+                } else {
+                    Text(if (allAnswered) "Submit Quiz & Boost Streak 🔥" else "Answer All Questions to Submit")
+                }
+            }
+        } else {
+            Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
+                Button(
+                    onClick = { viewModel.loadDayQuiz(day.id) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Orange500)
+                ) {
+                    Text("Load Daily Quiz")
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Tab 5: Personal Notes & Bookmark Hub
+ */
+@Composable
+private fun PersonalNotesTab(
+    day: RoadmapDay,
+    uiState: RoadmapUiState,
+    viewModel: RoadmapViewModel
+) {
+    val context = LocalContext.current
+    val currentNote = uiState.currentNote
+    var noteText by remember(day.id, currentNote?.noteText) {
+        mutableStateOf(currentNote?.noteText ?: "")
+    }
+    val isBookmarked = currentNote?.isBookmarked ?: false
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Info Banner
+        GlassCard(
+            modifier = Modifier.fillMaxWidth(),
+            backgroundColor = BgWhite
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Day ${day.dayNumber} Personal Notes", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Slate900)
+                    Text("Capture your key learnings, snippets, and questions for revision.", fontSize = 11.sp, color = Slate500)
+                }
+
+                IconButton(onClick = { viewModel.toggleDayBookmark(day.id) }) {
+                    Icon(
+                        imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        contentDescription = "Toggle Bookmark",
+                        tint = if (isBookmarked) Orange500 else Slate400
+                    )
+                }
+            }
+        }
+
+        // Notes Editor
+        OutlinedTextField(
+            value = noteText,
+            onValueChange = { noteText = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 220.dp, max = 340.dp),
+            placeholder = {
+                Text(
+                    "Write your notes here...\n\n• Key concepts learned\n• Code snippets\n• Things to review before interviews",
+                    fontSize = 13.sp,
+                    color = Slate400
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Orange500,
+                unfocusedBorderColor = Slate300,
+                focusedContainerColor = BgWhite,
+                unfocusedContainerColor = BgWhite
+            )
+        )
+
+        // Save Button Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = {
+                    viewModel.saveDayNote(day.id, noteText, isBookmarked)
+                    Toast.makeText(context, "Notes saved successfully!", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Orange500),
+                enabled = !uiState.isNoteSaving
+            ) {
+                if (uiState.isNoteSaving) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Saving...")
+                } else {
+                    Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Save Notes")
+                }
+            }
+
+            OutlinedButton(
+                onClick = { viewModel.toggleDayBookmark(day.id) },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = if (isBookmarked) Orange600 else Slate700)
+            ) {
+                Icon(
+                    imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(if (isBookmarked) "Bookmarked" else "Bookmark")
             }
         }
     }

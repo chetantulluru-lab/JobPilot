@@ -29,7 +29,7 @@ class JobPilotViewModelFactory(
                 ProfileViewModel(container.profileRepository) as T
             }
             modelClass.isAssignableFrom(JobViewModel::class.java) -> {
-                JobViewModel(container.jobRepository) as T
+                JobViewModel(container.jobRepository, container.apiService) as T
             }
             modelClass.isAssignableFrom(ApplicationViewModel::class.java) -> {
                 ApplicationViewModel(container.applicationRepository) as T
@@ -48,6 +48,12 @@ class JobPilotViewModelFactory(
             }
             modelClass.isAssignableFrom(AssistantViewModel::class.java) -> {
                 AssistantViewModel(container.assistantRepository) as T
+            }
+            modelClass.isAssignableFrom(InterviewViewModel::class.java) -> {
+                InterviewViewModel(
+                    container.interviewRepository,
+                    container.resumeRepository
+                ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class ${modelClass.name}")
 

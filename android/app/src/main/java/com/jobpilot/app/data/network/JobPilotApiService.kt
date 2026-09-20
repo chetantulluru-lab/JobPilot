@@ -297,5 +297,55 @@ interface JobPilotApiService {
 
     @DELETE("roadmaps/{id}")
     suspend fun deleteRoadmap(@Path("id") id: String): Response<Unit>
+
+    // --- AI Mock Interview ---
+    @POST("interviews/start")
+    suspend fun startMockInterview(@Body req: MockInterviewStartRequestDto): Response<MockInterviewSessionDto>
+
+    @POST("interviews/{session_id}/submit")
+    suspend fun submitMockInterview(
+        @Path("session_id") sessionId: String,
+        @Body req: MockInterviewSubmitRequestDto
+    ): Response<MockInterviewReportDto>
+
+    @GET("interviews/history")
+    suspend fun getInterviewHistory(): Response<List<MockInterviewSessionDto>>
+
+    @GET("interviews/{session_id}/report")
+    suspend fun getInterviewReport(@Path("session_id") sessionId: String): Response<MockInterviewReportDto>
+
+    // --- Cold Outreach & Cover Letter ---
+    @POST("outreach/generate")
+    suspend fun generateOutreach(@Body req: OutreachGenerateRequestDto): Response<OutreachResponseDto>
+
+    // --- Resume Tailoring ---
+    @POST("resumes/builder/{resume_id}/tailor")
+    suspend fun tailorResume(
+        @Path("resume_id") resumeId: String,
+        @Body req: ResumeTailorRequestDto
+    ): Response<ResumeTailorResponseDto>
+
+    // --- Roadmap Quizzes ---
+    @GET("roadmaps/days/{day_id}/quiz")
+    suspend fun getDayQuiz(@Path("day_id") dayId: String): Response<DailyQuizResponseDto>
+
+    @POST("roadmaps/days/{day_id}/quiz/submit")
+    suspend fun submitDayQuiz(
+        @Path("day_id") dayId: String,
+        @Body req: QuizSubmitRequestDto
+    ): Response<QuizSubmitResponseDto>
+
+    // --- Roadmap Notes & Bookmarks ---
+    @GET("roadmaps/days/{day_id}/note")
+    suspend fun getDayNote(@Path("day_id") dayId: String): Response<RoadmapNoteResponseDto>
+
+    @PUT("roadmaps/days/{day_id}/note")
+    suspend fun saveDayNote(
+        @Path("day_id") dayId: String,
+        @Body req: RoadmapNoteRequestDto
+    ): Response<RoadmapNoteResponseDto>
+
+    @GET("roadmaps/user/bookmarks")
+    suspend fun getUserBookmarks(): Response<List<BookmarkedDaySummaryDto>>
 }
 

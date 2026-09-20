@@ -42,4 +42,17 @@ sealed class Screen(val route: String) {
     object Notifications : Screen("notifications")
     object ConnectedAccounts : Screen("connected_accounts")
     object AIAssistant : Screen("ai_assistant")
+
+    // AI Mock Interview Simulator
+    object InterviewSetup : Screen("interview_setup?role={role}") {
+        fun createRoute(role: String? = null) = if (!role.isNullOrBlank()) {
+            "interview_setup?role=${java.net.URLEncoder.encode(role, "UTF-8")}"
+        } else {
+            "interview_setup?role="
+        }
+    }
+    object LiveInterview : Screen("live_interview")
+    object InterviewReport : Screen("interview_report/{sessionId}") {
+        fun createRoute(sessionId: String) = "interview_report/$sessionId"
+    }
 }

@@ -13,6 +13,8 @@ from app.api.v1.jobs import router as jobs_router
 from app.api.v1.applications import router as applications_router
 from app.api.v1.notifications import router as notifications_router
 from app.api.v1.integrations import router as integrations_router
+from app.api.v1.interviews import router as interviews_router
+from app.api.v1.outreach import router as outreach_router
 
 api_router = APIRouter()
 
@@ -24,6 +26,8 @@ api_router.include_router(resumes_router)
 api_router.include_router(resume_builder_router)
 api_router.include_router(career_tools_router)
 api_router.include_router(ai_assistant_router)
+api_router.include_router(interviews_router)
+api_router.include_router(outreach_router)
 
 # Preserved legacy endpoints
 api_router.include_router(jobs_router)

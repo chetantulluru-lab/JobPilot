@@ -19,6 +19,8 @@ from app.models.saved_resume import SavedResume
 from app.models.career_tools import CoverLetter, RecruiterMessage
 from app.models.otp import EmailOtp
 from app.models.roadmap import Roadmap, RoadmapPhase, RoadmapDay, RoadmapResource, LearningActivity
+from app.models.interview import MockInterviewSession
+from app.models.roadmap_note import RoadmapNote
 
 __all__ = [
     "User",
@@ -52,4 +54,6 @@ __all__ = [
     "RoadmapDay",
     "RoadmapResource",
     "LearningActivity",
+    "MockInterviewSession",
+    "RoadmapNote",
 ]

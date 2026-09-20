@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -33,7 +35,10 @@ fun DashboardScreen(
     onCreateRoadmap: () -> Unit,
     onNavigateToResume: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    onNavigateToAssistant: () -> Unit = {}
+    onNavigateToAssistant: () -> Unit = {},
+    onNavigateToJobs: () -> Unit = {},
+    onNavigateToApplications: () -> Unit = {},
+    onNavigateToInterview: (String?) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -164,6 +169,101 @@ fun DashboardScreen(
                                 fontSize = 11.sp,
                                 color = MaterialTheme.textMuted
                             )
+                        }
+                    }
+                }
+            }
+
+            // Quick Career Simulator & Hub
+            item {
+                GlassCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToInterview(null) },
+                    backgroundColor = Orange50.copy(alpha = 0.8f),
+                    borderColor = Orange300.copy(alpha = 0.6f)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Orange500),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Mic, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "AI Mock Interview",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Orange700
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Orange600)
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text("NEW", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Live video simulator with ML Kit face detection & realistic scoring",
+                                fontSize = 11.sp,
+                                color = Slate700
+                            )
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Orange600)
+                    }
+                }
+            }
+
+            // Quick Jump Row: Explore Jobs & Track Applications
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Explore Jobs Card
+                    GlassCard(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onNavigateToJobs() },
+                        backgroundColor = BgWhite
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Work, contentDescription = null, tint = Orange500, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Explore Jobs", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Slate800)
+                                Text("AI Match & Gap", fontSize = 10.sp, color = Slate500)
+                            }
+                        }
+                    }
+
+                    // Track Applications Card
+                    GlassCard(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onNavigateToApplications() },
+                        backgroundColor = BgWhite
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Assignment, contentDescription = null, tint = Orange500, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Applications", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Slate800)
+                                Text("Pipeline tracker", fontSize = 10.sp, color = Slate500)
+                            }
                         }
                     }
                 }
