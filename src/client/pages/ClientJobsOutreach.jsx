@@ -7,6 +7,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
   const [outreachData, setOutreachData] = useState(null);
   const [activeTab, setActiveTab] = useState('linkedin'); // 'linkedin' | 'email' | 'letter'
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const jobs = [
     {

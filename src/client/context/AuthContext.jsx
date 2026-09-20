@@ -1,58 +1,86 @@
-import React, { createContext, useContext, useState } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/apiClient';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => api.getToken());
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [onboardingDone, setOnboardingDone] = useState(() => {
     try {
-      const cached = localStorage.getItem('jobpilot_user');
-      if (cached) return JSON.parse(cached);
+      return localStorage.getItem('jobpilot_onboarding_completed') === 'true';
     } catch {
-      // fallback
+      return false;
     }
-    const defaultUser = {
-      fullName: 'Candidate',
-      email: 'candidate@jobpilot.app',
-      targetRole: 'Android & Full Stack Engineer',
-      streak: 3,
-      atsScore: 86,
-      readinessScore: 88,
-      activeRoadmap: 'Python Backend & Microservices',
-      roadmapDay: 14,
-      totalDays: 36,
-    };
-    try {
-      localStorage.setItem('jobpilot_user', JSON.stringify(defaultUser));
-    } catch {
-      // ignore
-    }
-    return defaultUser;
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Verify and restore session against live Render backend on startup
+  useEffect(() => {
+    let isMounted = true;
+    const restoreSession = async () => {
+      const storedToken = api.getToken();
+      if (!storedToken) {
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const me = await api.getMe();
+        if (isMounted) {
+          setUser({
+            id: me.id,
+            fullName: me.full_name || me.fullName || me.email?.split('@')[0] || 'User',
+            email: me.email,
+            targetRole: me.target_role || 'Software Engineer',
+            streak: me.streak || 1,
+            profileStrength: me.profile_strength || 0,
+          });
+        }
+      } catch (err) {
+        console.warn('Session restoration failed or expired:', err.message);
+        api.setToken(null);
+        if (isMounted) {
+          setToken(null);
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    restoreSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const login = async (email, password) => {
     setIsLoading(true);
     try {
       const res = await api.login(email, password);
-      const authToken = res.access_token || res.token || 'demo-token';
+      const authToken = res.access_token || res.token;
+      if (!authToken) {
+        throw new Error('No access token received from authentication server.');
+      }
       api.setToken(authToken);
       setToken(authToken);
 
+      const me = await api.getMe();
       const userData = {
-        fullName: res.user?.full_name || email.split('@')[0],
+        id: me.id,
+        fullName: me.full_name || me.fullName || email.split('@')[0],
         email: email,
-        targetRole: res.user?.target_role || 'Software Engineer',
-        streak: res.user?.streak || 3,
-        atsScore: 84,
-        readinessScore: 88,
-        activeRoadmap: 'Python Backend & Microservices',
-        roadmapDay: 14,
-        totalDays: 36,
+        targetRole: me.target_role || 'Software Engineer',
+        streak: me.streak || 1,
+        profileStrength: me.profile_strength || 0,
       };
       setUser(userData);
-      localStorage.setItem('jobpilot_user', JSON.stringify(userData));
       return res;
     } finally {
       setIsLoading(false);
@@ -60,54 +88,66 @@ export function AuthProvider({ children }) {
   };
 
   const startRegistration = async (fullName, email, password) => {
-    setIsLoading(true);
-    try {
-      return await api.registerStart(fullName, email, password);
-    } finally {
-      setIsLoading(false);
-    }
+    return await api.registerStart(fullName, email, password);
   };
 
   const verifyRegistration = async (email, code, password, fullName) => {
     setIsLoading(true);
     try {
-      const res = await api.registerVerify(email, code, password, fullName);
-      const authToken = res.access_token || res.token || 'verified-token';
-      api.setToken(authToken);
-      setToken(authToken);
+      const res = await api.registerVerify(email, code);
+      const authToken = res.access_token || res.token;
+      if (authToken) {
+        api.setToken(authToken);
+        setToken(authToken);
 
-      const userData = {
-        fullName: fullName || res.user?.full_name || email.split('@')[0],
-        email: email,
-        targetRole: 'Software Engineer',
-        streak: 1,
-        atsScore: 80,
-        readinessScore: 85,
-        activeRoadmap: 'Python Backend & Microservices',
-        roadmapDay: 1,
-        totalDays: 36,
-      };
-      setUser(userData);
-      localStorage.setItem('jobpilot_user', JSON.stringify(userData));
+        const me = await api.getMe();
+        const userData = {
+          id: me.id,
+          fullName: me.full_name || fullName || email.split('@')[0],
+          email: email,
+          targetRole: 'Software Engineer',
+          streak: 1,
+          profileStrength: 0,
+        };
+        setUser(userData);
+      }
       return res;
     } finally {
       setIsLoading(false);
     }
   };
 
+  const startForgotPassword = async (email) => {
+    return await api.forgotPasswordStart(email);
+  };
+
+  const verifyForgotPassword = async (email, code, newPassword) => {
+    return await api.forgotPasswordVerify(email, code, newPassword);
+  };
+
+  const completeOnboarding = () => {
+    try {
+      localStorage.setItem('jobpilot_onboarding_completed', 'true');
+    } catch {
+      // ignore
+    }
+    setOnboardingDone(true);
+  };
+
   const logout = () => {
     api.setToken(null);
     setToken(null);
     setUser(null);
-    localStorage.removeItem('jobpilot_user');
+    try {
+      localStorage.removeItem('jobpilot_auth_token');
+      localStorage.removeItem('jobpilot_user');
+    } catch {
+      // ignore
+    }
   };
 
   const updateUser = (fields) => {
-    setUser((prev) => {
-      const updated = { ...(prev || {}), ...fields };
-      localStorage.setItem('jobpilot_user', JSON.stringify(updated));
-      return updated;
-    });
+    setUser((prev) => (prev ? { ...prev, ...fields } : fields));
   };
 
   return (
@@ -115,11 +155,15 @@ export function AuthProvider({ children }) {
       value={{
         token,
         user,
-        isAuthenticated: true, // Always allow exploration
+        isAuthenticated: !!user,
         isLoading,
+        onboardingDone,
+        completeOnboarding,
         login,
         startRegistration,
         verifyRegistration,
+        startForgotPassword,
+        verifyForgotPassword,
         logout,
         updateUser,
       }}
