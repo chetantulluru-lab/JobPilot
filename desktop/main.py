@@ -40,17 +40,25 @@ import zlib
 
 RENDER_BACKEND = "https://jobpilot-backend-e97f.onrender.com"
 
-def decompress_body(data, encoding):
-    if not data or not encoding:
+def decompress_body(data, encoding=""):
+    if not data:
         return data
-    encoding = encoding.lower()
-    try:
-        if "gzip" in encoding:
+    # Check magic bytes for GZIP
+    if len(data) > 2 and data[0] == 0x1F and data[1] == 0x8B:
+        try:
             return gzip.decompress(data)
-        elif "deflate" in encoding:
-            return zlib.decompress(data)
-    except Exception:
-        pass
+        except Exception:
+            pass
+    # Check encoding header if present
+    if encoding:
+        enc = encoding.lower()
+        try:
+            if "gzip" in enc:
+                return gzip.decompress(data)
+            elif "deflate" in enc:
+                return zlib.decompress(data)
+        except Exception:
+            pass
     return data
 
 class SPAHandler(http.server.SimpleHTTPRequestHandler):
@@ -64,15 +72,17 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
 
         req_headers = {}
         for k, v in self.headers.items():
-            if k.lower() not in ["host", "origin", "referer", "connection"]:
+            if k.lower() not in ["host", "origin", "referer", "connection", "accept-encoding"]:
                 req_headers[k] = v
+        # Explicitly request uncompressed identity payloads to prevent Brotli/Gzip corruption in WebView2
+        req_headers["Accept-Encoding"] = "identity"
         req_headers["User-Agent"] = "JobPilot-Windows-Desktop/1.0"
 
         req = urllib.request.Request(target_url, data=body, headers=req_headers, method=self.command)
         try:
             with urllib.request.urlopen(req, timeout=35) as resp:
                 resp_body = resp.read()
-                encoding = resp.headers.get("Content-Encoding")
+                encoding = resp.headers.get("Content-Encoding", "")
                 resp_body = decompress_body(resp_body, encoding)
                 self.send_response(resp.status)
                 for hk, hv in resp.headers.items():
@@ -83,7 +93,7 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(resp_body)
         except urllib.error.HTTPError as e:
             err_body = e.read()
-            encoding = e.headers.get("Content-Encoding")
+            encoding = e.headers.get("Content-Encoding", "")
             err_body = decompress_body(err_body, encoding)
             self.send_response(e.code)
             for hk, hv in e.headers.items():
@@ -94,7 +104,7 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(err_body)
         except Exception as e:
             self.send_response(502)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps({"detail": f"Proxy Error: {str(e)}"}).encode("utf-8"))
 
