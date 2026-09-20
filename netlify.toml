@@ -10,6 +10,14 @@
     Cache-Control = "public, max-age=31536000"
     X-Content-Type-Options = "nosniff"
 
+[[headers]]
+  for = "/downloads/JobPilot.exe"
+  [headers.values]
+    Content-Type = "application/vnd.microsoft.portable-executable"
+    Content-Disposition = "attachment; filename=\"JobPilot.exe\""
+    Cache-Control = "public, max-age=31536000"
+    X-Content-Type-Options = "nosniff"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
