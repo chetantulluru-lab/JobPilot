@@ -21,10 +21,10 @@ export const APP_CONFIG = {
   APK_FILENAME: 'JobPilot.apk',
   APK_FILE_SIZE: '50.6 MB',
 
-  // Centralized Windows Desktop .exe configuration
-  EXE_DOWNLOAD_URL: '/downloads/JobPilot.exe',
-  EXE_FILENAME: 'JobPilot.exe',
-  EXE_FILE_SIZE: '23 MB',
+  // Centralized Windows Desktop Installer (.exe) configuration
+  EXE_DOWNLOAD_URL: '/downloads/JobPilot-Setup.exe',
+  EXE_FILENAME: 'JobPilot-Setup.exe',
+  EXE_FILE_SIZE: '28.8 MB',
   minWindowsVersion: 'Windows 10 / 11 (64-bit)',
 
   // Centralized Play Store configuration

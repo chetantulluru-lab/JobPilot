@@ -12,7 +12,7 @@ export default function WindowsDownloadButton({
   variant = 'dark', // 'primary' | 'dark' | 'outline'
   showSubtext = true,
   label = 'Download for Windows',
-  subtext = 'Windows 10/11 • Standalone .EXE',
+  subtext = 'Windows 10/11 • Official Setup (.EXE)',
   onClick,
 }) {
   const getVariantClass = () => {

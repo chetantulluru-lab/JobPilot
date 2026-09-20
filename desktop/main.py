@@ -8,11 +8,19 @@ import webview
 
 def get_dist_dir():
     if getattr(sys, 'frozen', False):
-        # Bundled executable via PyInstaller
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
-        return os.path.join(base_path, 'dist')
+        exe_dir = os.path.dirname(sys.executable)
+        meipass = getattr(sys, '_MEIPASS', exe_dir)
+        candidates = [
+            os.path.join(meipass, 'dist'),
+            os.path.join(exe_dir, '_internal', 'dist'),
+            os.path.join(exe_dir, 'dist'),
+            meipass,
+        ]
+        for c in candidates:
+            if os.path.exists(os.path.join(c, 'index.html')):
+                return c
+        return candidates[0]
     else:
-        # Development mode
         return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dist'))
 
 dist_dir = get_dist_dir()

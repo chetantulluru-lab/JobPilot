@@ -39,7 +39,7 @@ export default function Download() {
     'Full-screen AI Mock Interview Simulator with high-res webcam tracking',
     'Split-screen live coding & voice dictation response preview',
     'One-click PDF resume download & instant clipboard copying',
-    'Standalone portable .EXE — zero setup or installation required',
+    'Official Windows Setup Wizard with Start Menu & Desktop shortcuts',
     'Direct connection to production Render cloud backend',
   ];
 
@@ -52,7 +52,7 @@ export default function Download() {
 
   const windowsSpecs = [
     { label: 'Target Platform', value: 'Windows 10 / Windows 11 (64-bit)' },
-    { label: 'Package Format', value: 'Portable Windows Executable (JobPilot.exe)' },
+    { label: 'Package Format', value: 'Windows Setup Installer (JobPilot-Setup.exe)' },
     { label: 'File Size', value: APP_CONFIG.EXE_FILE_SIZE },
     { label: 'Runtime Engine', value: 'Microsoft Edge WebView2 (Chromium)' },
   ];
@@ -239,7 +239,7 @@ export default function Download() {
                     <Monitor size={24} />
                   </div>
                   <span className="badge badge-neutral" style={{ background: '#0F172A', color: '#FFFFFF' }}>
-                    Standalone Windows .EXE
+                    Official Setup Installer (.EXE)
                   </span>
                 </div>
 
@@ -268,8 +268,8 @@ export default function Download() {
                   <WindowsDownloadButton
                     size="lg"
                     variant="dark"
-                    label="Download Windows App (.EXE)"
-                    subtext={`Portable Executable • Win 10/11 (${APP_CONFIG.EXE_FILE_SIZE})`}
+                    label="Download Windows Installer"
+                    subtext={`Official Setup • Win 10/11 (${APP_CONFIG.EXE_FILE_SIZE})`}
                   />
                   <Button
                     to="/how-it-works"
@@ -282,7 +282,7 @@ export default function Download() {
                   </Button>
                 </div>
 
-                {/* Zero Setup Note */}
+                {/* Setup Installer Note */}
                 <div
                   style={{
                     padding: '14px 18px',
@@ -292,10 +292,10 @@ export default function Download() {
                   }}
                 >
                   <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    ⚡ Portable Standalone Binary
+                    📦 Official Setup Wizard
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                    No installer or admin rights required. Download, double-click <code style={{ color: '#FF6A00' }}>JobPilot.exe</code>, and begin your career interview simulation immediately.
+                    Standard Windows Installer with Start Menu & Desktop shortcuts. Download, run <code style={{ color: '#FF6A00' }}>JobPilot-Setup.exe</code>, and launch the application.
                   </div>
                 </div>
               </div>
