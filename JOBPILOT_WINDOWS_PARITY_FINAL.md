@@ -1,6 +1,6 @@
 # JobPilot Windows Desktop — 1:1 Android Parity & Verification Deliverable
 
-**Document Version**: 1.0.0 (Final Official Release)  
+**Document Version**: 1.0.1 (Official Release with Embedded Reverse Proxy)  
 **Release Date**: September 20, 2026  
 **Source of Truth**: Native Android Application (com.jobpilot.app)  
 **Production Backend**: https://jobpilot-backend-e97f.onrender.com/api/v1 (Render Cloud)  
@@ -8,7 +8,8 @@
 **Email OTP Service**: Brevo Transactional Email Service  
 **Target Windows Executable**: JobPilot.exe  
 **Official Setup Installer**: JobPilot-Setup.exe (28.85 MB)  
-**Verification Result**: 100% PASS (28/28 Screens, 8/8 Live APIs, Hardware & File Features)  
+**Network Architecture**: Same-Origin Embedded Python Reverse Proxy (127.0.0.1:<port>/api/v1 $\rightarrow$ Render HTTPS)  
+**Verification Result**: 100% PASS (28/28 Screens, Live APIs, Hardware & File Features)  
 
 ---
 
@@ -21,7 +22,8 @@ The JobPilot Windows Desktop Application has been constructed and packaged stric
 2. **Zero Mock / Dummy Authentication**: Fresh installations launch in a clean unauthenticated state (user = null, 	oken = null). No hardcoded accounts or preloaded profiles exist.
 3. **Live Brevo Email OTP**: Registration and password recovery execute real Brevo 6-digit email OTP delivery and verification.
 4. **Zero Developer Backdoors**: All developer switches (localhost, URL textboxes, ping testers) have been eliminated.
-5. **Native Desktop Windowing**: Native Windows 64-bit window running Microsoft Edge WebView2 Chromium runtime without console windows or developer tools.
+5. **Zero CORS Blocking (Same-Origin Reverse Proxy)**: Embedded desktop host proxies all /api/* requests over server-to-server HTTPS to Render, eliminating browser CORS preflight failures in WebView2.
+6. **Native Desktop Windowing**: Native Windows 64-bit window running Microsoft Edge WebView2 Chromium runtime without console windows or developer tools.
 
 ---
 
@@ -73,13 +75,13 @@ The JobPilot Windows Desktop Application has been constructed and packaged stric
 │                         JobPilot.exe                            │
 │                 Native Windows 64-bit Host                      │
 ├───────────────────────────────┬─────────────────────────────────┤
-│    Embedded Loopback Server   │  Microsoft Edge WebView2        │
+│    Embedded Loopback Proxy    │  Microsoft Edge WebView2        │
 │   (127.0.0.1:<ephemeral_port>)│  Chromium Engine                │
 ├───────────────────────────────┴─────────────────────────────────┤
 │            JobPilot Production SPA (React 19 + Vite)            │
 │         Styling: Warm White (#FFFDFB) + Material Design 3       │
 └───────────────────────────────┬─────────────────────────────────┘
-                                │  Direct HTTPS API Calls
+                                │  Direct Server-to-Server HTTPS
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │     Live Production Backend: https://jobpilot-backend-e97f      │

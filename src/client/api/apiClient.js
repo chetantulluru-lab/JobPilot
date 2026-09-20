@@ -1,13 +1,27 @@
-﻿/**
+/**
  * JobPilot Client API Service
  * Centralized API client communicating directly with the production Render backend.
  */
 
-const API_BASE_URL = 'https://jobpilot-backend-e97f.onrender.com/api/v1';
+function getApiBaseUrl() {
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname, origin } = window.location;
+    // In desktop app (served on loopback 127.0.0.1 or localhost), route through local reverse proxy
+    if (hostname === '127.0.0.1' || hostname === 'localhost') {
+      return `${origin}/api/v1`;
+    }
+  }
+  // Default to direct production Render URL for deployed web apps
+  return 'https://jobpilot-backend-e97f.onrender.com/api/v1';
+}
 
 class ApiClient {
   constructor() {
-    this.baseUrl = API_BASE_URL;
+    this.baseUrl = getApiBaseUrl();
+  }
+
+  getBaseUrl() {
+    return getApiBaseUrl();
   }
 
   getToken() {
@@ -31,7 +45,8 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    const activeBaseUrl = this.getBaseUrl();
+    const url = `${activeBaseUrl}${endpoint}`;
     const token = this.getToken();
 
     const headers = {
@@ -41,34 +56,43 @@ class ApiClient {
       ...(options.headers || {}),
     };
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    const method = options.method || 'GET';
+    const origin = typeof window !== 'undefined' ? window.location?.origin : 'unknown';
 
-    if (!response.ok) {
-      let errorMsg = `Server returned ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (typeof errData.detail === 'string') {
-          errorMsg = errData.detail;
-        } else if (Array.isArray(errData.detail) && errData.detail[0]?.msg) {
-          errorMsg = errData.detail[0].msg;
-        } else if (errData.message) {
-          errorMsg = errData.message;
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      if (!response.ok) {
+        let errorMsg = `Server returned ${response.status}`;
+        try {
+          const errData = await response.json();
+          if (typeof errData.detail === 'string') {
+            errorMsg = errData.detail;
+          } else if (Array.isArray(errData.detail) && errData.detail[0]?.msg) {
+            errorMsg = errData.detail[0].msg;
+          } else if (errData.message) {
+            errorMsg = errData.message;
+          }
+        } catch {
+          // Ignore json parse error
         }
-      } catch {
-        // Ignore json parse error
+        console.warn(`[JobPilot Network] ${method} ${url} (Origin: ${origin}) -> HTTP ${response.status}: ${errorMsg}`);
+        throw new Error(errorMsg);
       }
-      throw new Error(errorMsg);
-    }
 
-    // Return empty object for 204 No Content
-    if (response.status === 204) {
-      return {};
-    }
+      // Return empty object for 204 No Content
+      if (response.status === 204) {
+        return {};
+      }
 
-    return await response.json();
+      return await response.json();
+    } catch (err) {
+      console.error(`[JobPilot Network Error] ${method} ${url} (Origin: ${origin}) -> ${err.message}`);
+      throw err;
+    }
   }
 
   // --- HEALTH ---
