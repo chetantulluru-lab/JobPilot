@@ -6,12 +6,28 @@ import {
   BookmarkCheck, 
   CheckCircle2, 
   Save, 
-  Check
+  Check,
+  Compass,
+  Sparkles,
+  BookOpen,
+  ArrowRight,
+  Search
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function ClientRoadmap() {
   const { user, updateUser } = useAuth();
+  const [viewMode, setViewMode] = useState('learning'); // 'learning' | 'hub' | 'create'
+
+  // Active Roadmap state
+  const [activeRoadmap, setActiveRoadmap] = useState({
+    id: 'python-dev',
+    title: 'Python Backend & Microservices',
+    totalDays: 36,
+    completedDays: 13,
+    activeDay: 14,
+  });
+
   const [selectedDay, setSelectedDay] = useState(14);
   const [activeTab, setActiveTab] = useState('video'); // 'video' | 'quiz' | 'notes'
   const [selectedLang, setSelectedLang] = useState('en'); // 'en' | 'te' | 'hi'
@@ -25,6 +41,69 @@ export default function ClientRoadmap() {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+
+  // Catalog State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [customRoleTitle, setCustomRoleTitle] = useState('');
+  const [customDuration, setCustomDuration] = useState('6 Months');
+
+  const catalog = [
+    {
+      id: 'dsa-cse',
+      title: 'Data Structures & Algorithms (DSA)',
+      category: 'Core CSE',
+      badge: 'Core Foundation',
+      description: 'Master arrays, linked lists, trees, graphs, sorting, and dynamic programming with LeetCode patterns.',
+      skills: ['Arrays', 'Trees', 'Graphs', 'Dynamic Programming', 'LeetCode'],
+      totalDays: 40,
+    },
+    {
+      id: 'python-dev',
+      title: 'Python Backend & Microservices',
+      category: 'Programming Languages',
+      badge: 'High Demand',
+      description: 'Python 3 OOP, Asyncio, FastAPI microservices, PostgreSQL, Alembic, and Docker containers.',
+      skills: ['Python 3', 'FastAPI', 'PostgreSQL', 'Asyncio', 'Docker'],
+      totalDays: 36,
+    },
+    {
+      id: 'android-kotlin',
+      title: 'Android Development (Kotlin & Compose)',
+      category: 'Mobile Development',
+      badge: 'Native Android',
+      description: 'Build modern reactive Android apps with Kotlin, Jetpack Compose, Coroutines/Flow, and Retrofit.',
+      skills: ['Android', 'Kotlin', 'Jetpack Compose', 'Coroutines', 'Flow', 'Retrofit'],
+      totalDays: 30,
+    },
+    {
+      id: 'java-dev',
+      title: 'Enterprise Java & Spring Boot',
+      category: 'Programming Languages',
+      badge: 'Enterprise Core',
+      description: 'Core Java, Collections, Multithreading, Spring Boot 3, Hibernate/JPA, and Microservices.',
+      skills: ['Java 21', 'Spring Boot', 'JPA/Hibernate', 'Microservices'],
+      totalDays: 30,
+    },
+    {
+      id: 'react-fullstack',
+      title: 'Full Stack Web (React & Node)',
+      category: 'Web & Mobile',
+      badge: 'Industry Standard',
+      description: 'React 19, TypeScript, Tailwind CSS, Node.js REST APIs, and Cloud Deployment.',
+      skills: ['React', 'TypeScript', 'Node.js', 'Tailwind', 'MongoDB'],
+      totalDays: 30,
+    },
+    {
+      id: 'ai-ml',
+      title: 'AI Engineering & LLMs',
+      category: 'AI & Data Science',
+      badge: 'Cutting Edge',
+      description: 'PyTorch, Hugging Face Transformers, LangChain, Vector Databases, and Agentic Workflows.',
+      skills: ['PyTorch', 'Hugging Face', 'LangChain', 'Vector DB', 'RAG'],
+      totalDays: 35,
+    },
+  ];
 
   const daysList = [
     { day: 12, title: 'PostgreSQL Relational Schemas & Indexes', completed: true },
@@ -58,325 +137,483 @@ export default function ClientRoadmap() {
       id: 3,
       question: 'What is the primary benefit of running async worker tasks outside the main FastAPI process?',
       options: [
-        'Decreases total lines of code',
-        'Prevents long-running computations from blocking the async event loop',
-        'Eliminates the need for a database',
-        'Increases network bandwidth automatically',
+        'It prevents CPU-heavy or blocking I/O tasks from starving the HTTP event loop',
+        'It eliminates the need for database migrations',
+        'It bypasses JWT token verification',
+        'It automatically scales to 100,000 servers without configuration',
       ],
-      correct: 1,
-      explanation: 'Heavy I/O and CPU jobs delegated to worker pools prevent starving the main asyncio event loop.',
+      correct: 0,
+      explanation: 'Offloading background tasks to Celery or Redis workers keeps the web server fast and responsive to HTTP requests.',
     },
   ];
 
-  const handleSelectOption = (qIdx, optIdx) => {
-    if (quizSubmitted) return;
-    setQuizAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
+  const videoUrls = {
+    en: 'https://www.youtube-nocookie.com/embed/0sOVMULO1Ys?rel=0',
+    te: 'https://www.youtube-nocookie.com/embed/0sOVMULO1Ys?rel=0',
+    hi: 'https://www.youtube-nocookie.com/embed/0sOVMULO1Ys?rel=0',
   };
 
-  const submitQuiz = () => {
+  const handleSelectAnswer = (qId, optionIdx) => {
+    if (quizSubmitted) return;
+    setQuizAnswers({ ...quizAnswers, [qId]: optionIdx });
+  };
+
+  const handleSubmitQuiz = () => {
     let score = 0;
-    quizQuestions.forEach((q, idx) => {
-      if (quizAnswers[idx] === q.correct) {
-        score += 1;
+    quizQuestions.forEach((q) => {
+      if (quizAnswers[q.id] === q.correct) {
+        score++;
       }
     });
     setQuizScore(score);
     setQuizSubmitted(true);
-    if (score >= 2) {
+    if (score === quizQuestions.length) {
       updateUser({ streak: (user?.streak || 3) + 1 });
     }
   };
 
   const handleSaveNote = () => {
     setNoteSaved(true);
-    setTimeout(() => setNoteSaved(false), 2000);
+    setTimeout(() => setNoteSaved(false), 2500);
   };
 
-  // Video embed mappings
-  const videoUrls = {
-    en: 'https://www.youtube.com/embed/gQliT_l6c9A',
-    te: 'https://www.youtube.com/embed/gQliT_l6c9A',
-    hi: 'https://www.youtube.com/embed/gQliT_l6c9A',
+  const handleSwitchCurriculum = (item) => {
+    setActiveRoadmap({
+      id: item.id,
+      title: item.title,
+      totalDays: item.totalDays,
+      completedDays: 1,
+      activeDay: 1,
+    });
+    setSelectedDay(1);
+    setViewMode('learning');
   };
+
+  const filteredCatalog = catalog.filter((item) => {
+    const matchesCat = selectedCategory === 'All' || item.category === selectedCategory;
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCat && matchesSearch;
+  });
 
   return (
-    <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Track Header */}
-      <div className="client-card client-card-glow" style={{ padding: '24px 28px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+    <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Top Header & View Switcher */}
+      <div className="client-card" style={{ padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
+            <Compass size={22} />
+          </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <span className="client-badge client-badge-orange">6-Month Curriculum</span>
-              <span className="client-badge client-badge-blue">Day {selectedDay}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+                {viewMode === 'learning' ? activeRoadmap.title : 'Curriculum Hub & Catalog'}
+              </h2>
+              <span className="client-badge client-badge-orange">DAY {selectedDay}</span>
             </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 4px 0' }}>
-              Day {selectedDay}: Asynchronous Workers & Redis Concurrency
-            </h1>
-            <p style={{ color: 'var(--app-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
-              Track: Python Backend Developer & Microservices Architecture
-            </p>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
+              Structured AI Learning Path • English, Telugu & Hindi Modules
+            </span>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button
-              onClick={() => setIsBookmarked(!isBookmarked)}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
-            >
-              {isBookmarked ? <BookmarkCheck size={16} color="#10B981" /> : <Bookmark size={16} />}
-              <span>{isBookmarked ? 'Bookmarked' : 'Bookmark Day'}</span>
-            </button>
-          </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setViewMode('learning')}
+            className={`client-btn ${viewMode === 'learning' ? 'client-btn-primary' : 'client-btn-secondary'}`}
+            style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
+          >
+            <PlayCircle size={15} />
+            <span>Daily Learning</span>
+          </button>
+          <button
+            onClick={() => setViewMode('hub')}
+            className={`client-btn ${viewMode === 'hub' ? 'client-btn-primary' : 'client-btn-secondary'}`}
+            style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
+          >
+            <BookOpen size={15} />
+            <span>Browse Roadmaps</span>
+          </button>
+          <button
+            onClick={() => setViewMode('create')}
+            className={`client-btn ${viewMode === 'create' ? 'client-btn-primary' : 'client-btn-secondary'}`}
+            style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
+          >
+            <Sparkles size={15} />
+            <span>Generate AI Path</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Learning Hub Split: Days List (Left) + Content (Right) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '20px', alignItems: 'start' }}>
-        {/* Left: Curriculum Day List */}
-        <div className="client-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>
-            Curriculum Schedule
-          </div>
-          {daysList.map((item) => (
-            <button
-              key={item.day}
-              onClick={() => {
-                setSelectedDay(item.day);
-                setQuizSubmitted(false);
-                setQuizAnswers({});
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                background: item.day === selectedDay ? 'rgba(255, 106, 0, 0.15)' : 'transparent',
-                border: item.day === selectedDay ? '1px solid rgba(255, 106, 0, 0.3)' : '1px solid transparent',
-                color: item.day === selectedDay ? '#FFFFFF' : 'var(--app-text-secondary)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                width: '100%',
-              }}
-            >
-              <div style={{ color: item.completed ? '#10B981' : item.day === selectedDay ? 'var(--app-orange)' : '#64748B' }}>
-                {item.completed ? <CheckCircle2 size={16} /> : <PlayCircle size={16} />}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700 }}>Day {item.day}</div>
-                <div style={{ fontSize: '0.6875rem', color: 'var(--app-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
-                  {item.title}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Right: Tabbed Content Container */}
-        <div className="client-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Navigation Tabs */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <div className="client-tabs">
-              <button
-                onClick={() => setActiveTab('video')}
-                className={`client-tab-btn ${activeTab === 'video' ? 'active' : ''}`}
-              >
-                📹 Video Lesson
-              </button>
-              <button
-                onClick={() => setActiveTab('quiz')}
-                className={`client-tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}
-              >
-                🏆 Daily Quiz ({quizSubmitted ? `${quizScore}/3` : 'Pending'})
-              </button>
-              <button
-                onClick={() => setActiveTab('notes')}
-                className={`client-tab-btn ${activeTab === 'notes' ? 'active' : ''}`}
-              >
-                📝 My Notes
-              </button>
+      {/* VIEW 1: DAY LEARNING PLAYER */}
+      {viewMode === 'learning' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px', alignItems: 'start' }}>
+          {/* Left Column: Syllabus Days Navigator */}
+          <div className="client-card" style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Course Curriculum</h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--app-orange)', fontWeight: 700 }}>
+                {activeRoadmap.completedDays} / {activeRoadmap.totalDays} Days
+              </span>
             </div>
 
-            {/* Language Switcher (for Video Tab) */}
-            {activeTab === 'video' && (
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {['en', 'te', 'hi'].map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => setSelectedLang(lang)}
-                    className="client-btn"
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '0.75rem',
-                      background: selectedLang === lang ? 'var(--app-orange)' : 'rgba(255, 255, 255, 0.05)',
-                      color: '#FFFFFF',
-                    }}
-                  >
-                    {lang === 'en' ? 'English' : lang === 'te' ? 'తెలుగు' : 'हिन्दी'}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {daysList.map((d) => (
+                <button
+                  key={d.day}
+                  onClick={() => {
+                    setSelectedDay(d.day);
+                    setQuizSubmitted(false);
+                    setQuizAnswers({});
+                  }}
+                  className="client-btn"
+                  style={{
+                    width: '100%',
+                    justifyContent: 'flex-start',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    background: selectedDay === d.day ? 'rgba(255, 106, 0, 0.15)' : 'rgba(30, 41, 59, 0.4)',
+                    border: selectedDay === d.day ? '1.5px solid var(--app-orange)' : '1px solid rgba(255, 255, 255, 0.06)',
+                    color: selectedDay === d.day ? '#FFFFFF' : 'var(--app-text-secondary)',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                    {d.completed ? (
+                      <CheckCircle2 size={16} color="#10B981" />
+                    ) : (
+                      <span style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #64748B' }} />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.6875rem', color: 'var(--app-orange)', fontWeight: 700 }}>DAY {d.day}</div>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {d.title}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* TAB 1: VIDEO LESSON */}
-          {activeTab === 'video' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', borderRadius: '12px', overflow: 'hidden', background: '#000000' }}>
+          {/* Right Column: Player & Day Modules */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Action Bar (Language Tabs, Bookmark) */}
+            <div className="client-card" style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--app-text-secondary)' }}>Audio / Video Language:</span>
+                <div className="client-tabs" style={{ marginBottom: 0 }}>
+                  <button onClick={() => setSelectedLang('en')} className={`client-tab-btn ${selectedLang === 'en' ? 'active' : ''}`} style={{ padding: '4px 12px', fontSize: '0.75rem' }}>English</button>
+                  <button onClick={() => setSelectedLang('te')} className={`client-tab-btn ${selectedLang === 'te' ? 'active' : ''}`} style={{ padding: '4px 12px', fontSize: '0.75rem' }}>తెలుగు (Telugu)</button>
+                  <button onClick={() => setSelectedLang('hi')} className={`client-tab-btn ${selectedLang === 'hi' ? 'active' : ''}`} style={{ padding: '4px 12px', fontSize: '0.75rem' }}>हिन्दी (Hindi)</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => setIsBookmarked(!isBookmarked)}
+                  className="client-btn client-btn-secondary"
+                  style={{ padding: '6px 12px', fontSize: '0.8125rem', color: isBookmarked ? '#F59E0B' : 'inherit' }}
+                >
+                  {isBookmarked ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+                  <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Video Player */}
+            <div className="client-card" style={{ padding: '16px', borderRadius: '16px' }}>
+              <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', height: 0, borderRadius: '12px', overflow: 'hidden', background: '#000000' }}>
                 <iframe
                   src={videoUrls[selectedLang]}
-                  title="Lesson Video"
-                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  title="Curriculum Learning Video"
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
-
-              <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px', borderRadius: '10px' }}>
-                <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, margin: '0 0 8px 0' }}>
-                  Key Lesson Takeaways:
-                </h4>
-                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8125rem', color: 'var(--app-text-secondary)', lineHeight: 1.6 }}>
-                  <li>Asynchronous worker queues allow offloading database exports, emails, and compute workloads.</li>
-                  <li>Use Redis Sentinel or Cluster for high availability and failover of queue instances.</li>
-                  <li>Always configure TTL and exponential backoff retry strategies for transient network drops.</li>
-                </ul>
-              </div>
             </div>
-          )}
 
-          {/* TAB 2: DAILY QUIZ */}
-          {activeTab === 'quiz' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: '0 0 4px 0' }}>
-                    Day {selectedDay} Knowledge Check
-                  </h3>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
-                    Answer 2 or more correctly to advance your daily streak flame 🔥
-                  </span>
-                </div>
-                {quizSubmitted && (
-                  <span className={`client-badge ${quizScore >= 2 ? 'client-badge-green' : 'client-badge-orange'}`}>
-                    Score: {quizScore} / {quizQuestions.length} ({Math.round((quizScore / quizQuestions.length) * 100)}%)
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {quizQuestions.map((q, qIdx) => (
-                  <div key={q.id} style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px', borderRadius: '12px', border: '1px solid var(--app-card-border)' }}>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: '12px' }}>
-                      {qIdx + 1}. {q.question}
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {q.options.map((opt, optIdx) => {
-                        const isSelected = quizAnswers[qIdx] === optIdx;
-                        const isCorrect = q.correct === optIdx;
-                        let bg = 'rgba(255, 255, 255, 0.04)';
-                        let borderColor = 'transparent';
-
-                        if (quizSubmitted) {
-                          if (isCorrect) {
-                            bg = 'rgba(16, 185, 129, 0.15)';
-                            borderColor = '#10B981';
-                          } else if (isSelected && !isCorrect) {
-                            bg = 'rgba(239, 68, 68, 0.15)';
-                            borderColor = '#EF4444';
-                          }
-                        } else if (isSelected) {
-                          bg = 'rgba(255, 106, 0, 0.15)';
-                          borderColor = 'var(--app-orange)';
-                        }
-
-                        return (
-                          <button
-                            key={optIdx}
-                            onClick={() => handleSelectOption(qIdx, optIdx)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              padding: '10px 14px',
-                              borderRadius: '8px',
-                              background: bg,
-                              border: `1px solid ${borderColor}`,
-                              color: '#FFFFFF',
-                              cursor: quizSubmitted ? 'default' : 'pointer',
-                              textAlign: 'left',
-                              fontSize: '0.8125rem',
-                              width: '100%',
-                            }}
-                          >
-                            <span style={{ width: '18px', height: '18px', borderRadius: '50%', border: '1.5px solid rgba(255, 255, 255, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
-                              {String.fromCharCode(65 + optIdx)}
-                            </span>
-                            <span>{opt}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {quizSubmitted && (
-                      <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#94A3B8', padding: '8px 12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '6px' }}>
-                        💡 <strong>Explanation:</strong> {q.explanation}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {!quizSubmitted ? (
-                <button
-                  onClick={submitQuiz}
-                  disabled={Object.keys(quizAnswers).length < quizQuestions.length}
-                  className="client-btn client-btn-primary"
-                  style={{ alignSelf: 'flex-start' }}
-                >
-                  <Flame size={16} />
-                  <span>Submit Answers & Claim Streak</span>
-                </button>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(16, 185, 129, 0.1)', padding: '12px 18px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                  <Flame size={20} color="#FF6A00" />
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#34D399' }}>
-                    +1 Day Streak Active! Keep up the daily learning pace.
-                  </span>
-                </div>
-              )}
+            {/* Activity Tabs: Video Details, Interactive Quiz, Notes */}
+            <div className="client-tabs">
+              <button onClick={() => setActiveTab('video')} className={`client-tab-btn ${activeTab === 'video' ? 'active' : ''}`}>
+                <PlayCircle size={15} />
+                <span>Concept Overview</span>
+              </button>
+              <button onClick={() => setActiveTab('quiz')} className={`client-tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}>
+                <Flame size={15} />
+                <span>Daily Quiz (3 Questions)</span>
+              </button>
+              <button onClick={() => setActiveTab('notes')} className={`client-tab-btn ${activeTab === 'notes' ? 'active' : ''}`}>
+                <Save size={15} />
+                <span>Personal Notes</span>
+              </button>
             </div>
-          )}
 
-          {/* TAB 3: PERSONAL NOTES */}
-          {activeTab === 'notes' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
-                  Personal Study Notes for Day {selectedDay}
+            {/* TAB: OVERVIEW */}
+            {activeTab === 'video' && (
+              <div className="client-card" style={{ padding: '24px' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 10px 0' }}>
+                  Day {selectedDay}: Asynchronous Workers & Redis Concurrency
                 </h3>
+                <p style={{ color: 'var(--app-text-secondary)', lineHeight: 1.6, fontSize: '0.875rem', margin: '0 0 16px 0' }}>
+                  In high-throughput microservice architectures, requests that require expensive background computing (PDF report generation, email delivery, AI inference) should never block the ASGI event loop. Today we master Redis queue patterns, worker dead-letter queues, and distributed lock TTLs.
+                </p>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <span className="client-badge client-badge-blue">Redis Queues</span>
+                  <span className="client-badge client-badge-blue">Celery Workers</span>
+                  <span className="client-badge client-badge-blue">Distributed Locks</span>
+                  <span className="client-badge client-badge-blue">Deadlock Prevention</span>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: QUIZ */}
+            {activeTab === 'quiz' && (
+              <div className="client-card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 4px 0' }}>Day {selectedDay} Knowledge Verification</h3>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>Score 100% to advance your streak 🔥</span>
+                  </div>
+                  {quizSubmitted && (
+                    <span className="client-badge client-badge-orange" style={{ fontSize: '0.875rem', padding: '6px 14px' }}>
+                      Score: {quizScore} / {quizQuestions.length}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {quizQuestions.map((q, idx) => (
+                    <div key={q.id} style={{ padding: '16px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.9375rem', marginBottom: '12px' }}>
+                        {idx + 1}. {q.question}
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {q.options.map((opt, optIdx) => {
+                          const isSelected = quizAnswers[q.id] === optIdx;
+                          const isCorrect = q.correct === optIdx;
+                          let bg = 'rgba(15, 23, 42, 0.5)';
+                          let border = '1px solid rgba(255, 255, 255, 0.08)';
+
+                          if (quizSubmitted) {
+                            if (isCorrect) {
+                              bg = 'rgba(16, 185, 129, 0.2)';
+                              border = '1px solid #10B981';
+                            } else if (isSelected && !isCorrect) {
+                              bg = 'rgba(239, 68, 68, 0.2)';
+                              border = '1px solid #EF4444';
+                            }
+                          } else if (isSelected) {
+                            bg = 'rgba(255, 106, 0, 0.2)';
+                            border = '1px solid var(--app-orange)';
+                          }
+
+                          return (
+                            <button
+                              key={optIdx}
+                              onClick={() => handleSelectAnswer(q.id, optIdx)}
+                              className="client-btn"
+                              style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: bg, border: border, borderRadius: '8px', fontSize: '0.8125rem' }}
+                            >
+                              <span>{opt}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {quizSubmitted && (
+                        <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#38BDF8', padding: '8px 12px', background: 'rgba(2, 132, 199, 0.1)', borderRadius: '6px' }}>
+                          💡 <strong>Explanation</strong>: {q.explanation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                  {!quizSubmitted ? (
+                    <button
+                      onClick={handleSubmitQuiz}
+                      disabled={Object.keys(quizAnswers).length < quizQuestions.length}
+                      className="client-btn client-btn-primary"
+                      style={{ padding: '10px 24px' }}
+                    >
+                      <span>Submit Quiz Answers</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setQuizSubmitted(false);
+                        setQuizAnswers({});
+                      }}
+                      className="client-btn client-btn-secondary"
+                      style={{ padding: '10px 20px' }}
+                    >
+                      <span>Retry Quiz</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: NOTES */}
+            {activeTab === 'notes' && (
+              <div className="client-card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0 }}>Day {selectedDay} Study Notes</h3>
+                  <button onClick={handleSaveNote} className="client-btn client-btn-primary" style={{ padding: '8px 16px', fontSize: '0.8125rem' }}>
+                    {noteSaved ? <Check size={14} /> : <Save size={14} />}
+                    <span>{noteSaved ? 'Saved!' : 'Save Notes'}</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={8}
+                  value={noteContent}
+                  onChange={(e) => setNoteContent(e.target.value)}
+                  className="client-input"
+                  style={{ width: '100%', resize: 'vertical', lineHeight: 1.6 }}
+                  placeholder="Record your code snippets, command flags, and interview takeaways..."
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 2: ROADMAP HUB & CATALOG */}
+      {viewMode === 'hub' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Filter / Search Bar */}
+          <div className="client-card" style={{ padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Search curricula (e.g. Python, Android, DSA)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="client-input"
+                style={{ width: '100%', paddingLeft: '36px' }}
+              />
+              <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {['All', 'Core CSE', 'Programming Languages', 'Mobile Development', 'AI & Data Science'].map((cat) => (
                 <button
-                  onClick={handleSaveNote}
-                  className="client-btn client-btn-primary"
-                  style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`client-btn ${selectedCategory === cat ? 'client-btn-primary' : 'client-btn-secondary'}`}
+                  style={{ padding: '6px 14px', fontSize: '0.75rem' }}
                 >
-                  {noteSaved ? <Check size={14} /> : <Save size={14} />}
-                  <span>{noteSaved ? 'Saved to Profile!' : 'Save Notes'}</span>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Catalog Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
+            {filteredCatalog.map((item) => (
+              <div key={item.id} className="client-card client-card-glow" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <span className="client-badge client-badge-orange">{item.badge}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{item.totalDays} Days</span>
+                  </div>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 8px 0' }}>{item.title}</h3>
+                  <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+                    {item.description}
+                  </p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                    {item.skills.map((s, idx) => (
+                      <span key={idx} className="client-badge client-badge-blue" style={{ fontSize: '0.6875rem' }}>{s}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleSwitchCurriculum(item)}
+                  className="client-btn client-btn-primary"
+                  style={{ width: '100%', padding: '10px' }}
+                >
+                  <span>Select Curriculum</span>
+                  <ArrowRight size={15} />
                 </button>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              <textarea
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
-                className="client-textarea"
-                rows={10}
-                placeholder="Write your code snippets, architectural trade-offs, and key takeaways for this day..."
+      {/* VIEW 3: AI CUSTOM ROADMAP GENERATOR */}
+      {viewMode === 'create' && (
+        <div className="client-card client-card-glow" style={{ maxWidth: '640px', margin: '0 auto', padding: '36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
+              <Sparkles size={24} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>AI Custom Roadmap Generator</h3>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>Synthesizes personalized day-by-day learning curricula</span>
+            </div>
+          </div>
+
+          <p style={{ fontSize: '0.875rem', color: 'var(--app-text-secondary)', lineHeight: 1.6, marginBottom: '24px' }}>
+            Enter any target tech stack or specialized engineering role. JobPilot AI will construct a 30 to 60-day syllabus with embedded tutorials, quiz milestones, and project goals.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Target Engineering Role or Technology
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Distributed Systems Engineer, Kubernetes Operator, React Native..."
+                value={customRoleTitle}
+                onChange={(e) => setCustomRoleTitle(e.target.value)}
+                className="client-input"
               />
             </div>
-          )}
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Target Duration
+              </label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {['3 Months (30 Days)', '6 Months (60 Days)', '12 Months (120 Days)'].map((dur) => (
+                  <button
+                    key={dur}
+                    onClick={() => setCustomDuration(dur)}
+                    className={`client-btn ${customDuration === dur ? 'client-btn-primary' : 'client-btn-secondary'}`}
+                    style={{ flex: 1, padding: '10px', fontSize: '0.75rem', justifyContent: 'center' }}
+                  >
+                    {dur}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (!customRoleTitle.trim()) return;
+              handleSwitchCurriculum({
+                id: 'custom-' + Date.now(),
+                title: `${customRoleTitle} Track`,
+                totalDays: 45,
+              });
+            }}
+            disabled={!customRoleTitle.trim()}
+            className="client-btn client-btn-primary"
+            style={{ width: '100%', padding: '14px' }}
+          >
+            <Sparkles size={18} />
+            <span>Generate & Launch Roadmap</span>
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

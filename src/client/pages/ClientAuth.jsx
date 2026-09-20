@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Mail, ArrowRight, KeyRound } from 'lucide-react';
+import { Mail, ArrowRight, KeyRound, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/apiClient';
 
 export default function ClientAuth({ onAuthSuccess }) {
-  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot' | 'onboarding'
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   
   // OTP Verification Modal State
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -15,7 +17,12 @@ export default function ClientAuth({ onAuthSuccess }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, startRegistration, verifyRegistration } = useAuth();
+  // Onboarding Wizard State
+  const [onboardingRole, setOnboardingRole] = useState('Android & Full Stack Engineer');
+  const [onboardingExp, setOnboardingExp] = useState('1-3 Years');
+  const [onboardingSkills, setOnboardingSkills] = useState('Kotlin, Jetpack Compose, Python, FastAPI');
+
+  const { login, startRegistration, verifyRegistration, updateUser } = useAuth();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -54,14 +61,44 @@ export default function ClientAuth({ onAuthSuccess }) {
     setErrorMsg('');
     setIsSubmitting(true);
     try {
-      await verifyRegistration(email.trim(), otpCode.trim(), password, fullName.trim());
-      setShowOtpModal(false);
-      if (onAuthSuccess) onAuthSuccess();
+      if (mode === 'signup') {
+        await verifyRegistration(email.trim(), otpCode.trim(), password, fullName.trim());
+        setShowOtpModal(false);
+        setMode('onboarding');
+      } else if (mode === 'forgot') {
+        await api.forgotPasswordVerify(email.trim(), otpCode.trim(), newPassword);
+        setShowOtpModal(false);
+        setStatusMsg('Password reset successfully! Please sign in.');
+        setMode('signin');
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid or expired OTP code.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleStartForgot = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setIsSubmitting(true);
+    try {
+      const res = await api.forgotPasswordStart(email.trim());
+      setStatusMsg(res?.message || 'Password reset OTP dispatched to your email!');
+      setShowOtpModal(true);
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to send reset code.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFinishOnboarding = () => {
+    updateUser({
+      targetRole: onboardingRole,
+      experienceLevel: onboardingExp,
+    });
+    if (onAuthSuccess) onAuthSuccess();
   };
 
   return (
@@ -78,27 +115,35 @@ export default function ClientAuth({ onAuthSuccess }) {
           </p>
         </div>
 
-        {/* Tab Toggle */}
-        <div className="client-tabs" style={{ width: '100%', justifyContent: 'center', marginBottom: '24px' }}>
-          <button
-            onClick={() => { setMode('signin'); setErrorMsg(''); }}
-            className={`client-tab-btn ${mode === 'signin' ? 'active' : ''}`}
-            style={{ flex: 1 }}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => { setMode('signup'); setErrorMsg(''); }}
-            className={`client-tab-btn ${mode === 'signup' ? 'active' : ''}`}
-            style={{ flex: 1 }}
-          >
-            Create Account (Email OTP)
-          </button>
-        </div>
+        {/* Tab Toggle (if not onboarding) */}
+        {mode !== 'onboarding' && (
+          <div className="client-tabs" style={{ width: '100%', justifyContent: 'center', marginBottom: '24px' }}>
+            <button
+              onClick={() => { setMode('signin'); setErrorMsg(''); }}
+              className={`client-tab-btn ${mode === 'signin' ? 'active' : ''}`}
+              style={{ flex: 1 }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setMode('signup'); setErrorMsg(''); }}
+              className={`client-tab-btn ${mode === 'signup' ? 'active' : ''}`}
+              style={{ flex: 1 }}
+            >
+              Sign Up (Email OTP)
+            </button>
+          </div>
+        )}
 
         {errorMsg && (
           <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#F87171', fontSize: '0.8125rem', marginBottom: '16px' }}>
             ✕ {errorMsg}
+          </div>
+        )}
+
+        {statusMsg && (
+          <div style={{ padding: '10px 14px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', color: '#34D399', fontSize: '0.8125rem', marginBottom: '16px' }}>
+            ✓ {statusMsg}
           </div>
         )}
 
@@ -120,9 +165,18 @@ export default function ClientAuth({ onAuthSuccess }) {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
-                Password
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--app-text-secondary)' }}>
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { setMode('forgot'); setErrorMsg(''); }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--app-orange)', fontSize: '0.75rem', cursor: 'pointer', padding: 0 }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <input
                 type="password"
                 required
@@ -203,6 +257,128 @@ export default function ClientAuth({ onAuthSuccess }) {
           </form>
         )}
 
+        {/* FORGOT PASSWORD FORM */}
+        {mode === 'forgot' && (
+          <form onSubmit={handleStartForgot} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0 }}>Reset Password</h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', margin: 0 }}>
+              Enter your registered email to receive a 6-digit password reset verification code.
+            </p>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="client-input"
+                placeholder="name@example.com"
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                New Password (min 6 chars)
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="client-input"
+                placeholder="New password"
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setMode('signin')}
+                className="client-btn client-btn-secondary"
+                style={{ flex: 1 }}
+              >
+                Back to Sign In
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !email || newPassword.length < 6}
+                className="client-btn client-btn-primary"
+                style={{ flex: 1 }}
+              >
+                <span>Send Reset OTP</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ONBOARDING WIZARD */}
+        {mode === 'onboarding' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 106, 0, 0.15)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' }}>
+                <Sparkles size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 6px 0' }}>Welcome to JobPilot!</h3>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', margin: 0 }}>
+                Let's configure your career compass in 60 seconds
+              </p>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Target Engineering Role
+              </label>
+              <input
+                type="text"
+                value={onboardingRole}
+                onChange={(e) => setOnboardingRole(e.target.value)}
+                className="client-input"
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Experience Level
+              </label>
+              <select
+                value={onboardingExp}
+                onChange={(e) => setOnboardingExp(e.target.value)}
+                className="client-input"
+              >
+                <option value="College Graduate">College Graduate / Student</option>
+                <option value="1-3 Years">Junior / Associate (1-3 Years)</option>
+                <option value="3-5 Years">Mid-Level (3-5 Years)</option>
+                <option value="5+ Years">Senior / Lead (5+ Years)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
+                Primary Technical Skills
+              </label>
+              <input
+                type="text"
+                value={onboardingSkills}
+                onChange={(e) => setOnboardingSkills(e.target.value)}
+                className="client-input"
+              />
+            </div>
+
+            <button
+              onClick={handleFinishOnboarding}
+              className="client-btn client-btn-primary"
+              style={{ width: '100%', padding: '14px' }}
+            >
+              <span>Launch My Career Copilot</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
+
         {/* OTP VERIFICATION MODAL DIALOG */}
         {showOtpModal && (
           <div
@@ -261,7 +437,7 @@ export default function ClientAuth({ onAuthSuccess }) {
                   className="client-btn client-btn-primary"
                   style={{ flex: 1 }}
                 >
-                  <span>{isSubmitting ? 'Verifying...' : 'Verify & Enter'}</span>
+                  <span>{isSubmitting ? 'Verifying...' : 'Verify & Continue'}</span>
                 </button>
               </div>
             </div>

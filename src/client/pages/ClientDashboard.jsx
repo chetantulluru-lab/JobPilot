@@ -7,10 +7,10 @@ import {
   Flame, 
   CheckCircle2, 
   ArrowRight, 
-  TrendingUp, 
-  Award, 
   Briefcase,
-  PlayCircle
+  PlayCircle,
+  Bot,
+  User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -60,191 +60,272 @@ export default function ClientDashboard({ onNavigate }) {
                 <span>Cloud Sync Connected</span>
               </span>
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: '800', margin: '0 0 6px 0' }}>
+            <h1 style={{ fontSize: '2.1rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
               Welcome back, {user?.fullName || 'Candidate'}!
             </h1>
-            <p style={{ color: 'var(--app-text-secondary)', margin: 0, fontSize: '0.9375rem' }}>
-              Target Role: <strong style={{ color: '#FFFFFF' }}>{user?.targetRole || 'Software Engineer'}</strong>
+            <p style={{ color: 'var(--app-text-secondary)', margin: 0, fontSize: '1rem' }}>
+              Target Role: <strong style={{ color: '#FFFFFF' }}>{user?.targetRole || 'Android & Full Stack Engineer'}</strong>
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => onNavigate('interview')}
-              className="client-btn client-btn-primary"
-            >
-              <Video size={16} />
-              <span>Start Mock Interview</span>
-            </button>
-            <button
-              onClick={() => onNavigate('resume')}
-              className="client-btn client-btn-secondary"
-            >
-              <FileCheck2 size={16} />
-              <span>Tailor Resume</span>
-            </button>
+          {/* Daily Streak Flame Indicator */}
+          <div className="streak-indicator" style={{ padding: '10px 20px', borderRadius: '16px' }}>
+            <Flame size={28} className="streak-flame-icon" />
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '900', lineHeight: 1.1 }}>
+                {user?.streak || 3} Days
+              </div>
+              <div style={{ fontSize: '0.6875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Active Streak 🔥
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Readiness Scores Gauge Strip */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(255, 106, 0, 0.15)', border: '2px solid var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-orange)', fontWeight: '800', fontSize: '1.1rem' }}>
+              {user?.readinessScore || 88}%
+            </div>
+            <div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Interview Readiness</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#34D399' }}>Interview Ready</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(2, 132, 199, 0.15)', border: '2px solid #0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38BDF8', fontWeight: '800', fontSize: '1.1rem' }}>
+              {user?.atsScore || 86}%
+            </div>
+            <div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>ATS Resume Score</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#38BDF8' }}>Top 10% Candidate</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '800', fontSize: '1.1rem' }}>
+              14/36
+            </div>
+            <div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Curriculum Progress</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#FFFFFF' }}>Day 14 Active</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 4 Core Telemetry Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '18px' }}>
-        {/* Metric 1: Readiness Score */}
-        <div className="client-card" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--app-text-secondary)', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <span>Interview Readiness</span>
-            <Award size={16} color="#10B981" />
+      {/* Active Roadmap Progress Card */}
+      <div className="client-card" style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <PlayCircle size={22} color="var(--app-orange)" />
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
+              Active Learning: {user?.activeRoadmap || 'Python Backend & Microservices'}
+            </h3>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#10B981', marginTop: '6px' }}>
-            {user?.readinessScore || 88}%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', marginTop: '2px' }}>
-            Badge: <strong style={{ color: '#34D399' }}>INTERVIEW READY</strong>
-          </div>
-        </div>
-
-        {/* Metric 2: Streak Flame */}
-        <div className="client-card" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--app-text-secondary)', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <span>Learning Streak</span>
-            <Flame size={16} color="#FF6A00" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#FF6A00', marginTop: '6px' }}>
-            {user?.streak || 3} Days 🔥
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', marginTop: '2px' }}>
-            Take today's quiz to reach { (user?.streak || 3) + 1 } days!
-          </div>
-        </div>
-
-        {/* Metric 3: ATS Resume Score */}
-        <div className="client-card" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--app-text-secondary)', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <span>ATS Resume Score</span>
-            <TrendingUp size={16} color="#0284C7" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#38BDF8', marginTop: '6px' }}>
-            {user?.atsScore || 84}/100
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', marginTop: '2px' }}>
-            ATS Optimized for top hiring filters
-          </div>
-        </div>
-
-        {/* Metric 4: Active Applications */}
-        <div className="client-card" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--app-text-secondary)', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <span>Active Pipeline</span>
-            <Briefcase size={16} color="#A78BFA" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#A78BFA', marginTop: '6px' }}>
-            4 Roles
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', marginTop: '2px' }}>
-            2 Under Review • 1 Interview
-          </div>
-        </div>
-      </div>
-
-      {/* Active Roadmap Banner */}
-      <div className="client-card" style={{ borderLeft: '4px solid var(--app-orange)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-          <span className="client-badge client-badge-orange">
-            ACTIVE ROADMAP • 6 MONTH CURRICULUM
-          </span>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)', fontWeight: '700' }}>
-            Day 14 of 36 (38% Completed)
-          </span>
-        </div>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '6px 0' }}>
-          {user?.activeRoadmap || 'Python Backend & Microservices'}
-        </h3>
-        <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.875rem', margin: '0 0 14px 0' }}>
-          Current Focus: <strong>Day 14 — Asynchronous Task Processing & Worker Architectures (Celery, Redis)</strong>
-        </p>
-        
-        <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '3px', marginBottom: '16px' }}>
-          <div style={{ width: '38%', height: '100%', background: 'var(--app-orange)', borderRadius: '3px' }} />
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => onNavigate('roadmap')}
-            className="client-btn client-btn-primary"
-          >
-            <PlayCircle size={16} />
-            <span>Resume Lesson & Video</span>
-          </button>
-          <button
-            onClick={() => onNavigate('roadmap')}
-            className="client-btn client-btn-secondary"
-          >
-            <Flame size={16} />
-            <span>Take Day 14 Quiz</span>
+          <button onClick={() => onNavigate('roadmap')} className="client-btn client-btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8125rem' }}>
+            <span>Resume Day 14</span>
+            <ArrowRight size={14} />
           </button>
         </div>
+
+        <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
+          <span>Current Topic: <strong>Asynchronous Workers & Redis Concurrency</strong></span>
+          <span>Day {user?.roadmapDay || 14} of {user?.totalDays || 36} (39% Complete)</span>
+        </div>
+
+        <div className="roadmap-progress-bar">
+          <div className="roadmap-progress-fill" style={{ width: '39%' }} />
+        </div>
       </div>
 
-      {/* Recommended Matched Jobs */}
+      {/* All Operations Quick Launch Grid */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
-            Top Semantic Job Matches
-          </h2>
-          <button
-            onClick={() => onNavigate('jobs')}
-            className="client-btn client-btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 16px 0' }}>
+          Autonomous Career Capabilities
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+          {/* Tile 1: AI Mock Interview */}
+          <div
+            onClick={() => onNavigate('interview')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
           >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255, 106, 0, 0.15)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <Video size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>AI Mock Interview</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Live front webcam stream, ML face presence HUD, audio TTS reading, and candidate model answers.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--app-orange)', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>Launch Simulator</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+
+          {/* Tile 2: Resume Tailor & NLP */}
+          <div
+            onClick={() => onNavigate('resume')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(2, 132, 199, 0.15)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <FileCheck2 size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Resume Intelligence & Tailor</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Upload PDF/DOCX for NLP skill extraction, seed your profile, and 1-click tailor for 93%+ ATS scores.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#38BDF8', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>Tailor Resume</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+
+          {/* Tile 3: AI Career Coach Chat */}
+          <div
+            onClick={() => onNavigate('coach')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <Bot size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>AI Career Coach Chat</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Context-aware conversational advisor grounded in your career profile and active learning goals.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#10B981', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>Talk with Coach</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+
+          {/* Tile 4: Jobs & Recruiter Cold Outreach */}
+          <div
+            onClick={() => onNavigate('jobs')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <Send size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Jobs & Recruiter Outreach</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Matched jobs catalog, skill gap analyzer, and 1-click generated LinkedIn recruiter notes.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#A78BFA', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>Explore Roles</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+
+          {/* Tile 5: Application Kanban Pipeline */}
+          <div
+            onClick={() => onNavigate('applications')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.15)', color: '#FACC15', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <Briefcase size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Application Kanban Tracker</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Visual board tracking Saved, Applied, Interviewing, and Offered pipeline stages with custom notes.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#FACC15', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>View Pipeline</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+
+          {/* Tile 6: Career Profile & Smart Completion */}
+          <div
+            onClick={() => onNavigate('profile')}
+            className="client-card client-card-glow"
+            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          >
+            <div>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.15)', color: '#FB7185', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                <User size={22} />
+              </div>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Career Profile & Smart Gaps</h4>
+              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
+                Manage skills, education, and work experience. 1-click recommendations to reach 100% profile strength.
+              </p>
+            </div>
+            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#FB7185', fontSize: '0.8125rem', fontWeight: 700 }}>
+              <span>Manage Profile</span>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Matched Jobs Section */}
+      <div className="client-card" style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Top Matched Roles for Your Profile</h3>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>Calculated using deep semantic vector comparison</span>
+          </div>
+          <button onClick={() => onNavigate('jobs')} className="client-btn client-btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8125rem' }}>
             <span>View All Jobs</span>
             <ArrowRight size={14} />
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
           {mockJobs.map((job) => (
-            <div key={job.id} className="client-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div
+              key={job.id}
+              style={{
+                padding: '16px',
+                background: 'rgba(30, 41, 59, 0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '12px',
+              }}
+            >
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span className="client-badge client-badge-green" style={{ fontSize: '0.8125rem' }}>
-                    {job.match}% Semantic Match
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)' }}>{job.location}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#FFFFFF' }}>{job.title}</div>
+                  <span className="client-badge client-badge-green">{job.match}% Fit</span>
                 </div>
-                <h4 style={{ fontSize: '1.0625rem', fontWeight: '800', margin: '0 0 4px 0' }}>
-                  {job.title}
-                </h4>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--app-orange)', fontWeight: 600, marginBottom: '12px' }}>
-                  {job.company}
+                <div style={{ fontSize: '0.75rem', color: 'var(--app-orange)', fontWeight: 600, marginBottom: '8px' }}>
+                  {job.company} • {job.location}
                 </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-                  {job.skills.map((skill, idx) => (
-                    <span key={idx} style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.06)', color: 'var(--app-text-secondary)' }}>
-                      {skill}
-                    </span>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {job.skills.map((s, idx) => (
+                    <span key={idx} className="client-badge client-badge-blue" style={{ fontSize: '0.6875rem' }}>{s}</span>
                   ))}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={() => onNavigate('resume')}
-                  className="client-btn client-btn-primary"
-                  style={{ flex: 1, padding: '8px 12px', fontSize: '0.8125rem' }}
-                >
-                  <FileCheck2 size={14} />
-                  <span>1-Click Tailor</span>
-                </button>
-                <button
-                  onClick={() => onNavigate('jobs')}
-                  className="client-btn client-btn-secondary"
-                  style={{ flex: 1, padding: '8px 12px', fontSize: '0.8125rem' }}
-                >
-                  <Send size={14} />
-                  <span>Outreach</span>
-                </button>
-              </div>
+              <button
+                onClick={() => onNavigate('jobs')}
+                className="client-btn client-btn-secondary"
+                style={{ width: '100%', padding: '6px', fontSize: '0.75rem', justifyContent: 'center' }}
+              >
+                <span>Review & Draft Outreach</span>
+              </button>
             </div>
           ))}
         </div>
