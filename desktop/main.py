@@ -35,7 +35,23 @@ def get_free_port():
 
 port = get_free_port()
 
+import gzip
+import zlib
+
 RENDER_BACKEND = "https://jobpilot-backend-e97f.onrender.com"
+
+def decompress_body(data, encoding):
+    if not data or not encoding:
+        return data
+    encoding = encoding.lower()
+    try:
+        if "gzip" in encoding:
+            return gzip.decompress(data)
+        elif "deflate" in encoding:
+            return zlib.decompress(data)
+    except Exception:
+        pass
+    return data
 
 class SPAHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -56,18 +72,24 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
         try:
             with urllib.request.urlopen(req, timeout=35) as resp:
                 resp_body = resp.read()
+                encoding = resp.headers.get("Content-Encoding")
+                resp_body = decompress_body(resp_body, encoding)
                 self.send_response(resp.status)
                 for hk, hv in resp.headers.items():
-                    if hk.lower() not in ["transfer-encoding", "content-encoding", "connection"]:
+                    if hk.lower() not in ["transfer-encoding", "content-encoding", "connection", "content-length"]:
                         self.send_header(hk, hv)
+                self.send_header("Content-Length", str(len(resp_body)))
                 self.end_headers()
                 self.wfile.write(resp_body)
         except urllib.error.HTTPError as e:
             err_body = e.read()
+            encoding = e.headers.get("Content-Encoding")
+            err_body = decompress_body(err_body, encoding)
             self.send_response(e.code)
             for hk, hv in e.headers.items():
-                if hk.lower() not in ["transfer-encoding", "content-encoding", "connection"]:
+                if hk.lower() not in ["transfer-encoding", "content-encoding", "connection", "content-length"]:
                     self.send_header(hk, hv)
+            self.send_header("Content-Length", str(len(err_body)))
             self.end_headers()
             self.wfile.write(err_body)
         except Exception as e:
