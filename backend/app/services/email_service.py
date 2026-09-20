@@ -38,8 +38,9 @@ class ResendEmailService:
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 }
+                sender_email = (settings.BREVO_SENDER_EMAIL or settings.SMTP_USER or "noreply@jobpilot.io").strip()
                 payload = {
-                    "sender": {"name": "JobPilot", "email": settings.SMTP_USER or "noreply@jobpilot.io"},
+                    "sender": {"name": "JobPilot", "email": sender_email},
                     "to": [{"email": recipient}],
                     "subject": subject,
                     "htmlContent": html_body

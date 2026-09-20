@@ -75,6 +75,7 @@ class Settings(BaseSettings):
 
     # Brevo (Sendinblue) Free HTTP REST API (300 emails/day to ANY address over HTTPS Port 443)
     BREVO_API_KEY: Optional[str] = None
+    BREVO_SENDER_EMAIL: Optional[str] = None
 
     # Free SMTP / Gmail Email OTP Alternative (Zero Cost)
     SMTP_HOST: str = "smtp.gmail.com"
