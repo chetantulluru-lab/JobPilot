@@ -52,8 +52,8 @@ def main():
 
     # Launch native desktop window (Edge Chromium / WebView2)
     window = webview.create_window(
-        title='JobPilot - AI Career & Interview Copilot',
-        url=f'http://127.0.0.1:{port}',
+        title='JobPilot - AI Career & Interview Copilot (Desktop App)',
+        url=f'http://127.0.0.1:{port}/app',
         width=1280,
         height=840,
         min_size=(960, 600),

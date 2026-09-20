@@ -32,6 +32,7 @@ import NLPPipelineVisual from '../components/NLPPipelineVisual';
 import SectionHeading from '../components/SectionHeading';
 import GlassCard from '../components/GlassCard';
 import GlowBackground from '../components/GlowBackground';
+import DisassemblingShowcase from '../components/3d/DisassemblingShowcase';
 import { STUDENT_CHALLENGES } from '../data/features';
 
 export default function Home() {
@@ -153,6 +154,15 @@ export default function Home() {
                   marginBottom: '28px',
                 }}
               >
+                <Button
+                  to="/app"
+                  variant="primary"
+                  size="lg"
+                  icon={<ArrowRight size={18} />}
+                >
+                  Launch JobPilot App
+                </Button>
+
                 <ApkDownloadButton
                   size="lg"
                   label="Download Android APK"
@@ -258,6 +268,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ====================================================================
+          3D DISASSEMBLING CYBERNETIC ROBOT SHOWCASE
+          ==================================================================== */}
+      <DisassemblingShowcase />
 
       {/* ====================================================================
           3D INTERACTIVE NEW FEATURES MATRIX

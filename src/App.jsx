@@ -5,8 +5,12 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Button from './components/Button';
 import GlassCard from './components/GlassCard';
+import { AuthProvider } from './client/context/AuthContext';
 
-// Route-based code splitting for peak performance
+// Lazy-loaded application components
+const ClientShell = lazy(() => import('./client/components/ClientShell'));
+
+// Route-based code splitting for website pages
 const Home = lazy(() => import('./pages/Home'));
 const Features = lazy(() => import('./pages/Features'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
@@ -68,29 +72,115 @@ function NotFound() {
   );
 }
 
+function WebsiteLayout({ children }) {
+  return (
+    <div className="app-layout">
+      <Navbar />
+      <main style={{ flexGrow: 1 }}>
+        <Suspense fallback={<PageLoader />}>
+          {children}
+        </Suspense>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="app-layout">
-        <Navbar />
-        <main style={{ flexGrow: 1 }}>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/features" element={<Features />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/download" element={<Download />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        {/* ====================================================================
+            JOBPILOT APPLICATION WORKSPACE (Desktop & Web Application)
+            ==================================================================== */}
+        <Route
+          path="/app/*"
+          element={
+            <AuthProvider>
+              <Suspense fallback={<PageLoader />}>
+                <ClientShell />
+              </Suspense>
+            </AuthProvider>
+          }
+        />
+
+        {/* ====================================================================
+            3D INTERACTIVE PROMOTIONAL WEBSITE
+            ==================================================================== */}
+        <Route
+          path="/"
+          element={
+            <WebsiteLayout>
+              <Home />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/features"
+          element={
+            <WebsiteLayout>
+              <Features />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/how-it-works"
+          element={
+            <WebsiteLayout>
+              <HowItWorks />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <WebsiteLayout>
+              <About />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/download"
+          element={
+            <WebsiteLayout>
+              <Download />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <WebsiteLayout>
+              <Privacy />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <WebsiteLayout>
+              <Terms />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <WebsiteLayout>
+              <Contact />
+            </WebsiteLayout>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <WebsiteLayout>
+              <NotFound />
+            </WebsiteLayout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
