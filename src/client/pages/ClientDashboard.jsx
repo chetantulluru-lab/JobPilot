@@ -1,22 +1,50 @@
 import React from 'react';
 import { 
-  Sparkles, 
-  Video, 
-  FileCheck2, 
-  Send, 
+  Mic, 
+  Briefcase, 
+  Kanban, 
+  ChevronRight, 
   Flame, 
-  CheckCircle2, 
-  ArrowRight, 
-  Briefcase,
+  User, 
+  Sparkles,
+  ArrowRight,
   PlayCircle,
-  Bot,
-  User
+  Plus
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AIOrb from '../../components/AIOrb';
 
 export default function ClientDashboard({ onNavigate }) {
   const { user } = useAuth();
+
+  const currentStreak = user?.streak || 3;
+  const longestStreak = user?.longestStreak || 7;
+  const profileStrength = user?.profileStrength || 86;
+
+  const mockRoadmaps = [
+    {
+      id: 'roadmap-1',
+      title: 'Python Backend & Microservices',
+      duration: '4 Weeks',
+      goal: 'Master FastAPI, AsyncIO, PostgreSQL, Redis, Docker',
+      progressPercentage: 39,
+      completedDays: 14,
+      totalDays: 36,
+      isCompleted: false
+    },
+    {
+      id: 'roadmap-2',
+      title: 'Android Jetpack Compose & ML Kit',
+      duration: '6 Weeks',
+      goal: 'Kotlin, Compose UI, Coroutines, CameraX & ML Kit',
+      progressPercentage: 65,
+      completedDays: 26,
+      totalDays: 40,
+      isCompleted: false
+    }
+  ];
+
+  const activeRoadmap = mockRoadmaps[0];
 
   const mockJobs = [
     {
@@ -46,294 +74,223 @@ export default function ClientDashboard({ onNavigate }) {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1180px', margin: '0 auto' }}>
-      {/* Welcome & Target Role Hero */}
-      <div className="client-card client-card-glow" style={{ padding: '28px 32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-          <div style={{ flex: '1 1 500px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className="client-badge client-badge-orange">
-                <Sparkles size={13} />
-                <span>AI Career Pilot Active</span>
-              </span>
-              <span className="client-badge client-badge-green">
-                <CheckCircle2 size={13} />
-                <span>Cloud Sync Connected</span>
-              </span>
-            </div>
-            <h1 style={{ fontSize: '2.1rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em', color: 'var(--app-text)' }}>
-              Welcome back, {user?.fullName || 'Candidate'}!
-            </h1>
-            <p style={{ color: 'var(--app-text-secondary)', margin: 0, fontSize: '1rem' }}>
-              Target Role: <strong style={{ color: 'var(--app-text)' }}>{user?.targetRole || 'Android & Full Stack Engineer'}</strong>
-            </p>
+    <div className="dashboard-container">
+      {/* 1. Metric Cards: Learning Streak & Profile Strength */}
+      <div className="metrics-row">
+        {/* Daily Streak Card */}
+        <div 
+          className="android-glass-card metric-card"
+          onClick={() => onNavigate('roadmap')}
+        >
+          <div className="metric-header">
+            <span className="metric-title">Learning Streak</span>
+            <span className="metric-icon-fire">🔥</span>
           </div>
+          <div className="metric-value">{currentStreak} Days</div>
+          <div className="metric-sub">Best: {longestStreak} days</div>
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            {/* Holographic AI Orb visual */}
-            <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AIOrb style={{ width: '80px', height: '80px' }} />
-            </div>
+        {/* Profile Strength Card */}
+        <div 
+          className="android-glass-card metric-card"
+          onClick={() => onNavigate('profile')}
+        >
+          <div className="metric-header">
+            <span className="metric-title">Profile Score</span>
+            <User size={18} color="var(--app-orange)" />
+          </div>
+          <div className="metric-value" style={{ color: profileStrength >= 80 ? '#10B981' : 'var(--app-orange)' }}>
+            {profileStrength}%
+          </div>
+          <div className="metric-sub">Tap to update profile</div>
+        </div>
+      </div>
 
-            {/* Daily Streak Flame Indicator */}
-            <div className="streak-indicator" style={{ padding: '12px 22px', borderRadius: '16px' }}>
-              <Flame size={28} className="streak-flame-icon" />
-              <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '900', lineHeight: 1.1 }}>
-                  {user?.streak || 3} Days
-                </div>
-                <div style={{ fontSize: '0.6875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Active Streak 🔥
-                </div>
-              </div>
-            </div>
+      {/* 2. AI Mock Interview Spotlight Card */}
+      <div 
+        className="android-glass-card interview-spotlight-card"
+        onClick={() => onNavigate('interview')}
+      >
+        <div className="spotlight-icon-box">
+          <Mic size={24} color="#FFFFFF" />
+        </div>
+        <div className="spotlight-content">
+          <div className="spotlight-title-row">
+            <span className="spotlight-title">AI Mock Interview</span>
+            <span className="android-pill-badge">NEW</span>
+          </div>
+          <div className="spotlight-description">
+            Live video simulator with ML Kit face detection & realistic scoring
+          </div>
+        </div>
+        <ChevronRight size={20} color="var(--app-orange)" />
+      </div>
+
+      {/* 3. Quick Jump Row: Explore Jobs & Track Applications */}
+      <div className="quick-jump-row">
+        <div 
+          className="android-glass-card quick-jump-card"
+          onClick={() => onNavigate('jobs')}
+        >
+          <Briefcase size={20} color="var(--app-orange)" />
+          <div className="quick-jump-info">
+            <div className="quick-jump-title">Explore Jobs</div>
+            <div className="quick-jump-sub">AI Match & Gap</div>
           </div>
         </div>
 
-        {/* Readiness Scores Gauge Strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--app-border-subtle)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-orange-light)', border: '2px solid var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-orange)', fontWeight: '800', fontSize: '1.1rem' }}>
-              {user?.readinessScore || 88}%
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Interview Readiness</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#047857' }}>Interview Ready</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-info-bg)', border: '2px solid #0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0369A1', fontWeight: '800', fontSize: '1.1rem' }}>
-              {user?.atsScore || 86}%
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>ATS Resume Score</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0369A1' }}>Top 10% Candidate</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-success-bg)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#047857', fontWeight: '800', fontSize: '1.1rem' }}>
-              14/36
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Curriculum Progress</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--app-text)' }}>Day 14 Active</div>
-            </div>
+        <div 
+          className="android-glass-card quick-jump-card"
+          onClick={() => onNavigate('applications')}
+        >
+          <Kanban size={20} color="var(--app-orange)" />
+          <div className="quick-jump-info">
+            <div className="quick-jump-title">Applications</div>
+            <div className="quick-jump-sub">Pipeline tracker</div>
           </div>
         </div>
       </div>
 
-      {/* Active Roadmap Progress Card */}
-      <div className="client-card" style={{ padding: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <PlayCircle size={22} color="var(--app-orange)" />
-            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-              Active Learning: {user?.activeRoadmap || 'Python Backend & Microservices'}
-            </h3>
-          </div>
-          <button onClick={() => onNavigate('roadmap')} className="client-btn client-btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8125rem' }}>
-            <span>Resume Day 14</span>
-            <ArrowRight size={14} />
-          </button>
-        </div>
-
-        <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
-          <span>Current Topic: <strong>Asynchronous Workers & Redis Concurrency</strong></span>
-          <span>Day {user?.roadmapDay || 14} of {user?.totalDays || 36} (39% Complete)</span>
-        </div>
-
-        <div className="roadmap-progress-bar">
-          <div className="roadmap-progress-fill" style={{ width: '39%' }} />
-        </div>
-      </div>
-
-      {/* All Operations Quick Launch Grid */}
-      <div>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 16px 0' }}>
-          Autonomous Career Capabilities
-        </h3>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-          {/* Tile 1: AI Mock Interview */}
-          <div
-            onClick={() => onNavigate('interview')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255, 106, 0, 0.15)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <Video size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>AI Mock Interview</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Live front webcam stream, ML face presence HUD, audio TTS reading, and candidate model answers.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--app-orange)', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>Launch Simulator</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-
-          {/* Tile 2: Resume Tailor & NLP */}
-          <div
-            onClick={() => onNavigate('resume')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(2, 132, 199, 0.15)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <FileCheck2 size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Resume Intelligence & Tailor</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Upload PDF/DOCX for NLP skill extraction, seed your profile, and 1-click tailor for 93%+ ATS scores.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#38BDF8', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>Tailor Resume</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-
-          {/* Tile 3: AI Career Coach Chat */}
-          <div
-            onClick={() => onNavigate('coach')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <Bot size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>AI Career Coach Chat</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Context-aware conversational advisor grounded in your career profile and active learning goals.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#10B981', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>Talk with Coach</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-
-          {/* Tile 4: Jobs & Recruiter Cold Outreach */}
-          <div
-            onClick={() => onNavigate('jobs')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <Send size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Jobs & Recruiter Outreach</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Matched jobs catalog, skill gap analyzer, and 1-click generated LinkedIn recruiter notes.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#A78BFA', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>Explore Roles</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-
-          {/* Tile 5: Application Kanban Pipeline */}
-          <div
-            onClick={() => onNavigate('applications')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.15)', color: '#FACC15', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <Briefcase size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Application Kanban Tracker</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Visual board tracking Saved, Applied, Interviewing, and Offered pipeline stages with custom notes.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#FACC15', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>View Pipeline</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-
-          {/* Tile 6: Career Profile & Smart Completion */}
-          <div
-            onClick={() => onNavigate('profile')}
-            className="client-card client-card-glow"
-            style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-          >
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.15)', color: '#FB7185', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                <User size={22} />
-              </div>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 6px 0' }}>Career Profile & Smart Gaps</h4>
-              <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>
-                Manage skills, education, and work experience. 1-click recommendations to reach 100% profile strength.
-              </p>
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#FB7185', fontSize: '0.8125rem', fontWeight: 700 }}>
-              <span>Manage Profile</span>
-              <ArrowRight size={14} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Matched Jobs Section */}
-      <div className="client-card" style={{ padding: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      {/* 4. Active Roadmap Card */}
+      <div className="android-glass-card active-roadmap-card">
+        {activeRoadmap ? (
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Top Matched Roles for Your Profile</h3>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>Calculated using deep semantic vector comparison</span>
+            <div className="roadmap-card-header">
+              <div className="roadmap-status-pill">
+                ACTIVE ROADMAP • {activeRoadmap.duration.toUpperCase()}
+              </div>
+              <div className="roadmap-pct-value">
+                {activeRoadmap.progressPercentage}%
+              </div>
+            </div>
+
+            <h3 className="roadmap-main-title">{activeRoadmap.title}</h3>
+            <p className="roadmap-goal-text">Goal: {activeRoadmap.goal}</p>
+
+            <div className="android-progress-track">
+              <div 
+                className="android-progress-fill" 
+                style={{ width: `${activeRoadmap.progressPercentage}%` }} 
+              />
+            </div>
+
+            <div className="roadmap-completed-text">
+              {activeRoadmap.completedDays} of {activeRoadmap.totalDays} days completed
+            </div>
+
+            <button 
+              onClick={() => onNavigate('roadmap')} 
+              className="android-primary-btn"
+              style={{ marginTop: '14px' }}
+            >
+              <span>{activeRoadmap.isCompleted ? 'Review Roadmap' : 'Continue Learning →'}</span>
+            </button>
           </div>
-          <button onClick={() => onNavigate('jobs')} className="client-btn client-btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8125rem' }}>
-            <span>View All Jobs</span>
-            <ArrowRight size={14} />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+              <AIOrb style={{ width: '56px', height: '56px' }} />
+            </div>
+            <h4 style={{ fontWeight: 800, margin: '0 0 4px 0' }}>No Active Roadmap</h4>
+            <p style={{ color: 'var(--app-text-muted)', fontSize: '0.8125rem', margin: '0 0 16px 0' }}>
+              Generate a day-by-day structured curriculum with multilingual practice tasks.
+            </p>
+            <button onClick={() => onNavigate('roadmap')} className="android-primary-btn">
+              <span>+ Create Career Roadmap</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 5. AI Coach Spotlight Card */}
+      <div 
+        className="android-glass-card coach-spotlight-card"
+        onClick={() => onNavigate('coach')}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <AIOrb style={{ width: '50px', height: '50px' }} />
+        </div>
+        <div className="coach-content">
+          <div className="coach-title">AI Career Coach</div>
+          <div className="coach-sub">
+            Instant guidance on skills, interview questions, and ATS resume improvements.
+          </div>
+        </div>
+        <ChevronRight size={20} color="var(--app-orange)" />
+      </div>
+
+      {/* 6. My Roadmaps Section */}
+      <div className="section-block">
+        <div className="section-header-row">
+          <h3 className="section-heading">My Roadmaps</h3>
+          <button 
+            onClick={() => onNavigate('roadmap')} 
+            className="section-link-btn"
+          >
+            + New Roadmap
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
-          {mockJobs.map((job) => (
-            <div
-              key={job.id}
-              style={{
-                padding: '18px',
-                background: 'var(--app-surface-light)',
-                border: '1px solid var(--app-border-subtle)',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '12px',
-              }}
+        <div className="mini-roadmaps-scroll">
+          {mockRoadmaps.map((rm) => (
+            <div 
+              key={rm.id}
+              className="android-glass-card mini-roadmap-card"
+              onClick={() => onNavigate('roadmap')}
             >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                  <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--app-text)' }}>{job.title}</div>
-                  <span className="client-badge client-badge-green">{job.match}% Fit</span>
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--app-orange)', fontWeight: 600, marginBottom: '8px' }}>
-                  {job.company} • {job.location}
-                </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {job.skills.map((s, idx) => (
-                    <span key={idx} className="client-badge client-badge-blue" style={{ fontSize: '0.6875rem' }}>{s}</span>
-                  ))}
-                </div>
+              <div className="mini-rm-header">
+                <span className="mini-rm-duration">{rm.duration}</span>
+                <span className="mini-rm-pct">{rm.progressPercentage}%</span>
               </div>
+              <div className="mini-rm-title">{rm.title}</div>
+              <div className="mini-rm-goal">{rm.goal}</div>
+              <div className="android-progress-track" style={{ height: '4px', marginTop: '8px' }}>
+                <div 
+                  className="android-progress-fill" 
+                  style={{ width: `${rm.progressPercentage}%` }} 
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-              <button
-                onClick={() => onNavigate('jobs')}
-                className="client-btn client-btn-secondary"
-                style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center' }}
-              >
-                <span>Review & Draft Outreach</span>
-              </button>
+      {/* 7. Matched Jobs Catalog */}
+      <div className="section-block">
+        <div className="section-header-row">
+          <div>
+            <h3 className="section-heading">Top Matched Roles</h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)' }}>
+              Deep semantic vector matches for your profile
+            </span>
+          </div>
+          <button 
+            onClick={() => onNavigate('jobs')} 
+            className="section-link-btn"
+          >
+            View All →
+          </button>
+        </div>
+
+        <div className="jobs-list">
+          {mockJobs.map((job) => (
+            <div 
+              key={job.id}
+              className="android-glass-card job-item-card"
+              onClick={() => onNavigate('jobs')}
+            >
+              <div className="job-item-top">
+                <div>
+                  <div className="job-item-title">{job.title}</div>
+                  <div className="job-item-company">{job.company} • {job.location}</div>
+                </div>
+                <span className="match-badge">{job.match}% Fit</span>
+              </div>
+              <div className="job-skills-row">
+                {job.skills.map((skill, idx) => (
+                  <span key={idx} className="skill-pill">{skill}</span>
+                ))}
+              </div>
             </div>
           ))}
         </div>

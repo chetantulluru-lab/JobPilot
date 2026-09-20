@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { 
-  LayoutDashboard, 
-  Video, 
-  FileCheck2, 
+  Home, 
   Compass, 
+  FileText, 
+  User, 
+  Settings, 
+  Video, 
   Briefcase, 
   Kanban, 
-  LogOut, 
-  ExternalLink, 
+  Bot, 
+  Bell, 
   Flame, 
-  Bot,
-  User,
-  Bell,
-  Settings
+  ArrowLeft,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AIOrb from '../../components/AIOrb';
 import ClientDashboard from '../pages/ClientDashboard';
 import ClientMockInterview from '../pages/ClientMockInterview';
 import ClientResumeTailor from '../pages/ClientResumeTailor';
@@ -26,201 +27,162 @@ import ClientProfile from '../pages/ClientProfile';
 import ClientNotifications from '../pages/ClientNotifications';
 import ClientSettings from '../pages/ClientSettings';
 import ClientAuth from '../pages/ClientAuth';
-import { Link } from 'react-router-dom';
 
 export default function ClientShell() {
-  const [currentTab, setCurrentTab] = useState('dashboard');
+  const [currentScreen, setCurrentScreen] = useState('home');
   const { user, logout } = useAuth();
 
-  // If user explicitly logged out
   if (!user) {
-    return <ClientAuth onAuthSuccess={() => setCurrentTab('dashboard')} />;
+    return <ClientAuth onAuthSuccess={() => setCurrentScreen('home')} />;
   }
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'interview', label: 'AI Mock Interview', icon: Video, badge: 'Face AI' },
-    { id: 'resume', label: 'Resume Suite & Tailor', icon: FileCheck2 },
-    { id: 'roadmap', label: 'Roadmaps & Quizzes', icon: Compass, badge: 'Quizzes' },
-    { id: 'coach', label: 'AI Career Coach', icon: Bot, badge: 'AI Chat' },
-    { id: 'jobs', label: 'Jobs & Cold Outreach', icon: Briefcase },
-    { id: 'applications', label: 'Kanban Applications', icon: Kanban },
-    { id: 'profile', label: 'Career Profile & Gaps', icon: User },
-    { id: 'notifications', label: 'Notification Center', icon: Bell },
-    { id: 'settings', label: 'Settings & Config', icon: Settings },
+  // MVP 5 Tabs matching Android NavGraph.kt
+  const mainTabs = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'roadmap', label: 'Roadmap', icon: Compass },
+    { id: 'resume', label: 'Resume', icon: FileText },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const getTitle = () => {
-    switch (currentTab) {
-      case 'interview': return 'AI Mock Interview Simulator';
-      case 'resume': return '1-Click AI Resume Tailor & NLP Parser';
-      case 'roadmap': return 'Career Roadmaps & Daily Quizzes';
-      case 'coach': return 'AI Career Coach (Grounded in Profile)';
-      case 'jobs': return 'Job Catalog & Recruiter Cold Outreach';
-      case 'applications': return 'Application Kanban Tracker';
-      case 'profile': return 'Career Profile & Smart Completion';
+  const isSubScreen = !mainTabs.some(t => t.id === currentScreen);
+
+  const getScreenTitle = () => {
+    switch (currentScreen) {
+      case 'interview': return 'AI Mock Interview';
+      case 'coach': return 'AI Career Assistant';
+      case 'jobs': return 'Explore Jobs & Outreach';
+      case 'applications': return 'Applications Tracker';
       case 'notifications': return 'Notification Center';
-      case 'settings': return 'Settings & API Configuration';
-      case 'dashboard':
+      case 'roadmap': return 'Career Roadmaps';
+      case 'resume': return 'Resume Hub & Tailor';
+      case 'profile': return 'Career Profile';
+      case 'settings': return 'Settings';
+      case 'home':
       default:
-        return 'JobPilot Desktop Workspace';
+        return 'JobPilot';
     }
   };
 
   return (
-    <div className="app-shell">
-      {/* Sidebar */}
-      <aside className="app-sidebar">
-        <div className="app-sidebar-brand">
-          <div className="app-sidebar-logo">
-            <span>JobPilot</span>
-            <span className="symbol">✦</span>
-          </div>
-          <span className="client-badge client-badge-orange" style={{ fontSize: '0.625rem' }}>
-            DESKTOP
-          </span>
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'var(--app-orange-light)', borderRadius: '12px', border: '1px solid rgba(255, 106, 0, 0.2)' }}>
-            <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 800, fontSize: '0.875rem', flexShrink: 0 }}>
-              {user?.fullName?.charAt(0) || 'C'}
-            </div>
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user?.fullName || 'Candidate'}
-              </div>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--app-orange)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user?.targetRole || 'Software Engineer'}
+    <div className="app-container">
+      {/* Top Application Bar matching Android Compose Scaffold TopBar */}
+      <header className="app-topbar">
+        <div className="app-topbar-left">
+          {isSubScreen ? (
+            <button 
+              onClick={() => setCurrentScreen('home')} 
+              className="app-icon-btn back-btn"
+              title="Back to Home"
+            >
+              <ArrowLeft size={20} />
+              <span className="back-text">Back</span>
+            </button>
+          ) : (
+            <div className="app-brand">
+              <div className="app-brand-badge">✦</div>
+              <div className="app-brand-text">
+                <span className="welcome-greeting">
+                  {user?.fullName ? `Welcome, ${user.fullName}` : 'Welcome to JobPilot'}
+                </span>
+                <span className="brand-title">JobPilot</span>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        <nav className="app-sidebar-nav">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setCurrentTab(item.id)}
-                className={`app-sidebar-link ${isActive ? 'active' : ''}`}
-              >
-                <Icon size={18} />
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {item.badge && (
-                  <span className="client-badge client-badge-orange" style={{ fontSize: '0.625rem', padding: '2px 6px' }}>
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="app-topbar-right">
+          {/* Learning Streak Badge */}
+          <div 
+            className="topbar-streak-chip" 
+            onClick={() => setCurrentScreen('roadmap')}
+            title="Daily Learning Streak"
+          >
+            <Flame size={18} className="flame-icon" />
+            <span className="streak-count">{user?.streak || 3} Days</span>
+          </div>
 
-        <div className="app-sidebar-footer">
-          <Link to="/" className="app-sidebar-link" title="Open 3D Promotional Website">
-            <ExternalLink size={16} />
-            <span>Visit 3D Website</span>
-          </Link>
-          <button onClick={logout} className="app-sidebar-link" style={{ color: '#EF4444' }}>
-            <LogOut size={16} />
-            <span>Sign Out</span>
+          {/* Notification Center */}
+          <button 
+            onClick={() => setCurrentScreen('notifications')} 
+            className="app-icon-btn notification-btn"
+            title="Notifications"
+          >
+            <Bell size={18} />
+            <span className="unread-dot" />
           </button>
+
+          {/* Glowing AI Orb (Opens AI Career Assistant) */}
+          <div 
+            onClick={() => setCurrentScreen('coach')} 
+            className="topbar-orb-wrapper"
+            title="Open AI Career Coach"
+          >
+            <AIOrb style={{ width: '40px', height: '40px', cursor: 'pointer' }} />
+          </div>
         </div>
-      </aside>
+      </header>
 
-      {/* Main Content Area */}
-      <div className="app-main-content">
-        {/* Header Bar */}
-        <header className="app-header">
-          <div className="app-header-title">
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-              {getTitle()}
-            </h2>
-          </div>
-
-          <div className="app-header-actions">
-            {/* Streak Flame Badge */}
-            <div className="streak-indicator" style={{ cursor: 'pointer' }} onClick={() => setCurrentTab('roadmap')}>
-              <Flame size={16} className="streak-flame-icon" />
-              <span>{user?.streak || 3} Days Streak</span>
-            </div>
-
-            {/* Notification Bell with Unread Indicator */}
-            <button
-              onClick={() => setCurrentTab('notifications')}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '8px', position: 'relative' }}
-              title="Notifications"
-            >
-              <Bell size={16} />
-              <span style={{ position: 'absolute', top: '4px', right: '4px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--app-orange)' }} />
-            </button>
-
-            {/* Settings Gear */}
-            <button
-              onClick={() => setCurrentTab('settings')}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '8px' }}
-              title="Settings"
-            >
-              <Settings size={16} />
-            </button>
-
-            {/* Profile Avatar */}
-            <button
-              onClick={() => setCurrentTab('profile')}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '4px 10px', gap: '8px' }}
-              title="View Profile"
-            >
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '0.6875rem', fontWeight: 800 }}>
-                {user?.fullName?.charAt(0) || 'C'}
-              </div>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Profile</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Dynamic Page Views */}
-        <div className="app-body">
-          {currentTab === 'dashboard' && (
-            <ClientDashboard onNavigate={(tab) => setCurrentTab(tab)} />
+      {/* Main Content Viewport */}
+      <main className="app-viewport">
+        <div className="app-screen-content">
+          {currentScreen === 'home' && (
+            <ClientDashboard onNavigate={(screen) => setCurrentScreen(screen)} />
           )}
-          {currentTab === 'interview' && (
-            <ClientMockInterview onBack={() => setCurrentTab('dashboard')} />
-          )}
-          {currentTab === 'resume' && (
-            <ClientResumeTailor />
-          )}
-          {currentTab === 'roadmap' && (
+          {currentScreen === 'roadmap' && (
             <ClientRoadmap />
           )}
-          {currentTab === 'coach' && (
-            <ClientAICoach
-              onNavigateToMockInterview={() => setCurrentTab('interview')}
-              onNavigateToRoadmap={() => setCurrentTab('roadmap')}
-            />
+          {currentScreen === 'resume' && (
+            <ClientResumeTailor />
           )}
-          {currentTab === 'jobs' && (
-            <ClientJobsOutreach onNavigateToResume={() => setCurrentTab('resume')} />
-          )}
-          {currentTab === 'applications' && (
-            <ClientApplications />
-          )}
-          {currentTab === 'profile' && (
+          {currentScreen === 'profile' && (
             <ClientProfile />
           )}
-          {currentTab === 'notifications' && (
-            <ClientNotifications onNavigateToSection={(section) => setCurrentTab(section)} />
-          )}
-          {currentTab === 'settings' && (
+          {currentScreen === 'settings' && (
             <ClientSettings onLogout={logout} />
           )}
+
+          {/* Sub-Screens */}
+          {currentScreen === 'interview' && (
+            <ClientMockInterview onBack={() => setCurrentScreen('home')} />
+          )}
+          {currentScreen === 'coach' && (
+            <ClientAICoach
+              onNavigateToMockInterview={() => setCurrentScreen('interview')}
+              onNavigateToRoadmap={() => setCurrentScreen('roadmap')}
+            />
+          )}
+          {currentScreen === 'jobs' && (
+            <ClientJobsOutreach onNavigateToResume={() => setCurrentScreen('resume')} />
+          )}
+          {currentScreen === 'applications' && (
+            <ClientApplications />
+          )}
+          {currentScreen === 'notifications' && (
+            <ClientNotifications onNavigateToSection={(section) => setCurrentScreen(section)} />
+          )}
         </div>
-      </div>
+      </main>
+
+      {/* 5-Tab Bottom Navigation Bar matching Android Compose NavigationBar */}
+      <nav className="app-bottom-nav">
+        {mainTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = currentScreen === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentScreen(tab.id)}
+              className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <div className="nav-icon-container">
+                <Icon size={20} />
+              </div>
+              <span className="nav-label">{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
