@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+
 package com.jobpilot.app.ui.screens.interview
 
 import androidx.compose.animation.AnimatedVisibility
@@ -25,7 +27,7 @@ import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.InterviewViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun InterviewReportScreen(
     sessionId: String,
@@ -267,8 +269,9 @@ fun InterviewReportScreen(
                                     fontSize = 12.sp,
                                     color = Slate500
                                 )
-                                Row(
+                                FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     report.recommendedRoadmapTopics.forEach { topic ->

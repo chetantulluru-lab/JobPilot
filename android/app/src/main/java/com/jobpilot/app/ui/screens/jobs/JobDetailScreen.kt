@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+
 package com.jobpilot.app.ui.screens.jobs
 
 import androidx.compose.foundation.background
@@ -19,7 +21,7 @@ import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.JobViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun JobDetailScreen(
     jobId: String,
@@ -169,8 +171,9 @@ fun JobDetailScreen(
                 item {
                     if (job.matchDetails.strongMatches.isNotEmpty()) {
                         SectionHeader(title = "Strong Matches (${job.matchDetails.strongMatches.size})")
-                        Row(
+                        FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             job.matchDetails.strongMatches.forEach { skill ->
@@ -179,8 +182,9 @@ fun JobDetailScreen(
                         }
                     } else {
                         SectionHeader(title = "Required Skills (${job.requirements.size})")
-                        Row(
+                        FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             job.requirements.forEach { skill ->
@@ -196,8 +200,9 @@ fun JobDetailScreen(
                     if (job.matchDetails.missingSkills.isEmpty()) {
                         Text(text = "None! You possess all primary required skills.", style = MaterialTheme.typography.bodySmall, color = SuccessGreen)
                     } else {
-                        Row(
+                        FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             job.matchDetails.missingSkills.forEach { skill ->

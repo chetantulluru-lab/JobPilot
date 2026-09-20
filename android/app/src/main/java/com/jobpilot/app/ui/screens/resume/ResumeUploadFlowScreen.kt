@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+
 package com.jobpilot.app.ui.screens.resume
 
 import android.net.Uri
@@ -26,7 +28,7 @@ import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.ResumeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ResumeUploadFlowScreen(
     viewModel: ResumeViewModel,
@@ -211,9 +213,10 @@ fun ResumeUploadFlowScreen(
                                     style = MaterialTheme.typography.titleMedium,
                                     color = Slate900
                                 )
-                                Row(
+                                FlowRow(
                                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     parsed?.detectedSkills?.take(6)?.forEach { skill ->
                                         SkillChip(skillName = skill.name, variant = ChipVariant.STRONG_MATCH)

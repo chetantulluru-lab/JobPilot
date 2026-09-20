@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jobpilot.app.ui.theme.*
@@ -85,6 +86,8 @@ fun SkillChip(
                 text = skillName,
                 color = textColor,
                 fontSize = 12.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 style = JobPilotTypography.labelMedium
             )
         }

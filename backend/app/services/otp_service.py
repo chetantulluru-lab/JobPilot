@@ -88,10 +88,16 @@ class OtpService:
         # Send email
         cls._send_otp_email(normalized_email, code, subject="JobPilot Registration Verification Code")
 
+        has_resend = bool((settings.RESEND_API_KEY or "").strip())
+        msg = "Verification code sent to your email. Please enter the 6-digit code to complete registration."
+        if not has_resend:
+            logger.info(f"[DEV OTP] 6-digit verification code for {normalized_email}: {code}")
+            msg += f" (Demo code: {code})"
+
         return RegisterStartResponse(
             status="otp_sent",
             email=normalized_email,
-            message="Verification code sent to your email. Please enter the 6-digit code to complete registration.",
+            message=msg,
             expires_in_minutes=10
         )
 
@@ -228,10 +234,16 @@ class OtpService:
 
         ResendEmailService.send_password_reset_otp(normalized_email, code)
 
+        has_resend = bool((settings.RESEND_API_KEY or "").strip())
+        msg = "Password reset code sent to your email. Please enter the 6-digit code to continue."
+        if not has_resend:
+            logger.info(f"[DEV OTP] 6-digit password reset code for {normalized_email}: {code}")
+            msg += f" (Demo code: {code})"
+
         return ForgotPasswordStartResponse(
             status="otp_sent",
             email=normalized_email,
-            message="Password reset code sent to your email. Please enter the 6-digit code to continue.",
+            message=msg,
             expires_in_minutes=10
         )
 

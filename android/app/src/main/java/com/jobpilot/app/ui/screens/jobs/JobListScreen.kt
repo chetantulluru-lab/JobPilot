@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+
 package com.jobpilot.app.ui.screens.jobs
 
 import androidx.compose.foundation.background
@@ -20,7 +22,7 @@ import com.jobpilot.app.ui.components.*
 import com.jobpilot.app.ui.theme.*
 import com.jobpilot.app.ui.viewmodel.JobViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun JobListScreen(
     viewModel: JobViewModel,
@@ -148,8 +150,9 @@ fun JobCardItem(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Skills breakdown preview
-            Row(
+            FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (job.matchDetails.matchScore != null && job.matchDetails.strongMatches.isNotEmpty()) {
