@@ -301,8 +301,8 @@ export default function ClientProfile() {
                 key={idx}
                 style={{
                   padding: '12px 16px',
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(255, 106, 0, 0.2)',
+                  background: 'var(--app-surface-light)',
+                  border: '1px solid var(--app-border-subtle)',
                   borderRadius: '10px',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -310,8 +310,8 @@ export default function ClientProfile() {
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>{s.name}</div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--app-orange)' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--app-text)' }}>{s.name}</div>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--app-orange)', fontWeight: 600 }}>
                     {s.category} • {s.level}
                   </span>
                 </div>
@@ -346,11 +346,11 @@ export default function ClientProfile() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {experience.map((exp, idx) => (
-              <div key={idx} style={{ padding: '16px', background: 'rgba(30, 41, 59, 0.5)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div key={idx} style={{ padding: '16px', background: 'var(--app-surface-light)', borderRadius: '12px', border: '1px solid var(--app-border-subtle)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 700 }}>{exp.role}</h4>
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)' }}>{exp.company} • {exp.period}</span>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>{exp.role}</h4>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)', fontWeight: 600 }}>{exp.company} • {exp.period}</span>
                   </div>
                   <button onClick={() => setExperience(experience.filter((_, i) => i !== idx))} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer' }}>
                     <Trash2 size={15} />
@@ -387,17 +387,17 @@ export default function ClientProfile() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {education.map((edu, idx) => (
-              <div key={idx} style={{ padding: '16px', background: 'rgba(30, 41, 59, 0.5)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div key={idx} style={{ padding: '16px', background: 'var(--app-surface-light)', borderRadius: '12px', border: '1px solid var(--app-border-subtle)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 700 }}>{edu.degree}</h4>
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)' }}>{edu.institution} • {edu.year}</span>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>{edu.degree}</h4>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)', fontWeight: 600 }}>{edu.institution} • {edu.year}</span>
                   </div>
                   <button onClick={() => setEducation(education.filter((_, i) => i !== idx))} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer' }}>
                     <Trash2 size={15} />
                   </button>
                 </div>
-                <div style={{ marginTop: '6px', fontSize: '0.8125rem', color: '#38BDF8' }}>
+                <div style={{ marginTop: '6px', fontSize: '0.8125rem', color: '#0369A1', fontWeight: 700 }}>
                   GPA / Grade: {edu.gpa}
                 </div>
               </div>
@@ -410,7 +410,7 @@ export default function ClientProfile() {
       {activeTab === 'smart' && (
         <div className="client-card" style={{ padding: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255, 106, 0, 0.15)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'var(--app-orange-light)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Compass size={22} />
             </div>
             <div>
@@ -427,8 +427,8 @@ export default function ClientProfile() {
                 key={rec.id}
                 style={{
                   padding: '16px 20px',
-                  background: 'rgba(30, 41, 59, 0.6)',
-                  border: '1px solid rgba(255, 106, 0, 0.25)',
+                  background: 'var(--app-surface-light)',
+                  border: '1px solid var(--app-border-subtle)',
                   borderRadius: '12px',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -439,7 +439,7 @@ export default function ClientProfile() {
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontWeight: 800, fontSize: '0.9375rem' }}>{rec.title}</span>
+                    <span style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--app-text)' }}>{rec.title}</span>
                     <span className="client-badge client-badge-orange">{rec.impact}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>

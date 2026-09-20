@@ -271,9 +271,9 @@ export default function ClientRoadmap() {
                     justifyContent: 'flex-start',
                     padding: '12px 14px',
                     borderRadius: '10px',
-                    background: selectedDay === d.day ? 'rgba(255, 106, 0, 0.15)' : 'rgba(30, 41, 59, 0.4)',
-                    border: selectedDay === d.day ? '1.5px solid var(--app-orange)' : '1px solid rgba(255, 255, 255, 0.06)',
-                    color: selectedDay === d.day ? '#FFFFFF' : 'var(--app-text-secondary)',
+                    background: selectedDay === d.day ? 'var(--app-orange-light)' : 'var(--app-surface-light)',
+                    border: selectedDay === d.day ? '1.5px solid var(--app-orange)' : '1px solid var(--app-border-subtle)',
+                    color: selectedDay === d.day ? 'var(--app-orange)' : 'var(--app-text)',
                     textAlign: 'left',
                   }}
                 >
@@ -384,8 +384,8 @@ export default function ClientRoadmap() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {quizQuestions.map((q, idx) => (
-                    <div key={q.id} style={{ padding: '16px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.9375rem', marginBottom: '12px' }}>
+                    <div key={q.id} style={{ padding: '18px', background: 'var(--app-surface-light)', borderRadius: '12px', border: '1px solid var(--app-border-subtle)' }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.9375rem', marginBottom: '12px', color: 'var(--app-text)' }}>
                         {idx + 1}. {q.question}
                       </div>
 
@@ -393,20 +393,24 @@ export default function ClientRoadmap() {
                         {q.options.map((opt, optIdx) => {
                           const isSelected = quizAnswers[q.id] === optIdx;
                           const isCorrect = q.correct === optIdx;
-                          let bg = 'rgba(15, 23, 42, 0.5)';
-                          let border = '1px solid rgba(255, 255, 255, 0.08)';
+                          let bg = '#FFFFFF';
+                          let border = '1.5px solid #CBD5E1';
+                          let textColor = 'var(--app-text)';
 
                           if (quizSubmitted) {
                             if (isCorrect) {
-                              bg = 'rgba(16, 185, 129, 0.2)';
-                              border = '1px solid #10B981';
+                              bg = 'var(--app-success-bg)';
+                              border = '1.5px solid #10B981';
+                              textColor = '#047857';
                             } else if (isSelected && !isCorrect) {
-                              bg = 'rgba(239, 68, 68, 0.2)';
-                              border = '1px solid #EF4444';
+                              bg = 'var(--app-danger-bg)';
+                              border = '1.5px solid #EF4444';
+                              textColor = '#DC2626';
                             }
                           } else if (isSelected) {
-                            bg = 'rgba(255, 106, 0, 0.2)';
-                            border = '1px solid var(--app-orange)';
+                            bg = 'var(--app-orange-light)';
+                            border = '1.5px solid var(--app-orange)';
+                            textColor = 'var(--app-orange)';
                           }
 
                           return (
@@ -414,7 +418,7 @@ export default function ClientRoadmap() {
                               key={optIdx}
                               onClick={() => handleSelectAnswer(q.id, optIdx)}
                               className="client-btn"
-                              style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: bg, border: border, borderRadius: '8px', fontSize: '0.8125rem' }}
+                              style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: bg, border: border, borderRadius: '8px', fontSize: '0.8125rem', color: textColor, fontWeight: 600 }}
                             >
                               <span>{opt}</span>
                             </button>
@@ -423,7 +427,7 @@ export default function ClientRoadmap() {
                       </div>
 
                       {quizSubmitted && (
-                        <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#38BDF8', padding: '8px 12px', background: 'rgba(2, 132, 199, 0.1)', borderRadius: '6px' }}>
+                        <div style={{ marginTop: '12px', fontSize: '0.8125rem', color: '#0369A1', padding: '10px 14px', background: 'var(--app-info-bg)', border: '1px solid rgba(2, 132, 199, 0.25)', borderRadius: '8px' }}>
                           💡 <strong>Explanation</strong>: {q.explanation}
                         </div>
                       )}

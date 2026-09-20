@@ -13,6 +13,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AIOrb from '../../components/AIOrb';
 
 export default function ClientDashboard({ onNavigate }) {
   const { user } = useAuth();
@@ -48,8 +49,8 @@ export default function ClientDashboard({ onNavigate }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1180px', margin: '0 auto' }}>
       {/* Welcome & Target Role Hero */}
       <div className="client-card client-card-glow" style={{ padding: '28px 32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ flex: '1 1 500px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <span className="client-badge client-badge-orange">
                 <Sparkles size={13} />
@@ -60,57 +61,64 @@ export default function ClientDashboard({ onNavigate }) {
                 <span>Cloud Sync Connected</span>
               </span>
             </div>
-            <h1 style={{ fontSize: '2.1rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '2.1rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em', color: 'var(--app-text)' }}>
               Welcome back, {user?.fullName || 'Candidate'}!
             </h1>
             <p style={{ color: 'var(--app-text-secondary)', margin: 0, fontSize: '1rem' }}>
-              Target Role: <strong style={{ color: '#FFFFFF' }}>{user?.targetRole || 'Android & Full Stack Engineer'}</strong>
+              Target Role: <strong style={{ color: 'var(--app-text)' }}>{user?.targetRole || 'Android & Full Stack Engineer'}</strong>
             </p>
           </div>
 
-          {/* Daily Streak Flame Indicator */}
-          <div className="streak-indicator" style={{ padding: '10px 20px', borderRadius: '16px' }}>
-            <Flame size={28} className="streak-flame-icon" />
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '900', lineHeight: 1.1 }}>
-                {user?.streak || 3} Days
-              </div>
-              <div style={{ fontSize: '0.6875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Active Streak 🔥
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {/* Holographic AI Orb visual */}
+            <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AIOrb style={{ width: '80px', height: '80px' }} />
+            </div>
+
+            {/* Daily Streak Flame Indicator */}
+            <div className="streak-indicator" style={{ padding: '12px 22px', borderRadius: '16px' }}>
+              <Flame size={28} className="streak-flame-icon" />
+              <div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', lineHeight: 1.1 }}>
+                  {user?.streak || 3} Days
+                </div>
+                <div style={{ fontSize: '0.6875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Active Streak 🔥
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Readiness Scores Gauge Strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--app-border-subtle)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(255, 106, 0, 0.15)', border: '2px solid var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-orange)', fontWeight: '800', fontSize: '1.1rem' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-orange-light)', border: '2px solid var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-orange)', fontWeight: '800', fontSize: '1.1rem' }}>
               {user?.readinessScore || 88}%
             </div>
             <div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Interview Readiness</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#34D399' }}>Interview Ready</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#047857' }}>Interview Ready</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(2, 132, 199, 0.15)', border: '2px solid #0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38BDF8', fontWeight: '800', fontSize: '1.1rem' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-info-bg)', border: '2px solid #0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0369A1', fontWeight: '800', fontSize: '1.1rem' }}>
               {user?.atsScore || 86}%
             </div>
             <div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>ATS Resume Score</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#38BDF8' }}>Top 10% Candidate</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0369A1' }}>Top 10% Candidate</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: '800', fontSize: '1.1rem' }}>
+            <div className="readiness-gauge-circle" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--app-success-bg)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#047857', fontWeight: '800', fontSize: '1.1rem' }}>
               14/36
             </div>
             <div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Curriculum Progress</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#FFFFFF' }}>Day 14 Active</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--app-text)' }}>Day 14 Active</div>
             </div>
           </div>
         </div>
@@ -294,9 +302,9 @@ export default function ClientDashboard({ onNavigate }) {
             <div
               key={job.id}
               style={{
-                padding: '16px',
-                background: 'rgba(30, 41, 59, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                padding: '18px',
+                background: 'var(--app-surface-light)',
+                border: '1px solid var(--app-border-subtle)',
                 borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -306,7 +314,7 @@ export default function ClientDashboard({ onNavigate }) {
             >
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                  <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#FFFFFF' }}>{job.title}</div>
+                  <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--app-text)' }}>{job.title}</div>
                   <span className="client-badge client-badge-green">{job.match}% Fit</span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--app-orange)', fontWeight: 600, marginBottom: '8px' }}>
@@ -322,7 +330,7 @@ export default function ClientDashboard({ onNavigate }) {
               <button
                 onClick={() => onNavigate('jobs')}
                 className="client-btn client-btn-secondary"
-                style={{ width: '100%', padding: '6px', fontSize: '0.75rem', justifyContent: 'center' }}
+                style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center' }}
               >
                 <span>Review & Draft Outreach</span>
               </button>

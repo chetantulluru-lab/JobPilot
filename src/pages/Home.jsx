@@ -154,15 +154,6 @@ export default function Home() {
                   marginBottom: '28px',
                 }}
               >
-                <Button
-                  to="/app"
-                  variant="primary"
-                  size="lg"
-                  icon={<ArrowRight size={18} />}
-                >
-                  Launch JobPilot App
-                </Button>
-
                 <ApkDownloadButton
                   size="lg"
                   label="Download Android APK"

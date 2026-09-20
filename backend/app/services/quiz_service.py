@@ -221,7 +221,7 @@ class QuizService:
             day_completed = True
 
             # Check and update user learning streak
-            today = date.today().isoformat()
+            today = date.today()
             profile = db.query(CareerProfile).filter(CareerProfile.user_id == user.id).first()
             if profile:
                 if profile.last_activity_date != today:

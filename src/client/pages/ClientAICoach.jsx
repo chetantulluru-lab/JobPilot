@@ -156,12 +156,13 @@ export default function ClientAICoach({ onNavigateToMockInterview, onNavigateToR
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '20px',
+          padding: '24px',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
           marginBottom: '16px',
-          background: 'rgba(11, 15, 25, 0.7)',
+          background: '#FFFFFF',
+          border: '1px solid var(--app-border-subtle)',
         }}
       >
         {messages.map((m) => {
@@ -195,14 +196,15 @@ export default function ClientAICoach({ onNavigateToMockInterview, onNavigateToR
               <div
                 style={{
                   maxWidth: '75%',
-                  background: isUser ? 'rgba(2, 132, 199, 0.15)' : 'rgba(30, 41, 59, 0.65)',
-                  border: isUser ? '1px solid rgba(2, 132, 199, 0.35)' : '1px solid rgba(255, 106, 0, 0.2)',
+                  background: isUser ? 'var(--app-info-bg)' : 'var(--app-surface-light)',
+                  border: isUser ? '1px solid rgba(2, 132, 199, 0.3)' : '1px solid rgba(255, 106, 0, 0.2)',
                   borderRadius: isUser ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
                   padding: '14px 18px',
+                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isUser ? '#38BDF8' : 'var(--app-orange)' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isUser ? '#0369A1' : 'var(--app-orange)' }}>
                     {isUser ? 'You' : 'JobPilot Coach'}
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -223,7 +225,7 @@ export default function ClientAICoach({ onNavigateToMockInterview, onNavigateToR
                   style={{
                     fontSize: '0.875rem',
                     lineHeight: 1.6,
-                    color: '#F1F5F9',
+                    color: 'var(--app-text)',
                     whiteSpace: 'pre-line',
                   }}
                 >
@@ -239,7 +241,7 @@ export default function ClientAICoach({ onNavigateToMockInterview, onNavigateToR
             <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
               <Bot size={18} />
             </div>
-            <div style={{ background: 'rgba(30, 41, 59, 0.65)', border: '1px solid rgba(255, 106, 0, 0.2)', borderRadius: '4px 16px 16px 16px', padding: '12px 18px', color: 'var(--app-orange)', fontSize: '0.8125rem' }}>
+            <div style={{ background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.25)', borderRadius: '4px 16px 16px 16px', padding: '12px 18px', color: 'var(--app-orange)', fontSize: '0.8125rem', fontWeight: 700 }}>
               JobPilot Coach is thinking...
             </div>
           </div>

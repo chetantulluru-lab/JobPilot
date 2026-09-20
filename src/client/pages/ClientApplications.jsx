@@ -100,9 +100,9 @@ export default function ClientApplications() {
             <div
               key={stage}
               style={{
-                background: 'rgba(15, 23, 42, 0.6)',
+                background: 'var(--app-surface-light)',
                 borderRadius: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                border: '1px solid var(--app-border-subtle)',
                 padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -110,10 +110,10 @@ export default function ClientApplications() {
                 minHeight: '400px',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid var(--app-border-subtle)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: badgeColor }} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#FFFFFF' }}>{stage}</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--app-text)' }}>{stage}</span>
                 </div>
                 <span className="client-badge client-badge-blue" style={{ fontSize: '0.6875rem', padding: '2px 8px' }}>
                   {stageApps.length}
@@ -121,7 +121,7 @@ export default function ClientApplications() {
               </div>
 
               {stageApps.length === 0 ? (
-                <div style={{ padding: '30px 10px', textAlign: 'center', color: '#64748B', fontSize: '0.75rem' }}>
+                <div style={{ padding: '30px 10px', textAlign: 'center', color: 'var(--app-text-muted)', fontSize: '0.75rem' }}>
                   No roles in {stage}
                 </div>
               ) : (
@@ -131,20 +131,21 @@ export default function ClientApplications() {
                     className="client-card"
                     style={{
                       padding: '14px',
-                      background: 'rgba(30, 41, 59, 0.6)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: '#FFFFFF',
+                      border: '1px solid var(--app-border-subtle)',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFFFFF', lineHeight: 1.3 }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--app-text)', lineHeight: 1.3 }}>
                         {app.title}
                       </div>
                       <button
                         onClick={() => deleteApp(app.id)}
-                        style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 0 }}
+                        style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: 0 }}
                         title="Delete application"
                       >
                         <Trash2 size={13} />
@@ -155,18 +156,18 @@ export default function ClientApplications() {
                       {app.company}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6875rem', color: '#94A3B8' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6875rem', color: 'var(--app-text-muted)' }}>
                       <span>{app.salary}</span>
-                      <span style={{ color: '#34D399', fontWeight: 700 }}>{app.match}% Match</span>
+                      <span style={{ color: '#047857', fontWeight: 700 }}>{app.match}% Match</span>
                     </div>
 
                     {/* Move Stage Controls */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--app-border-subtle)' }}>
                       <button
                         onClick={() => moveStage(app.id, -1)}
                         disabled={stage === stages[0]}
-                        className="client-btn"
-                        style={{ padding: '3px 8px', fontSize: '0.6875rem', opacity: stage === stages[0] ? 0.3 : 1 }}
+                        className="client-btn client-btn-secondary"
+                        style={{ padding: '4px 8px', fontSize: '0.6875rem', opacity: stage === stages[0] ? 0.3 : 1 }}
                         title="Move left"
                       >
                         <ArrowLeft size={11} />
@@ -174,8 +175,8 @@ export default function ClientApplications() {
                       <button
                         onClick={() => moveStage(app.id, 1)}
                         disabled={stage === stages[stages.length - 1]}
-                        className="client-btn"
-                        style={{ padding: '3px 8px', fontSize: '0.6875rem', opacity: stage === stages[stages.length - 1] ? 0.3 : 1 }}
+                        className="client-btn client-btn-secondary"
+                        style={{ padding: '4px 8px', fontSize: '0.6875rem', opacity: stage === stages[stages.length - 1] ? 0.3 : 1 }}
                         title="Move right"
                       >
                         <ArrowRight size={11} />
@@ -191,7 +192,7 @@ export default function ClientApplications() {
 
       {/* MODAL: ADD APPLICATION */}
       {showAddModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
           <form onSubmit={handleAddApplication} className="client-card client-card-glow" style={{ width: '100%', maxWidth: '460px', padding: '32px' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 16px 0' }}>Add Target Application</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>

@@ -68,14 +68,6 @@ export default function Navbar() {
         {/* Right Actions (Desktop) */}
         <div className="nav-actions-desktop">
           <Button
-            to="/app"
-            variant="secondary"
-            size="sm"
-            style={{ color: '#FF6A00', borderColor: 'rgba(255, 106, 0, 0.4)', fontWeight: '700' }}
-          >
-            Launch App ✦
-          </Button>
-          <Button
             to="/download"
             variant="primary"
             size="sm"
@@ -137,14 +129,6 @@ export default function Navbar() {
         </ul>
 
         <div className="mobile-nav-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <Button
-            to="/app"
-            variant="primary"
-            size="md"
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            Launch JobPilot App ✦
-          </Button>
           <ApkDownloadButton size="md" style={{ width: '100%', justifyContent: 'center' }} />
           <WindowsDownloadButton size="md" style={{ width: '100%', justifyContent: 'center' }} />
           <Button

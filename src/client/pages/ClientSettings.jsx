@@ -150,7 +150,7 @@ export default function ClientSettings({ onLogout }) {
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
-          {['dark', 'neon', 'system'].map((t) => (
+          {['light', 'dark', 'system'].map((t) => (
             <button
               key={t}
               onClick={() => setTheme(t)}
@@ -159,14 +159,15 @@ export default function ClientSettings({ onLogout }) {
                 flex: 1,
                 padding: '12px',
                 justifyContent: 'center',
-                borderColor: theme === t ? 'var(--app-orange)' : 'rgba(255,255,255,0.1)',
-                background: theme === t ? 'rgba(255,106,0,0.1)' : 'rgba(30,41,59,0.4)',
+                borderColor: theme === t ? 'var(--app-orange)' : 'var(--app-border-subtle)',
+                background: theme === t ? 'var(--app-orange-light)' : 'var(--app-surface-light)',
+                color: theme === t ? 'var(--app-orange)' : 'var(--app-text)',
                 fontWeight: 700,
                 textTransform: 'capitalize',
               }}
             >
+              {t === 'light' && '☀️ Clean Warm-White (Android Parity)'}
               {t === 'dark' && '🌙 Dark Nebula'}
-              {t === 'neon' && '⚡ High-Tech Neon'}
               {t === 'system' && '💻 System Default'}
             </button>
           ))}
@@ -177,13 +178,13 @@ export default function ClientSettings({ onLogout }) {
       <div className="client-card" style={{ padding: '24px 28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
           <Link2 size={18} color="var(--app-orange)" />
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Connected Professional Accounts</h3>
+          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>Connected Professional Accounts</h3>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(30,41,59,0.4)', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', borderRadius: '12px' }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>LinkedIn Career Sync</div>
+              <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--app-text)' }}>LinkedIn Career Sync</div>
               <span style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)' }}>Auto-sync job applications and recruiter cold outreach</span>
             </div>
             <button
@@ -195,9 +196,9 @@ export default function ClientSettings({ onLogout }) {
             </button>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(30,41,59,0.4)', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', borderRadius: '12px' }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>GitHub Developer Repository</div>
+              <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--app-text)' }}>GitHub Developer Repository</div>
               <span style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)' }}>Verify commits and software projects on your career profile</span>
             </div>
             <button
@@ -215,12 +216,12 @@ export default function ClientSettings({ onLogout }) {
       <div className="client-card" style={{ padding: '24px 28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
           <Lock size={18} color="var(--app-orange)" />
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Security & Credentials</h3>
+          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>Security & Credentials</h3>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>Account Password</div>
+            <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--app-text)' }}>Account Password</div>
             <span style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)' }}>Logged in as {user?.email || 'candidate@jobpilot.app'}</span>
           </div>
           <button onClick={() => setShowPasswordModal(true)} className="client-btn client-btn-secondary" style={{ padding: '8px 16px' }}>
@@ -228,7 +229,7 @@ export default function ClientSettings({ onLogout }) {
           </button>
         </div>
 
-        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--app-border-subtle)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button onClick={() => setShowDocModal('privacy')} className="client-btn client-btn-secondary" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
             <FileText size={13} />
             <span>Privacy Policy</span>
@@ -241,7 +242,7 @@ export default function ClientSettings({ onLogout }) {
             <Info size={13} />
             <span>About JobPilot Desktop</span>
           </button>
-          <button onClick={onLogout} className="client-btn" style={{ fontSize: '0.75rem', padding: '6px 14px', background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.3)', marginLeft: 'auto' }}>
+          <button onClick={onLogout} className="client-btn" style={{ fontSize: '0.75rem', padding: '6px 14px', background: 'var(--app-danger-bg)', color: '#DC2626', border: '1px solid rgba(239,68,68,0.3)', marginLeft: 'auto' }}>
             <LogOut size={13} />
             <span>Sign Out</span>
           </button>
@@ -250,15 +251,15 @@ export default function ClientSettings({ onLogout }) {
 
       {/* MODAL: CHANGE PASSWORD */}
       {showPasswordModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
           <div className="client-card client-card-glow" style={{ width: '100%', maxWidth: '420px', padding: '32px' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 16px 0' }}>Update Password</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 16px 0', color: 'var(--app-text)' }}>Update Password</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
               <input type="password" placeholder="Current Password" className="client-input" />
               <input type="password" placeholder="New Password (min 6 chars)" className="client-input" />
               <input type="password" placeholder="Confirm New Password" className="client-input" />
             </div>
-            {passwordMsg && <div style={{ color: '#34D399', fontSize: '0.8125rem', marginBottom: '14px' }}>{passwordMsg}</div>}
+            {passwordMsg && <div style={{ color: '#047857', fontSize: '0.8125rem', marginBottom: '14px' }}>{passwordMsg}</div>}
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={() => setShowPasswordModal(false)} className="client-btn client-btn-secondary" style={{ flex: 1 }}>Cancel</button>
               <button
@@ -278,7 +279,7 @@ export default function ClientSettings({ onLogout }) {
 
       {/* MODAL: DOCS / ABOUT */}
       {showDocModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
           <div className="client-card" style={{ width: '100%', maxWidth: '520px', padding: '32px' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 12px 0', textTransform: 'capitalize' }}>
               {showDocModal === 'about' ? 'About JobPilot Desktop' : showDocModal}

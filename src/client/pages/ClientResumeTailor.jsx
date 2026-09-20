@@ -181,17 +181,17 @@ export default function ClientResumeTailor() {
             ) : (
               <>
                 {/* ATS Score Transformation */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '12px', border: '1px solid rgba(255, 106, 0, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'var(--app-surface-light)', borderRadius: '12px', border: '1px solid var(--app-border-subtle)' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)', fontWeight: 600 }}>Original ATS Match</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#94A3B8' }}>{tailorResult.original_ats_score}%</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--app-text-muted)' }}>{tailorResult.original_ats_score}%</div>
                   </div>
 
                   <ArrowRight size={24} color="var(--app-orange)" />
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#34D399', fontWeight: 700 }}>Tailored ATS Match</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#34D399' }}>{tailorResult.tailored_ats_score}%</div>
+                    <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700 }}>Tailored ATS Match</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#047857' }}>{tailorResult.tailored_ats_score}%</div>
                   </div>
                 </div>
 
@@ -223,7 +223,7 @@ export default function ClientResumeTailor() {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {tailorResult.suggested_bullets?.map((bullet, idx) => (
-                      <div key={idx} style={{ fontSize: '0.8125rem', lineHeight: 1.5, padding: '10px 12px', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '8px', borderLeft: '3px solid var(--app-orange)' }}>
+                      <div key={idx} style={{ fontSize: '0.8125rem', lineHeight: 1.5, padding: '10px 14px', background: 'var(--app-surface-light)', borderRadius: '8px', border: '1px solid var(--app-border-subtle)', borderLeft: '3px solid var(--app-orange)', color: 'var(--app-text)' }}>
                         {bullet}
                       </div>
                     ))}
@@ -258,14 +258,14 @@ export default function ClientResumeTailor() {
               borderRadius: '16px',
               padding: '40px 20px',
               textAlign: 'center',
-              background: 'rgba(30, 41, 59, 0.3)',
+              background: 'var(--app-orange-light)',
               marginBottom: '24px',
               cursor: 'pointer',
             }}
             onClick={() => handleParseNLP()}
           >
             <Upload size={36} color="var(--app-orange)" style={{ margin: '0 auto 12px auto' }} />
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 700 }}>Click to Upload Resume or Drag & Drop</h4>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>Click to Upload Resume or Drag & Drop</h4>
             <span style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)' }}>PDF, DOCX up to 10MB</span>
           </div>
 
@@ -278,7 +278,7 @@ export default function ClientResumeTailor() {
               value={resumeText}
               onChange={(e) => setResumeText(e.target.value)}
               placeholder="Paste summary, work history, and technical competencies..."
-              className="client-input"
+              className="client-textarea"
               style={{ width: '100%', resize: 'vertical' }}
             />
           </div>
@@ -294,12 +294,12 @@ export default function ClientResumeTailor() {
           </button>
 
           {parsedData && (
-            <div style={{ marginTop: '24px', padding: '20px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34D399', fontWeight: 800, marginBottom: '12px' }}>
+            <div style={{ marginTop: '24px', padding: '20px', background: 'var(--app-success-bg)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#047857', fontWeight: 800, marginBottom: '12px' }}>
                 <CheckCircle2 size={18} />
                 <span>Resume Parsed Successfully!</span>
               </div>
-              <div style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#F1F5F9' }}>
+              <div style={{ fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--app-text)' }}>
                 <div><strong>Candidate:</strong> {parsedData.extracted_name} ({parsedData.extracted_email})</div>
                 <div><strong>Education:</strong> {parsedData.extracted_education}</div>
                 <div><strong>Extracted Skills:</strong> {parsedData.extracted_skills?.join(', ')}</div>

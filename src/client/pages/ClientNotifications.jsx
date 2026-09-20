@@ -122,22 +122,22 @@ export default function ClientNotifications({ onNavigateToSection: _onNavigateTo
               style={{
                 padding: '18px 24px',
                 cursor: 'pointer',
-                background: item.unread ? 'rgba(255, 106, 0, 0.08)' : 'rgba(30, 41, 59, 0.4)',
-                border: item.unread ? '1px solid rgba(255, 106, 0, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: item.unread ? 'var(--app-orange-light)' : 'var(--app-surface-light)',
+                border: item.unread ? '1px solid rgba(255, 106, 0, 0.35)' : '1px solid var(--app-border-subtle)',
                 display: 'flex',
                 gap: '16px',
                 alignItems: 'flex-start',
                 position: 'relative',
               }}
             >
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(15, 23, 42, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#FFFFFF', border: '1px solid var(--app-border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {getIcon(item.type)}
               </div>
 
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <h4 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700 }}>{item.title}</h4>
+                    <h4 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 800, color: 'var(--app-text)' }}>{item.title}</h4>
                     {item.unread && (
                       <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--app-orange)' }} />
                     )}

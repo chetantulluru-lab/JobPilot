@@ -37,6 +37,15 @@ class OtpService:
         payload = f"{email.lower().strip()}:{otp.strip()}"
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def _is_expired(expires_at: datetime) -> bool:
+        """Check if an expiration datetime has passed, handling naive or aware datetimes."""
+        if expires_at is None:
+            return True
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        return expires_at < datetime.now(timezone.utc)
+
     @classmethod
     def _send_otp_email(cls, email: str, code: str, subject: str = "JobPilot Verification Code"):
         """
@@ -122,7 +131,7 @@ class OtpService:
             )
 
         # Check expiration
-        if otp_record.expires_at < now:
+        if cls._is_expired(otp_record.expires_at):
             otp_record.is_used = True
             db.commit()
             raise HTTPException(
@@ -273,7 +282,7 @@ class OtpService:
                 detail="No pending password reset found. Please request a new code."
             )
 
-        if otp_record.expires_at < now:
+        if cls._is_expired(otp_record.expires_at):
             otp_record.is_used = True
             db.commit()
             raise HTTPException(

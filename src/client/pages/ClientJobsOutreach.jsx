@@ -102,7 +102,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {job.skills.map((skill, idx) => (
-                  <span key={idx} style={{ fontSize: '0.6875rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--app-text-secondary)' }}>
+                  <span key={idx} style={{ fontSize: '0.6875rem', padding: '3px 8px', borderRadius: '4px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', color: 'var(--app-text-secondary)' }}>
                     {skill}
                   </span>
                 ))}
@@ -137,7 +137,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.75)',
+            background: 'rgba(15, 23, 42, 0.65)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -149,7 +149,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
           <div className="client-card client-card-glow" style={{ width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 4px 0' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 4px 0', color: 'var(--app-text)' }}>
                   AI Recruiter Outreach Artifacts
                 </h3>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
@@ -190,7 +190,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
                   <span>Tailored Hook & Skills Alignment</span>
                   <span>{outreachData.linkedin_note.length} / 300 Characters (Strict Limit)</span>
                 </div>
-                <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '16px', border: '1px solid var(--app-card-border)' }}>
+                <div style={{ padding: '16px', background: 'var(--app-surface-light)', borderRadius: '10px', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '16px', border: '1px solid var(--app-border-subtle)', color: 'var(--app-text)' }}>
                   {outreachData.linkedin_note}
                 </div>
                 <button
@@ -210,14 +210,14 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
                 <div style={{ fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
                   Subject Line:
                 </div>
-                <div style={{ padding: '10px 14px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '8px', fontSize: '0.875rem', marginBottom: '14px', fontWeight: 600 }}>
+                <div style={{ padding: '10px 14px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', borderRadius: '8px', fontSize: '0.875rem', marginBottom: '14px', fontWeight: 700, color: 'var(--app-text)' }}>
                   {outreachData.cold_email.subject}
                 </div>
 
                 <div style={{ fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px', color: 'var(--app-text-secondary)' }}>
                   Email Body:
                 </div>
-                <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px', fontSize: '0.8125rem', lineHeight: 1.6, marginBottom: '16px', whiteSpace: 'pre-wrap' }}>
+                <div style={{ padding: '16px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', borderRadius: '10px', fontSize: '0.8125rem', lineHeight: 1.6, marginBottom: '16px', whiteSpace: 'pre-wrap', color: 'var(--app-text)' }}>
                   {outreachData.cold_email.body}
                 </div>
                 <button
@@ -234,7 +234,7 @@ export default function ClientJobsOutreach({ onNavigateToResume }) {
             {/* Tab 3: Formal Cover Letter */}
             {activeTab === 'letter' && outreachData && (
               <div>
-                <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px', fontSize: '0.8125rem', lineHeight: 1.6, marginBottom: '16px', whiteSpace: 'pre-wrap' }}>
+                <div style={{ padding: '16px', background: 'var(--app-surface-light)', border: '1px solid var(--app-border-subtle)', borderRadius: '10px', fontSize: '0.8125rem', lineHeight: 1.6, marginBottom: '16px', whiteSpace: 'pre-wrap', color: 'var(--app-text)' }}>
                   {outreachData.cover_letter}
                 </div>
                 <button

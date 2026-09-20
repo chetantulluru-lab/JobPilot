@@ -53,6 +53,9 @@ wheels/
 htmlcov/
 backend/uploads/
 backend/storage/
+storage/
+*.db
+test.db
 
 # Android Build Artifacts & Signing Secrets
 android/.gradle/

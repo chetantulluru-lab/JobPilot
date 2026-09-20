@@ -337,14 +337,14 @@ export default function ClientMockInterview({ onBack }) {
           {/* Right Column: Question Box & Speech Input */}
           <div className="client-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* AI Interviewer Question Box */}
-            <div style={{ background: 'rgba(255, 106, 0, 0.08)', border: '1px solid rgba(255, 106, 0, 0.25)', borderRadius: '12px', padding: '18px' }}>
+            <div style={{ background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.25)', borderRadius: '12px', padding: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Sparkles size={16} color="#FF6A00" />
-                <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#FF8533' }}>
+                <Sparkles size={16} color="var(--app-orange)" />
+                <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-orange)' }}>
                   AI Lead Interviewer
                 </span>
               </div>
-              <p style={{ fontSize: '1.0625rem', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--app-text)', lineHeight: 1.5, margin: 0 }}>
                 "{currentQ.text}"
               </p>
             </div>
@@ -458,7 +458,7 @@ export default function ClientMockInterview({ onBack }) {
         {/* Strengths & Improvement Opportunities */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
           <div className="client-card" style={{ borderLeft: '4px solid #10B981' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34D399', margin: '0 0 12px 0' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857', margin: '0 0 12px 0' }}>
               Candidate Strengths
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -472,7 +472,7 @@ export default function ClientMockInterview({ onBack }) {
           </div>
 
           <div className="client-card" style={{ borderLeft: '4px solid #F59E0B' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#FBBF24', margin: '0 0 12px 0' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#D97706', margin: '0 0 12px 0' }}>
               Recommendations for Next Round
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

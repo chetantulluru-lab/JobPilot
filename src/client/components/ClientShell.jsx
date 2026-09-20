@@ -81,16 +81,16 @@ export default function ClientShell() {
           </span>
         </div>
 
-        <div style={{ padding: '0 20px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: 'rgba(30, 41, 59, 0.5)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 800, fontSize: '0.875rem' }}>
+        <div style={{ padding: '0 16px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'var(--app-orange-light)', borderRadius: '12px', border: '1px solid rgba(255, 106, 0, 0.2)' }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 800, fontSize: '0.875rem', flexShrink: 0 }}>
               {user?.fullName?.charAt(0) || 'C'}
             </div>
             <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.fullName || 'Candidate'}
               </div>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--app-orange)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--app-orange)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.targetRole || 'Software Engineer'}
               </div>
             </div>
@@ -124,7 +124,7 @@ export default function ClientShell() {
             <ExternalLink size={16} />
             <span>Visit 3D Website</span>
           </Link>
-          <button onClick={logout} className="app-sidebar-link" style={{ color: '#F87171' }}>
+          <button onClick={logout} className="app-sidebar-link" style={{ color: '#EF4444' }}>
             <LogOut size={16} />
             <span>Sign Out</span>
           </button>

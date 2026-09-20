@@ -108,7 +108,7 @@ export default function ClientAuth({ onAuthSuccess }) {
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span style={{ fontSize: '1.5rem', color: 'var(--app-orange)' }}>✦</span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF' }}>JobPilot</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--app-text)' }}>JobPilot</span>
           </div>
           <p style={{ fontSize: '0.875rem', color: 'var(--app-text-secondary)', margin: 0 }}>
             Your career. Piloted by AI.
@@ -385,7 +385,7 @@ export default function ClientAuth({ onAuthSuccess }) {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0, 0, 0, 0.8)',
+              background: 'rgba(15, 23, 42, 0.65)',
               backdropFilter: 'blur(8px)',
               display: 'flex',
               alignItems: 'center',
@@ -395,19 +395,19 @@ export default function ClientAuth({ onAuthSuccess }) {
             }}
           >
             <div className="client-card client-card-glow" style={{ width: '100%', maxWidth: '420px', padding: '32px', textAlign: 'center' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 106, 0, 0.15)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--app-orange-light)', color: 'var(--app-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
                 <KeyRound size={24} />
               </div>
 
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 6px 0' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 6px 0', color: 'var(--app-text)' }}>
                 Enter Verification Code
               </h3>
               <p style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', margin: '0 0 20px 0' }}>
-                We sent a 6-digit numeric verification code to <strong style={{ color: '#FFFFFF' }}>{email}</strong>
+                We sent a 6-digit numeric verification code to <strong style={{ color: 'var(--app-text)' }}>{email}</strong>
               </p>
 
               {statusMsg && (
-                <div style={{ fontSize: '0.75rem', color: '#34D399', background: 'rgba(16, 185, 129, 0.1)', padding: '8px 12px', borderRadius: '6px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#047857', background: 'var(--app-success-bg)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '8px 12px', borderRadius: '6px', marginBottom: '16px' }}>
                   {statusMsg}
                 </div>
               )}
