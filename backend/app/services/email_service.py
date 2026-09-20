@@ -29,8 +29,40 @@ class ResendEmailService:
         from_email = (settings.RESEND_FROM_EMAIL or "onboarding@resend.dev").strip()
         recipient = to.strip().lower()
 
+        # 1. Check for Free SMTP (e.g. Gmail / Brevo / College Mail)
+        smtp_user = (settings.SMTP_USER or "").strip()
+        smtp_pass = (settings.SMTP_PASSWORD or "").strip()
+        if smtp_user and smtp_pass:
+            try:
+                import smtplib
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
+
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = subject
+                msg["From"] = smtp_user
+                msg["To"] = recipient
+                msg.attach(MIMEText(html_body, "html"))
+
+                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10.0) as server:
+                    server.starttls()
+                    server.login(smtp_user, smtp_pass)
+                    server.sendmail(smtp_user, [recipient], msg.as_string())
+                logger.info(f"Successfully dispatched OTP email to {recipient} via SMTP ({settings.SMTP_HOST})")
+                return True
+            except Exception as e:
+                logger.warning(f"SMTP dispatch failed: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Unable to send verification email via SMTP: {str(e)}"
+                )
+
+        # 2. Check for Resend API Key
+        api_key = (settings.RESEND_API_KEY or "").strip()
+        from_email = (settings.RESEND_FROM_EMAIL or "onboarding@resend.dev").strip()
+
         if not api_key:
-            logger.info(f"[Email Placeholder] Email to {recipient} simulated (RESEND_API_KEY pending)")
+            logger.info(f"[Email Placeholder] Email to {recipient} simulated (Neither SMTP nor RESEND_API_KEY configured)")
             return True
 
         headers = {

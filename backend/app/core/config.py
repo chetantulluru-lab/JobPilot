@@ -73,6 +73,12 @@ class Settings(BaseSettings):
     RESEND_API_KEY: Optional[str] = None
     RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
 
+    # Free SMTP / Gmail Email OTP Alternative (Zero Cost)
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+
     # Production Deployment Base URL
     API_BASE_URL: str = "https://jobpilot-backend-e97f.onrender.com"
 
