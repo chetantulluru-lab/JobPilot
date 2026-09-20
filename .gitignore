@@ -34,6 +34,8 @@ venv/
 ENV/
 env/
 build/
+build_desktop/
+desktop_dist/
 develop-eggs/
 dist/
 downloads/

@@ -1,4 +1,4 @@
-﻿; Inno Setup Script for JobPilot Desktop Application
+; Inno Setup Script for JobPilot Desktop Application
 #define MyAppName "JobPilot"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "JobPilot Inc."
@@ -17,7 +17,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-OutputDir=..\dist\installer
+OutputDir=..\desktop_dist\installer
 OutputBaseFilename=JobPilot-Setup
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -35,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\dist\JobPilot\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\desktop_dist\JobPilot\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
