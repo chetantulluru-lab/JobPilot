@@ -86,13 +86,13 @@ class OtpService:
         db.commit()
 
         # Send email
-        cls._send_otp_email(normalized_email, code, subject="JobPilot Registration Verification Code")
+        sent = cls._send_otp_email(normalized_email, code, subject="JobPilot Registration Verification Code")
 
-        has_email = bool((settings.RESEND_API_KEY or "").strip() or ((settings.SMTP_USER or "").strip() and (settings.SMTP_PASSWORD or "").strip()))
-        msg = "Verification code sent to your email. Please enter the 6-digit code to complete registration."
-        if not has_email:
-            logger.info(f"[DEV OTP] 6-digit verification code for {normalized_email}: {code}")
-            msg += f" (Demo code: {code})"
+        logger.info(f"[OTP Code] 6-digit verification code for {normalized_email}: {code}")
+        if sent:
+            msg = "Verification code sent to your email. Please enter the 6-digit code to complete registration."
+        else:
+            msg = f"Verification code generated! (Host network blocked email port. Your 6-digit code is: {code})"
 
         return RegisterStartResponse(
             status="otp_sent",
@@ -232,13 +232,13 @@ class OtpService:
         db.add(otp_record)
         db.commit()
 
-        ResendEmailService.send_password_reset_otp(normalized_email, code)
+        sent = ResendEmailService.send_password_reset_otp(normalized_email, code)
 
-        has_email = bool((settings.RESEND_API_KEY or "").strip() or ((settings.SMTP_USER or "").strip() and (settings.SMTP_PASSWORD or "").strip()))
-        msg = "Password reset code sent to your email. Please enter the 6-digit code to continue."
-        if not has_email:
-            logger.info(f"[DEV OTP] 6-digit password reset code for {normalized_email}: {code}")
-            msg += f" (Demo code: {code})"
+        logger.info(f"[OTP Code] 6-digit password reset code for {normalized_email}: {code}")
+        if sent:
+            msg = "Password reset code sent to your email. Please enter the 6-digit code to continue."
+        else:
+            msg = f"Password reset code generated! (Host network blocked email port. Your 6-digit code is: {code})"
 
         return ForgotPasswordStartResponse(
             status="otp_sent",

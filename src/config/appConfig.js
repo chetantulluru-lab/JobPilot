@@ -19,7 +19,13 @@ export const APP_CONFIG = {
   // Centralized Direct APK Download configuration
   APK_DOWNLOAD_URL: '/downloads/JobPilot.apk',
   APK_FILENAME: 'JobPilot.apk',
-  APK_FILE_SIZE: '44 MB',
+  APK_FILE_SIZE: '50.6 MB',
+
+  // Centralized Windows Desktop .exe configuration
+  EXE_DOWNLOAD_URL: '/downloads/JobPilot.exe',
+  EXE_FILENAME: 'JobPilot.exe',
+  EXE_FILE_SIZE: '58 MB',
+  minWindowsVersion: 'Windows 10 / 11 (64-bit)',
 
   // Centralized Play Store configuration
   // Safe placeholder until official Google Play Store listing is live

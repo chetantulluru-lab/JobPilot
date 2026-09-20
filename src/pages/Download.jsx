@@ -1,200 +1,392 @@
-import { Smartphone, CheckCircle2, Compass, ShieldCheck } from 'lucide-react';
+import React from 'react';
+import { 
+  Smartphone, 
+  Monitor, 
+  CheckCircle2, 
+  Compass, 
+  ShieldCheck, 
+  Sparkles, 
+  Cpu, 
+  Video, 
+  Zap, 
+  Download as DownloadIcon 
+} from 'lucide-react';
 import PlayStoreButton from '../components/PlayStoreButton';
 import ApkDownloadButton from '../components/ApkDownloadButton';
+import WindowsDownloadButton from '../components/WindowsDownloadButton';
 import PhoneMockup from '../components/PhoneMockup';
+import LaptopMockup from '../components/LaptopMockup';
 import QRPlaceholder from '../components/QRPlaceholder';
 import SectionHeading from '../components/SectionHeading';
 import GlassCard from '../components/GlassCard';
 import GlowBackground from '../components/GlowBackground';
 import Button from '../components/Button';
+import { APP_CONFIG } from '../config/appConfig';
 
 export default function Download() {
-  const highlights = [
-    'Instant NLP Resume Extraction and parsing',
-    'Transparent 0-100% semantic job match calculation',
-    'Skill gap diagnosis with clear learning recommendations',
-    'End-to-end application pipeline tracking on mobile',
-    'Completely free for students and early career job seekers',
+  const mobileHighlights = [
+    'Instant NLP Resume Extraction & Parsing on device',
+    'AI Mock Interview with front-camera ML Kit Face Detection',
+    '1-Click AI Resume Tailoring for matching jobs',
+    'Recruiter Cold Outreach & Cover Letter generation',
+    'Gamified roadmap daily quizzes with streak flames 🔥',
+    'Personal note taking & roadmap bookmark hub',
+    '100% Free OTP Email Registration (Resend/Brevo API)',
   ];
 
-  const systemSpecs = [
-    { label: 'Platform', value: 'Android 11.0+ (Red Velvet Cake / API 30+)' },
-    { label: 'Architecture', value: 'Optimized for ARM64 & modern Android devices' },
-    { label: 'Category', value: 'Productivity & Career Guidance' },
-    { label: 'Distribution', value: 'Direct APK Release (Google Play listing coming soon)' },
+  const desktopHighlights = [
+    'Native Windows Chromium runtime with full 3D WebGL acceleration',
+    'Full-screen AI Mock Interview Simulator with high-res webcam tracking',
+    'Split-screen live coding & voice dictation response preview',
+    'One-click PDF resume download & instant clipboard copying',
+    'Standalone portable .EXE — zero setup or installation required',
+    'Direct connection to production Render cloud backend',
+  ];
+
+  const androidSpecs = [
+    { label: 'Target Platform', value: 'Android 11.0+ (API 30+)' },
+    { label: 'Package Format', value: 'Signed Release APK (JobPilot.apk)' },
+    { label: 'File Size', value: APP_CONFIG.APK_FILE_SIZE },
+    { label: 'Permissions', value: 'Camera (Face Detection), Microphone (Voice)' },
+  ];
+
+  const windowsSpecs = [
+    { label: 'Target Platform', value: 'Windows 10 / Windows 11 (64-bit)' },
+    { label: 'Package Format', value: 'Portable Windows Executable (JobPilot.exe)' },
+    { label: 'File Size', value: APP_CONFIG.EXE_FILE_SIZE },
+    { label: 'Runtime Engine', value: 'Microsoft Edge WebView2 (Chromium)' },
   ];
 
   return (
     <div className="page-download">
+      {/* ====================================================================
+          HERO DOWNLOAD SECTION
+          ==================================================================== */}
       <section className="section" style={{ paddingTop: '50px', paddingBottom: '90px', position: 'relative' }}>
         <GlowBackground variant="top" />
 
         <div className="container">
-          <div className="grid-2col" style={{ gap: '48px', alignItems: 'center' }}>
-            {/* Download Content Left */}
-            <div>
-              {/* Android 11+ Badge */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
-                <span className="badge badge-orange">
-                  <Smartphone size={14} />
-                  <span>Android 11+</span>
-                </span>
-                <span className="badge badge-glass">
-                  <ShieldCheck size={14} />
-                  <span>Signed Release APK</span>
-                </span>
-              </div>
+          {/* Header Badges & Title */}
+          <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 48px' }}>
+            <div style={{ display: 'inline-flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span className="badge badge-orange">
+                <Sparkles size={14} />
+                <span>Cross-Platform AI Suite</span>
+              </span>
+              <span className="badge badge-glass">
+                <Smartphone size={14} />
+                <span>Android APK</span>
+              </span>
+              <span className="badge badge-glass">
+                <Monitor size={14} />
+                <span>Windows App (.EXE)</span>
+              </span>
+            </div>
 
-              <h1
-                style={{
-                  fontSize: 'clamp(2.25rem, 4.5vw, 3.75rem)',
-                  fontWeight: '800',
-                  letterSpacing: '-0.035em',
-                  lineHeight: '1.1',
-                  marginBottom: '20px',
-                }}
-              >
-                Meet JobPilot{' '}
-                <span className="text-gradient-orange">on Android.</span>
-              </h1>
+            <h1
+              style={{
+                fontSize: 'clamp(2.4rem, 4.8vw, 3.85rem)',
+                fontWeight: '800',
+                letterSpacing: '-0.035em',
+                lineHeight: '1.1',
+                marginBottom: '20px',
+              }}
+            >
+              Download JobPilot{' '}
+              <span className="text-gradient-orange">Everywhere.</span>
+            </h1>
 
-              <p
-                style={{
-                  fontSize: '1.125rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: '1.6',
-                  marginBottom: '32px',
-                }}
-              >
-                Get the app and take your career assistant with you. Transform your resume into structured career intelligence and find matching opportunities anywhere, anytime.
-              </p>
+            <p
+              style={{
+                fontSize: '1.15rem',
+                color: 'var(--text-secondary)',
+                lineHeight: '1.6',
+                maxWidth: '680px',
+                margin: '0 auto',
+              }}
+            >
+              Choose your platform: Take your career assistant on your Android phone or run the full-screen AI Mock Interview Simulator on your Windows PC.
+            </p>
+          </div>
 
-              {/* Primary and Secondary CTAs */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '16px',
-                  alignItems: 'center',
-                  marginBottom: '36px',
-                }}
-              >
-                <ApkDownloadButton
-                  size="lg"
-                  label="Download APK"
-                  subtext="Direct Install • Android 11+ (44 MB)"
-                />
-
-                <PlayStoreButton />
-
-                <Button
-                  to="/how-it-works"
-                  variant="secondary"
-                  size="md"
-                  icon={<Compass size={18} />}
-                  iconPosition="left"
-                >
-                  See How It Works
-                </Button>
-              </div>
-
-              {/* Feature Highlights List */}
-              <div style={{ marginBottom: '36px' }}>
-                <div
-                  style={{
-                    fontSize: '0.8125rem',
-                    fontWeight: '700',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--text-muted)',
-                    marginBottom: '14px',
-                  }}
-                >
-                  Key Mobile Capabilities
+          {/* DUAL DOWNLOAD CARDS (Android vs Windows) */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 480px), 1fr))',
+              gap: '32px',
+              marginBottom: '70px',
+            }}
+          >
+            {/* Card 1: Android Mobile Release */}
+            <GlassCard
+              elevated
+              glow
+              className="card-3d"
+              style={{
+                padding: 'clamp(24px, 4vw, 36px)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                border: '1.5px solid rgba(255, 106, 0, 0.25)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 237, 0.85) 100%)',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <div
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #FF6A00 0%, #FF8533 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      boxShadow: '0 8px 20px -4px rgba(255, 106, 0, 0.4)',
+                    }}
+                  >
+                    <Smartphone size={24} />
+                  </div>
+                  <span className="badge badge-orange">Official Signed APK</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {highlights.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ color: '#10B981', display: 'flex' }}>
+
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>
+                  JobPilot for Android
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: '1.5', marginBottom: '24px' }}>
+                  Full mobile application with Material 3 design, offline profile storage, front-camera face tracking, and career roadmaps.
+                </p>
+
+                {/* Mobile Feature Checklist */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+                  {mobileHighlights.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <span style={{ color: '#10B981', display: 'flex', flexShrink: 0 }}>
                         <CheckCircle2 size={16} />
                       </span>
-                      <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
-                        {item}
-                      </span>
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* QR Code & Scan To Download Section */}
-              <GlassCard
-                padding="clamp(16px, 3vw, 20px)"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'clamp(14px, 3vw, 24px)',
-                  maxWidth: '440px',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <QRPlaceholder size={100} caption="Scan for APK" />
-                <div style={{ flex: '1 1 200px' }}>
-                  <div style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                    Scan with your phone camera
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center', marginBottom: '20px' }}>
+                  <ApkDownloadButton
+                    size="lg"
+                    label="Download Android APK"
+                    subtext={`Direct Install • Android 11+ (${APP_CONFIG.APK_FILE_SIZE})`}
+                  />
+                  <PlayStoreButton />
+                </div>
+
+                {/* Scan to Phone QR */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '14px 18px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid rgba(226, 232, 240, 0.8)',
+                  }}
+                >
+                  <QRPlaceholder size={72} caption="Scan APK" />
+                  <div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                      Scan to Install on Phone
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      Point your mobile camera to download the APK directly to your Android device.
+                    </div>
                   </div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                    Scan this code to immediately download the signed JobPilot APK directly to your Android phone.
-                  </p>
+                </div>
+              </div>
+            </GlassCard>
+
+            {/* Card 2: Windows Desktop Release (.EXE) */}
+            <GlassCard
+              elevated
+              glow
+              className="card-3d"
+              style={{
+                padding: 'clamp(24px, 4vw, 36px)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                border: '1.5px solid rgba(15, 23, 42, 0.15)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.85) 100%)',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <div
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      boxShadow: '0 8px 20px -4px rgba(15, 23, 42, 0.3)',
+                    }}
+                  >
+                    <Monitor size={24} />
+                  </div>
+                  <span className="badge badge-neutral" style={{ background: '#0F172A', color: '#FFFFFF' }}>
+                    Standalone Windows .EXE
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>
+                  JobPilot for Windows
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: '1.5', marginBottom: '24px' }}>
+                  Dedicated desktop executable with full-screen interview experience, webcam face tracking, instant PDF export, and seamless backend sync.
+                </p>
+
+                {/* Desktop Feature Checklist */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+                  {desktopHighlights.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <span style={{ color: '#0284C7', display: 'flex', flexShrink: 0 }}>
+                        <CheckCircle2 size={16} />
+                      </span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center', marginBottom: '20px' }}>
+                  <WindowsDownloadButton
+                    size="lg"
+                    variant="dark"
+                    label="Download Windows App (.EXE)"
+                    subtext={`Portable Executable • Win 10/11 (${APP_CONFIG.EXE_FILE_SIZE})`}
+                  />
+                  <Button
+                    to="/how-it-works"
+                    variant="secondary"
+                    size="lg"
+                    icon={<Compass size={18} />}
+                    iconPosition="left"
+                  >
+                    Tour Features
+                  </Button>
+                </div>
+
+                {/* Zero Setup Note */}
+                <div
+                  style={{
+                    padding: '14px 18px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid rgba(226, 232, 240, 0.8)',
+                  }}
+                >
+                  <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                    ⚡ Portable Standalone Binary
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    No installer or admin rights required. Download, double-click <code style={{ color: '#FF6A00' }}>JobPilot.exe</code>, and begin your career interview simulation immediately.
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* DUAL 3D DEVICE SHOWCASE */}
+          <div style={{ marginTop: '40px', marginBottom: '80px' }}>
+            <SectionHeading
+              eyebrow="Dual Device Synergy"
+              title="Experience JobPilot on"
+              highlight="Mobile & Desktop"
+              subtitle="Seamlessly transition between interview prep on your laptop and daily roadmap progress on your mobile phone."
+            />
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+                gap: '40px',
+                alignItems: 'center',
+                marginTop: '32px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <PhoneMockup />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <LaptopMockup />
+              </div>
+            </div>
+          </div>
+
+          {/* DUAL SPECIFICATIONS TABLE */}
+          <div>
+            <SectionHeading
+              eyebrow="Technical Compatibility"
+              title="Device & System"
+              highlight="Specifications"
+              subtitle="Engineered for high performance, low latency, and zero bloatware across both platforms."
+            />
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
+                gap: '24px',
+                maxWidth: '960px',
+                margin: '0 auto',
+              }}
+            >
+              {/* Android Specs */}
+              <GlassCard elevated padding="clamp(20px, 3vw, 28px)">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <Smartphone size={20} color="#FF6A00" />
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Android Specifications</h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {androidSpecs.map((spec, idx) => (
+                    <div key={idx} style={{ borderBottom: '1px solid rgba(226, 232, 240, 0.6)', paddingBottom: '10px' }}>
+                      <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: '700' }}>
+                        {spec.label}
+                      </div>
+                      <div style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)', marginTop: '2px' }}>
+                        {spec.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+
+              {/* Windows Specs */}
+              <GlassCard elevated padding="clamp(20px, 3vw, 28px)">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <Monitor size={20} color="#0284C7" />
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Windows Specifications</h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {windowsSpecs.map((spec, idx) => (
+                    <div key={idx} style={{ borderBottom: '1px solid rgba(226, 232, 240, 0.6)', paddingBottom: '10px' }}>
+                      <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: '700' }}>
+                        {spec.label}
+                      </div>
+                      <div style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)', marginTop: '2px' }}>
+                        {spec.value}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </GlassCard>
             </div>
-
-            {/* Android Phone Mockup Right */}
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PhoneMockup />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* System Requirements & Specifications */}
-      <section
-        className="section"
-        style={{
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 247, 237, 0.5) 50%, rgba(255, 255, 255, 0) 100%)',
-          paddingTop: '60px',
-          paddingBottom: '90px',
-        }}
-      >
-        <div className="container">
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <SectionHeading
-              eyebrow="Device Compatibility"
-              title="System Requirements &"
-              highlight="Specifications"
-              subtitle="JobPilot is engineered specifically for modern Android environments with efficient background sync and offline-friendly profile viewing."
-            />
-
-            <GlassCard elevated padding="clamp(20px, 4vw, 32px)">
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
-                  gap: '24px',
-                }}
-              >
-                {systemSpecs.map((spec, idx) => (
-                  <div key={idx} style={{ borderBottom: '1px solid rgba(226, 232, 240, 0.7)', paddingBottom: '14px' }}>
-                    <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: '700', marginBottom: '4px' }}>
-                      {spec.label}
-                    </div>
-                    <div style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                      {spec.value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </GlassCard>
           </div>
         </div>
       </section>

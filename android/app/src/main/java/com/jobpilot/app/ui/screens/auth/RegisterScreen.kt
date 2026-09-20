@@ -7,9 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MarkEmailRead
-import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,10 +33,8 @@ fun RegisterScreen(
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var keystone by remember { mutableStateOf("") }
     var showOtpDialog by remember { mutableStateOf(false) }
     var enteredOtp by remember { mutableStateOf("") }
-    var useOtpMode by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -64,82 +59,13 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Begin your AI-piloted career journey",
+            text = "Verify with email OTP to begin your AI career journey",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.textSecondary,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Toggle between Email OTP and Quick Keystone
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Slate100, RoundedCornerShape(12.dp))
-                .padding(4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { useOtpMode = true },
-                shape = RoundedCornerShape(10.dp),
-                color = if (useOtpMode) BgWhite else Slate100,
-                shadowElevation = if (useOtpMode) 2.dp else 0.dp
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.MarkEmailRead,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (useOtpMode) Orange500 else Slate500
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Email OTP",
-                        fontSize = 13.sp,
-                        fontWeight = if (useOtpMode) FontWeight.Bold else FontWeight.Medium,
-                        color = if (useOtpMode) Slate900 else Slate500
-                    )
-                }
-            }
-
-            Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { useOtpMode = false },
-                shape = RoundedCornerShape(10.dp),
-                color = if (!useOtpMode) BgWhite else Slate100,
-                shadowElevation = if (!useOtpMode) 2.dp else 0.dp
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.VpnKey,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (!useOtpMode) Orange500 else Slate500
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Quick Sign Up",
-                        fontSize = 13.sp,
-                        fontWeight = if (!useOtpMode) FontWeight.Bold else FontWeight.Medium,
-                        color = if (!useOtpMode) Slate900 else Slate500
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
@@ -179,27 +105,6 @@ fun RegisterScreen(
                     singleLine = true
                 )
 
-                if (!useOtpMode) {
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    OutlinedTextField(
-                        value = keystone,
-                        onValueChange = { keystone = it },
-                        label = { Text("Security Keystone (Secret Recovery Word)") },
-                        placeholder = { Text("e.g. secret word, nickname, or pet") },
-                        supportingText = {
-                            Text(
-                                text = "Used to reset password if you ever forget it. Save this word!",
-                                fontSize = 11.sp,
-                                color = Slate500
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = JobPilotShapes.medium,
-                        singleLine = true
-                    )
-                }
-
                 if (uiState.errorMessage != null) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -211,44 +116,24 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                if (useOtpMode) {
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Sending OTP Code..." else "Send Email Verification OTP",
-                        onClick = {
-                            viewModel.startRegistration(
-                                fullName = fullName.trim(),
-                                email = email.trim(),
-                                password = password,
-                                onOtpSent = {
-                                    showOtpDialog = true
-                                }
-                            )
-                        },
-                        enabled = !uiState.isLoading &&
-                            fullName.isNotBlank() &&
-                            email.isNotBlank() &&
-                            email.contains("@") &&
-                            password.length >= 6
-                    )
-                } else {
-                    JobPilotButton(
-                        text = if (uiState.isLoading) "Creating Account..." else "Create Account",
-                        onClick = {
-                            viewModel.register(
-                                fullName = fullName.trim(),
-                                email = email.trim(),
-                                password = password,
-                                keystone = keystone.trim().ifBlank { "jobpilot" },
-                                onSuccess = onRegisterSuccess
-                            )
-                        },
-                        enabled = !uiState.isLoading &&
-                            fullName.isNotBlank() &&
-                            email.isNotBlank() &&
-                            password.length >= 6 &&
-                            keystone.trim().length >= 3
-                    )
-                }
+                JobPilotButton(
+                    text = if (uiState.isLoading) "Sending OTP Code..." else "Send Email Verification OTP",
+                    onClick = {
+                        viewModel.startRegistration(
+                            fullName = fullName.trim(),
+                            email = email.trim(),
+                            password = password,
+                            onOtpSent = {
+                                showOtpDialog = true
+                            }
+                        )
+                    },
+                    enabled = !uiState.isLoading &&
+                        fullName.isNotBlank() &&
+                        email.isNotBlank() &&
+                        email.contains("@") &&
+                        password.length >= 6
+                )
             }
         }
 

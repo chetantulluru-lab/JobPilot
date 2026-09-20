@@ -21,17 +21,67 @@ class ResendEmailService:
     @classmethod
     def send_transactional_email(cls, to: str, subject: str, html_body: str) -> bool:
         """
-        Sends an HTML email via Resend API with 1 bounded retry.
-        If Resend is not configured (placeholder mode in local dev/tests),
-        safely logs and returns True. If configured but fails, raises honest HTTPException.
+        Sends an HTML email with multi-tier delivery:
+        1. Brevo HTTP REST API (HTTPS port 443 - zero port blocks on Render)
+        2. Resend HTTP REST API (HTTPS port 443 - zero port blocks on Render)
+        3. SMTP (with clean unquoted passwords and timeout protection)
+        4. Graceful fallback returning False if network provider blocks all outbound email
         """
-        api_key = (settings.RESEND_API_KEY or "").strip()
-        from_email = (settings.RESEND_FROM_EMAIL or "onboarding@resend.dev").strip()
         recipient = to.strip().lower()
 
-        # 1. Check for Free SMTP (e.g. Gmail / Brevo / College Mail)
+        # 1. Brevo HTTP API (Port 443 - Free 300 emails/day to any address)
+        brevo_key = (settings.BREVO_API_KEY or "").strip()
+        if brevo_key:
+            try:
+                headers = {
+                    "api-key": brevo_key,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+                payload = {
+                    "sender": {"name": "JobPilot", "email": settings.SMTP_USER or "noreply@jobpilot.io"},
+                    "to": [{"email": recipient}],
+                    "subject": subject,
+                    "htmlContent": html_body
+                }
+                with httpx.Client(timeout=10.0) as client:
+                    resp = client.post("https://api.brevo.com/v3/smtp/email", json=payload, headers=headers)
+                    if resp.status_code in (200, 201):
+                        logger.info(f"Successfully dispatched email to {recipient} via Brevo HTTP API")
+                        return True
+                    else:
+                        logger.warning(f"Brevo HTTP API error: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                logger.warning(f"Brevo HTTP connection exception: {e}")
+
+        # 2. Resend HTTP API (Port 443 - Free 3,000 emails/month)
+        resend_key = (settings.RESEND_API_KEY or "").strip()
+        from_email = (settings.RESEND_FROM_EMAIL or "onboarding@resend.dev").strip()
+        if resend_key:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {resend_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "from": from_email,
+                    "to": [recipient],
+                    "subject": subject,
+                    "html": html_body
+                }
+                with httpx.Client(timeout=10.0) as client:
+                    resp = client.post("https://api.resend.com/emails", json=payload, headers=headers)
+                    if resp.status_code in (200, 201):
+                        logger.info(f"Successfully dispatched email to {recipient} via Resend")
+                        return True
+                    else:
+                        logger.warning(f"Resend HTTP API error: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                logger.warning(f"Resend connection exception: {e}")
+
+        # 3. SMTP (Gmail / Custom SMTP)
         smtp_user = (settings.SMTP_USER or "").strip()
-        smtp_pass = (settings.SMTP_PASSWORD or "").strip()
+        smtp_pass = (settings.SMTP_PASSWORD or "").strip().strip('"').strip("'")
         if smtp_user and smtp_pass:
             try:
                 import smtplib
@@ -44,62 +94,18 @@ class ResendEmailService:
                 msg["To"] = recipient
                 msg.attach(MIMEText(html_body, "html"))
 
-                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10.0) as server:
+                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=5.0) as server:
                     server.starttls()
                     server.login(smtp_user, smtp_pass)
                     server.sendmail(smtp_user, [recipient], msg.as_string())
                 logger.info(f"Successfully dispatched OTP email to {recipient} via SMTP ({settings.SMTP_HOST})")
                 return True
             except Exception as e:
-                logger.warning(f"SMTP dispatch failed: {e}")
-                raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail=f"Unable to send verification email via SMTP: {str(e)}"
-                )
+                # Cloud host like Render blocks outbound SMTP ports 25/465/587
+                logger.warning(f"SMTP dispatch to {recipient} could not connect ({e}). Host firewall blocks outbound SMTP.")
 
-        # 2. Check for Resend API Key
-        api_key = (settings.RESEND_API_KEY or "").strip()
-        from_email = (settings.RESEND_FROM_EMAIL or "onboarding@resend.dev").strip()
-
-        if not api_key:
-            logger.info(f"[Email Placeholder] Email to {recipient} simulated (Neither SMTP nor RESEND_API_KEY configured)")
-            return True
-
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "from": from_email,
-            "to": [recipient],
-            "subject": subject,
-            "html": html_body
-        }
-
-        max_attempts = 2
-        for attempt in range(1, max_attempts + 1):
-            try:
-                with httpx.Client(timeout=10.0) as client:
-                    resp = client.post("https://api.resend.com/emails", json=payload, headers=headers)
-                    if resp.status_code in (200, 201):
-                        logger.info(f"Successfully dispatched email to {recipient} via Resend")
-                        return True
-                    else:
-                        logger.warning(f"Resend API error (attempt {attempt}): {resp.status_code} - {resp.text}")
-                        if attempt == max_attempts:
-                            raise HTTPException(
-                                status_code=status.HTTP_502_BAD_GATEWAY,
-                                detail="Unable to send verification email. Please try again."
-                            )
-            except HTTPException:
-                raise
-            except Exception as e:
-                logger.warning(f"Resend connection exception (attempt {attempt}): {e}")
-                if attempt == max_attempts:
-                    raise HTTPException(
-                        status_code=status.HTTP_502_BAD_GATEWAY,
-                        detail="Unable to send verification email. Please try again."
-                    )
+        # 4. Fallback: Host port blocked or no email provider configured
+        logger.info(f"[Email Mode] Outbound email could not be delivered directly. Providing verification code fallback.")
         return False
 
     @classmethod

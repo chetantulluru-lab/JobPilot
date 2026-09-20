@@ -8,14 +8,25 @@ import {
   Cpu, 
   Target, 
   Compass, 
-  GraduationCap
+  GraduationCap,
+  Video,
+  Monitor,
+  Flame,
+  FileCheck2,
+  Send,
+  BookOpen,
+  Zap,
+  Award
 } from 'lucide-react';
 import { APP_CONFIG } from '../config/appConfig';
 import Button from '../components/Button';
 import PlayStoreButton from '../components/PlayStoreButton';
 import ApkDownloadButton from '../components/ApkDownloadButton';
+import WindowsDownloadButton from '../components/WindowsDownloadButton';
 import AIOrb from '../components/AIOrb';
+import CopilotBadge3D from '../components/CopilotBadge3D';
 import PhoneMockup from '../components/PhoneMockup';
+import LaptopMockup from '../components/LaptopMockup';
 import JobMatchCard from '../components/JobMatchCard';
 import NLPPipelineVisual from '../components/NLPPipelineVisual';
 import SectionHeading from '../components/SectionHeading';
@@ -25,11 +36,11 @@ import { STUDENT_CHALLENGES } from '../data/features';
 
 export default function Home() {
   const trustItems = [
-    { label: 'AI-Powered', icon: Sparkles },
-    { label: 'NLP Intelligence', icon: Cpu },
-    { label: 'Smart Job Matching', icon: Target },
-    { label: 'Android App', icon: Smartphone },
-    { label: 'Secure Profile', icon: ShieldCheck },
+    { label: 'AI Mock Interview', icon: Video },
+    { label: 'Face Detection AI', icon: EyeIcon },
+    { label: '1-Click Resume Tailor', icon: FileCheck2 },
+    { label: 'Android APK + Win EXE', icon: Monitor },
+    { label: '100% Free OTP Auth', icon: ShieldCheck },
   ];
 
   const studentBullets = [
@@ -38,7 +49,52 @@ export default function Home() {
     { title: 'Job matching', desc: 'Context-aware scoring matches you to roles where your foundational skills align.' },
     { title: 'Skill insights', desc: 'Actionable suggestions show exact gaps (e.g. learning Docker) to reach the next tier.' },
     { title: 'Application tracking', desc: 'Never lose track of deadlines, interview dates, or recruiter follow-ups.' },
-    { title: 'Mobile-first experience', desc: 'Review curated daily opportunities anywhere directly from your Android phone.' },
+    { title: 'Mobile-first experience', desc: 'Review curated daily opportunities anywhere directly from your Android phone or PC.' },
+  ];
+
+  const new3DFeatures = [
+    {
+      icon: Video,
+      color: '#FF6A00',
+      title: 'AI Mock Interview Simulator',
+      badge: 'ML Kit Face Detection',
+      desc: 'Practice realistic 5-stage interviews grounded in your actual resume or target role. Uses on-device front-camera posture & eye contact analysis with full scoring reports and ideal model answers.',
+    },
+    {
+      icon: FileCheck2,
+      color: '#10B981',
+      title: '1-Click AI Resume Tailor',
+      badge: 'ATS Score Booster',
+      desc: 'Instantly tailor your resume bullet points and summary to match any job description. Watch your ATS match score jump from 65% to 92%+ with instant PDF export.',
+    },
+    {
+      icon: Send,
+      color: '#0284C7',
+      title: 'Cold Outreach & Cover Letters',
+      badge: 'LinkedIn & Email',
+      desc: 'Generate recruiter-ready LinkedIn connection notes (<300 chars), personalized cold emails, and formal cover letters formatted for specific companies in seconds.',
+    },
+    {
+      icon: Flame,
+      color: '#EF4444',
+      title: 'Daily Quizzes & Streaks',
+      badge: 'Gamified Learning',
+      desc: 'Reinforce your career roadmap with 3 daily multiple choice challenge questions, instant explanations, and keep your daily streak flame 🔥 burning.',
+    },
+    {
+      icon: BookOpen,
+      color: '#8B5CF6',
+      title: 'Personal Notes & Bookmark Hub',
+      badge: 'Study Companion',
+      desc: 'Save code snippets, architectural notes, and crucial takeaway points directly inside your daily learning sessions with 1-tap bookmark access.',
+    },
+    {
+      icon: ShieldCheck,
+      color: '#F59E0B',
+      title: '100% Free OTP Registration',
+      badge: 'Zero Password Leak',
+      desc: 'Seamless passwordless authentication powered by Brevo & Resend HTTP APIs. Safe, secure, instant 6-digit email verification with zero cloud port blocks.',
+    },
   ];
 
   return (
@@ -56,7 +112,7 @@ export default function Home() {
               <div style={{ marginBottom: '18px' }}>
                 <span className="badge badge-orange">
                   <Sparkles size={14} />
-                  <span>Next-Gen Career Navigation</span>
+                  <span>Next-Gen Career Navigation • 3D Copilot</span>
                 </span>
               </div>
 
@@ -84,27 +140,31 @@ export default function Home() {
                   maxWidth: '560px',
                 }}
               >
-                {APP_CONFIG.description}
+                {APP_CONFIG.description} Now featuring on-device AI Mock Interviews with Face Detection, 1-Click Resume Tailoring, and standalone Windows Desktop & Android Mobile apps.
               </p>
 
-              {/* CTAs */}
+              {/* Dual Action CTAs */}
               <div
                 style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: '16px',
+                  gap: '14px',
                   alignItems: 'center',
                   marginBottom: '28px',
                 }}
               >
-                <Button
-                  to="/download"
-                  variant="primary"
+                <ApkDownloadButton
                   size="lg"
-                  icon={<ArrowRight size={18} />}
-                >
-                  Get the Android App
-                </Button>
+                  label="Download Android APK"
+                  subtext="Android 11+ • Signed Release"
+                />
+
+                <WindowsDownloadButton
+                  size="lg"
+                  variant="dark"
+                  label="Download for Windows"
+                  subtext="Win 10/11 • Standalone .EXE"
+                />
 
                 <Button
                   to="/how-it-works"
@@ -130,13 +190,14 @@ export default function Home() {
                 <span style={{ display: 'inline-flex', color: '#10B981' }}>
                   <CheckCircle2 size={16} />
                 </span>
-                <span>Optimized for students & early career engineers • Android 11+</span>
+                <span>Optimized for students & early career engineers • Android APK + Windows .EXE Available</span>
               </div>
             </div>
 
-            {/* Right Hero Visual: Floating AI Orb */}
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+            {/* Right Hero Visual: 3D Holographic AI Orb & Copilot Badge */}
+            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
               <AIOrb />
+              <CopilotBadge3D />
             </div>
           </div>
         </div>
@@ -194,6 +255,130 @@ export default function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================================
+          3D INTERACTIVE NEW FEATURES MATRIX
+          ==================================================================== */}
+      <section className="section" style={{ position: 'relative', padding: '80px 0' }}>
+        <GlowBackground variant="left" />
+        <div className="container">
+          <SectionHeading
+            eyebrow="New Major Capabilities"
+            title="Engineered to Give You"
+            highlight="The Competitive Edge"
+            subtitle="Explore the latest suite of AI-driven career accelerators, designed to take you from candidate to hired engineer."
+          />
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+              gap: '24px',
+              marginTop: '36px',
+            }}
+          >
+            {new3DFeatures.map((feat, idx) => {
+              const Icon = feat.icon;
+              return (
+                <GlassCard
+                  key={idx}
+                  elevated
+                  className="card-3d"
+                  padding="28px"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    border: '1px solid rgba(226, 232, 240, 0.9)',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                      <div
+                        style={{
+                          width: '42px',
+                          height: '42px',
+                          borderRadius: '12px',
+                          background: `${feat.color}15`,
+                          color: feat.color,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Icon size={22} />
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '0.6875rem',
+                          fontWeight: '700',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          background: `${feat.color}15`,
+                          color: feat.color,
+                          fontFamily: 'var(--font-display)',
+                        }}
+                      >
+                        {feat.badge}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '10px' }}>
+                      {feat.title}
+                    </h3>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                      {feat.desc}
+                    </p>
+                  </div>
+                </GlassCard>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================================
+          3D DUAL DEVICE SHOWCASE SECTION
+          ==================================================================== */}
+      <section
+        className="section"
+        style={{
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FFF8F2 50%, #FFFFFF 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '80px 0',
+        }}
+      >
+        <GlowBackground variant="top" />
+        <div className="container">
+          <SectionHeading
+            eyebrow="Unified Cross-Platform Experience"
+            title="Available on Android Phone"
+            highlight="& Windows Desktop"
+            subtitle="Practice full-screen webcam mock interviews on your PC, and stay on top of daily learning streaks on your mobile phone."
+          />
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
+              gap: '48px',
+              alignItems: 'center',
+              marginTop: '40px',
+            }}
+          >
+            {/* Phone Mockup Left */}
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <PhoneMockup />
+            </div>
+
+            {/* Laptop Mockup Right */}
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <LaptopMockup />
+            </div>
           </div>
         </div>
       </section>
@@ -345,112 +530,6 @@ export default function Home() {
       </section>
 
       {/* ====================================================================
-          ANDROID PROMOTIONAL SECTION
-          ==================================================================== */}
-      <section
-        className="section section-android-app"
-        style={{
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #FFF8F2 50%, #FFFFFF 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <GlowBackground variant="top" />
-
-        <div className="container">
-          <div className="grid-2col">
-            {/* Phone Mockup Left */}
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PhoneMockup />
-            </div>
-
-            {/* App Promotion Right */}
-            <div>
-              <span className="badge badge-orange" style={{ marginBottom: '16px' }}>
-                <Smartphone size={14} />
-                <span>Android Exclusive Mobile App</span>
-              </span>
-
-              <h2
-                style={{
-                  fontSize: 'clamp(2rem, 3.8vw, 3rem)',
-                  fontWeight: '800',
-                  letterSpacing: '-0.03em',
-                  lineHeight: '1.15',
-                  marginBottom: '20px',
-                }}
-              >
-                Your career assistant,{' '}
-                <span className="text-gradient-orange">in your pocket.</span>
-              </h2>
-
-              <p
-                style={{
-                  fontSize: '1.125rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: '1.6',
-                  marginBottom: '28px',
-                }}
-              >
-                Take JobPilot with you. Build your profile, explore opportunities and manage your career journey from your Android device.
-              </p>
-
-              {/* Requirement Badge */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  border: '1px solid var(--border-subtle)',
-                  fontSize: '0.875rem',
-                  fontWeight: '700',
-                  color: 'var(--text-primary)',
-                  marginBottom: '32px',
-                }}
-              >
-                <span
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: '#10B981',
-                  }}
-                />
-                <span>Available for Android 11+</span>
-              </div>
-
-              {/* Direct APK Download & Play Store Callout */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '16px',
-                  alignItems: 'center',
-                }}
-              >
-                <div>
-                  <ApkDownloadButton size="md" />
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                    Free for students • Instant APK install
-                  </div>
-                </div>
-
-                <div>
-                  <PlayStoreButton />
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                    Official Play Store (Coming Soon)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================================
           FINAL CALL TO ACTION
           ==================================================================== */}
       <section className="section" style={{ paddingTop: '40px', paddingBottom: '100px' }}>
@@ -478,7 +557,7 @@ export default function Home() {
                 marginBottom: '16px',
               }}
             >
-              Get started with JobPilot on Android today.
+              Get started with JobPilot today.
             </h2>
             <p
               style={{
@@ -489,10 +568,11 @@ export default function Home() {
                 lineHeight: '1.6',
               }}
             >
-              Transform your resume into structured intelligence and navigate your career path with clarity and confidence.
+              Transform your resume into structured intelligence, rehearse mock interviews with live video posture tracking, and accelerate your job search.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <ApkDownloadButton size="lg" />
+              <WindowsDownloadButton size="lg" variant="dark" />
               <Button to="/features" variant="secondary" size="lg">
                 Explore All Features
               </Button>
@@ -501,5 +581,26 @@ export default function Home() {
         </div>
       </section>
     </div>
+  );
+}
+
+// Inline EyeIcon for trust items
+function EyeIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={props.size || 16}
+      height={props.size || 16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
   );
 }

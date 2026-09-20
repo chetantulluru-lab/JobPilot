@@ -1229,3 +1229,721 @@
   }
 }
 
+/* ==========================================================================
+   WINDOWS DESKTOP DOWNLOAD BUTTONS (.btn-exe)
+   ========================================================================== */
+.btn-exe {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08);
+  font-family: var(--font-display);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-exe::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transform: skewX(-25deg);
+  transition: left 0.6s ease;
+}
+
+.btn-exe:hover::before {
+  left: 150%;
+}
+
+.btn-exe-sm {
+  padding: 8px 16px;
+  min-height: 42px;
+}
+.btn-exe-sm .btn-exe-title { font-size: 0.8125rem; font-weight: 700; }
+.btn-exe-sm .btn-exe-sub { font-size: 0.6875rem; }
+
+.btn-exe-md {
+  padding: 10px 20px;
+  min-height: 52px;
+}
+.btn-exe-md .btn-exe-title { font-size: 0.9375rem; font-weight: 700; }
+.btn-exe-md .btn-exe-sub { font-size: 0.75rem; }
+
+.btn-exe-lg {
+  padding: 14px 26px;
+  min-height: 60px;
+}
+.btn-exe-lg .btn-exe-title { font-size: 1.0625rem; font-weight: 800; }
+.btn-exe-lg .btn-exe-sub { font-size: 0.8125rem; }
+
+.btn-exe-dark {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.btn-exe-dark:hover {
+  background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.35);
+  color: #FFFFFF;
+}
+.btn-exe-dark .btn-exe-sub { color: #94A3B8; }
+
+.btn-exe-primary {
+  background: linear-gradient(135deg, var(--orange-500) 0%, var(--orange-600) 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-exe-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(255, 106, 0, 0.45);
+  color: #FFFFFF;
+}
+.btn-exe-primary .btn-exe-sub { color: rgba(255, 255, 255, 0.85); }
+
+.btn-exe-outline {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-subtle);
+}
+.btn-exe-outline:hover {
+  border-color: var(--orange-500);
+  background: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(255, 106, 0, 0.15);
+}
+.btn-exe-outline .btn-exe-sub { color: var(--text-muted); }
+
+.btn-exe-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-exe-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* ==========================================================================
+   3D LAPTOP MOCKUP & SHOWCASE
+   ========================================================================== */
+.laptop-mockup-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.laptop-ambient-glow {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  width: 80%;
+  height: 70%;
+  background: radial-gradient(ellipse, rgba(255, 106, 0, 0.22) 0%, rgba(59, 130, 246, 0.12) 50%, transparent 75%);
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.laptop-perspective-container {
+  position: relative;
+  z-index: 1;
+  transform: perspective(1200px) rotateX(8deg) rotateY(-4deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.laptop-perspective-container:hover {
+  transform: perspective(1200px) rotateX(3deg) rotateY(0deg) translateY(-6px);
+}
+
+.laptop-screen-lid {
+  background: #0F172A;
+  border-radius: 18px 18px 4px 4px;
+  padding: 10px 12px 14px 12px;
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.45), 0 0 0 1.5px rgba(255, 255, 255, 0.12);
+  border: 1px solid #334155;
+}
+
+.laptop-webcam-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 12px;
+  margin-bottom: 6px;
+}
+
+.laptop-camera-lens {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1E293B;
+  border: 1px solid #475569;
+}
+
+.laptop-camera-indicator-active {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
+  animation: cameraBlink 2s infinite ease-in-out;
+}
+
+@keyframes cameraBlink {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; filter: drop-shadow(0 0 4px #10B981); }
+}
+
+.laptop-screen-display {
+  background: #0B0F19;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.laptop-window-header {
+  background: #131926;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.laptop-window-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.window-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.dot-red { background: #EF4444; }
+.dot-yellow { background: #F59E0B; }
+.dot-green { background: #10B981; }
+
+.laptop-window-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  color: #94A3B8;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.laptop-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  color: #F87171;
+  letter-spacing: 0.05em;
+}
+
+.status-live-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #EF4444;
+  animation: cameraBlink 1.2s infinite;
+}
+
+.laptop-app-body {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 14px;
+  min-height: 270px;
+}
+
+.laptop-session-meta {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.badge-chip {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+}
+.badge-chip-orange {
+  background: rgba(255, 106, 0, 0.15);
+  color: #FF8533;
+  border: 1px solid rgba(255, 106, 0, 0.3);
+}
+.badge-chip-neutral {
+  background: rgba(148, 163, 184, 0.12);
+  color: #CBD5E1;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.laptop-interviewer-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.interviewer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.interviewer-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.interviewer-name {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.interviewer-role {
+  font-size: 0.5625rem;
+  color: #94A3B8;
+}
+
+.interviewer-audio-wave {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.audio-bar {
+  width: 2px;
+  background: #FF6A00;
+  border-radius: 1px;
+  animation: audioWave 0.8s ease-in-out infinite alternate;
+}
+.bar-1 { height: 8px; animation-delay: 0.1s; }
+.bar-2 { height: 14px; animation-delay: 0.3s; }
+.bar-3 { height: 10px; animation-delay: 0.2s; }
+.bar-4 { height: 6px; animation-delay: 0.4s; }
+
+@keyframes audioWave {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1.4); }
+}
+
+.interviewer-prompt {
+  font-size: 0.6875rem;
+  color: #E2E8F0;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.laptop-candidate-speech {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.speech-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.625rem;
+  color: #10B981;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.speech-text {
+  font-size: 0.625rem;
+  color: #94A3B8;
+  line-height: 1.4;
+  margin: 0;
+  font-style: italic;
+}
+
+.laptop-video-feed {
+  position: relative;
+  background: #1E293B;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-mock-image {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #334155 0%, #1E293B 80%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-face-box {
+  width: 70px;
+  height: 70px;
+  border: 1.5px dashed rgba(16, 185, 129, 0.7);
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.face-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: #10B981;
+  border-style: solid;
+}
+.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+.face-tag {
+  position: absolute;
+  bottom: -16px;
+  font-size: 0.5rem;
+  background: #10B981;
+  color: #FFFFFF;
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.feed-hud-overlay {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hud-metric {
+  background: rgba(15, 23, 42, 0.85);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.5rem;
+  color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.laptop-mini-score-card {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.5625rem;
+  color: #94A3B8;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.score-val { font-weight: 800; }
+.text-green { color: #10B981; }
+.text-orange { color: #FF8533; }
+
+.score-bar-bg {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+.fill-92 { width: 92%; background: #10B981; }
+.fill-88 { width: 88%; background: #FF8533; }
+
+/* Laptop Base Chassis */
+.laptop-base-chassis {
+  position: relative;
+  margin-top: -3px;
+}
+
+.laptop-hinge {
+  height: 6px;
+  background: #1E293B;
+  border-radius: 0 0 2px 2px;
+  width: 30%;
+  margin: 0 auto;
+}
+
+.laptop-keyboard-deck {
+  height: 16px;
+  background: linear-gradient(180deg, #94A3B8 0%, #64748B 100%);
+  border-radius: 2px 2px 8px 8px;
+  box-shadow: 0 12px 25px -4px rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.laptop-trackpad {
+  width: 80px;
+  height: 10px;
+  background: #475569;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.laptop-front-lip {
+  height: 4px;
+  background: #334155;
+  border-radius: 0 0 12px 12px;
+  width: 98%;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   3D COPILOT AVATAR BADGE
+   ========================================================================== */
+.copilot-3d-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.copilot-glow-core {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.35) 0%, rgba(255, 133, 51, 0.15) 50%, transparent 70%);
+  filter: blur(35px);
+  pointer-events: none;
+}
+
+.copilot-card-surface {
+  position: relative;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-xl);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.1), 0 0 20px rgba(255, 106, 0, 0.12);
+  padding: 24px;
+  transform-style: preserve-3d;
+}
+
+.copilot-top-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.copilot-status-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+}
+
+.dot-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #10B981;
+  animation: pingDot 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.dot-solid {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+@keyframes pingDot {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.copilot-version-tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.copilot-avatar-stage {
+  position: relative;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.copilot-ring-orbit {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.orbit-outer {
+  width: 130px;
+  height: 130px;
+  border: 1px dashed rgba(255, 106, 0, 0.35);
+  animation: ringRotate 20s linear infinite;
+}
+
+.orbit-inner {
+  width: 110px;
+  height: 110px;
+  border: 1px solid rgba(255, 106, 0, 0.18);
+  animation: ringRotate 30s linear infinite reverse;
+}
+
+.copilot-avatar-orb {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FF8533 0%, #FF6A00 60%, #D95300 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px -4px rgba(255, 106, 0, 0.5), inset 0 3px 8px rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+  animation: orbFloat 4s ease-in-out infinite;
+}
+
+.avatar-hologram-shimmer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+  animation: hologramShimmer 3s infinite;
+}
+
+@keyframes hologramShimmer {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(50%) rotate(360deg); }
+}
+
+.copilot-orbit-chip {
+  position: absolute;
+  padding: 6px 12px;
+  background: #FFFFFF;
+  border-radius: 20px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  font-family: var(--font-display);
+}
+
+.chip-left {
+  left: 10px;
+  top: 25px;
+  animation: floatCard1 4s ease-in-out infinite alternate;
+}
+
+.chip-right {
+  right: 10px;
+  bottom: 25px;
+  animation: floatCard2 4.5s ease-in-out infinite alternate;
+}
+
+.copilot-footer-metrics {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.metric-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   3D CARD TILT & DEPTH UTILITY
+   ========================================================================== */
+.card-3d {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 20px 40px -15px rgba(255, 106, 0, 0.22), 0 0 20px rgba(255, 106, 0, 0.08);
+}
+
+
