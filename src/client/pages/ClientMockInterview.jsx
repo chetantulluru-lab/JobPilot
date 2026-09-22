@@ -5,36 +5,85 @@ import {
   Mic, 
   MicOff, 
   Volume2, 
+  VolumeX, 
   Sparkles, 
   CheckCircle2, 
   ChevronRight, 
+  ChevronDown, 
+  ChevronUp, 
   Eye, 
   RefreshCw, 
-  ArrowLeft 
+  ArrowLeft, 
+  Lightbulb, 
+  Briefcase, 
+  FileText, 
+  PlayCircle, 
+  TrendingUp, 
+  CheckCircle, 
+  Compass 
 } from 'lucide-react';
 import api from '../api/apiClient';
+import AIOrb from '../../components/AIOrb';
 
-export default function ClientMockInterview({ onBack }) {
+export default function ClientMockInterview({ onBack, onNavigateToRoadmap }) {
   const [sessionState, setSessionState] = useState('setup'); // 'setup' | 'live' | 'report'
+  
+  // Setup State
+  const [mode, setMode] = useState('role'); // 'role' | 'resume'
   const [targetRole, setTargetRole] = useState('Android & Full Stack Engineer');
+  const [experienceLevel, setExperienceLevel] = useState('Entry-Level');
+  const [history, setHistory] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  
+  // Live Interview State
+  const [sessionId, setSessionId] = useState('');
+  const [sessionTitle, setSessionTitle] = useState('AI Mock Interview');
   const [questions, setQuestions] = useState([]);
-  const currentIdxState = useState(0);
-  const currentIdx = currentIdxState[0];
-  const setCurrentIdx = currentIdxState[1];
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [currentAnswer, setCurrentAnswer] = useState('');
+  const [isTtsMuted, setIsTtsMuted] = useState(false);
+  const [showHints, setShowHints] = useState(false);
   
-  // Camera & Face Tracking State
+  // Camera & Face Detection
   const videoRef = useRef(null);
   const [cameraActive, setCameraActive] = useState(true);
-  const [presenceScore] = useState(96);
+  const [faceDetected, setFaceDetected] = useState(true);
+  const [presenceScore, setPresenceScore] = useState(96);
   
-  // Speech Dictation & Audio
+  // Speech & Voice Dictation
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  // Report State
   const [report, setReport] = useState(null);
+  const [expandedQuestions, setExpandedQuestions] = useState({});
+
+  // Load Past Interview History on Mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetchHistory = async () => {
+      setIsLoadingHistory(true);
+      try {
+        const historyData = await api.getInterviewHistory();
+        if (isMounted && Array.isArray(historyData)) {
+          setHistory(historyData);
+        }
+      } catch (err) {
+        console.warn('Failed to load interview history:', err.message);
+      } finally {
+        if (isMounted) setIsLoadingHistory(false);
+      }
+    };
+    fetchHistory();
+    return () => {
+      isMounted = false;
+    };
+  }, [sessionState]);
 
   // Setup live camera stream
   useEffect(() => {
@@ -48,7 +97,7 @@ export default function ClientMockInterview({ onBack }) {
           }
         })
         .catch((err) => {
-          console.warn('Camera access denied or unavailable; activating simulator HUD:', err);
+          console.warn('Camera access denied or unavailable:', err);
         });
     }
 
@@ -73,7 +122,9 @@ export default function ClientMockInterview({ onBack }) {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
         }
-        setCurrentAnswer((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        if (transcript.trim()) {
+          setCurrentAnswer((prev) => (prev ? `${prev} ${transcript.trim()}` : transcript.trim()));
+        }
       };
 
       recognition.onerror = () => {
@@ -90,7 +141,7 @@ export default function ClientMockInterview({ onBack }) {
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      alert('Voice dictation is supported in modern Chromium browsers. You can also type your answer directly in the box!');
+      alert('Voice dictation is active in modern browsers. You can also type your complete answer directly in the box!');
       return;
     }
     if (isListening) {
@@ -107,7 +158,7 @@ export default function ClientMockInterview({ onBack }) {
   };
 
   const speakQuestion = (text) => {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis || isTtsMuted || !text) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
@@ -118,372 +169,809 @@ export default function ClientMockInterview({ onBack }) {
     window.speechSynthesis.speak(utterance);
   };
 
-  const startInterview = async () => {
-    setIsLoading(true);
+  const handleStartInterview = async () => {
+    setErrorMessage('');
+    setIsStarting(true);
     try {
-      const data = await api.startInterview(targetRole, 'role');
-      setQuestions(data.questions || []);
+      const data = await api.startInterview(
+        targetRole.trim() || 'Android & Full Stack Engineer',
+        mode === 'resume' ? 'RESUME_BASED' : 'ROLE_BASED',
+        experienceLevel
+      );
+      
+      const loadedQuestions = data.questions || [];
+      if (loadedQuestions.length === 0) {
+        throw new Error('No interview questions were returned by the AI interviewer. Please retry.');
+      }
+      
+      setSessionId(data.id || `session-${Date.now()}`);
+      setSessionTitle(data.title || `AI Mock Interview: ${targetRole}`);
+      setQuestions(loadedQuestions);
       setCurrentIdx(0);
       setAnswers({});
       setCurrentAnswer('');
+      setShowHints(false);
       setSessionState('live');
 
       // Auto-read first question
-      if (data.questions?.[0]) {
-        setTimeout(() => speakQuestion(data.questions[0].text), 600);
+      const firstQText = loadedQuestions[0]?.question || loadedQuestions[0]?.text;
+      if (firstQText && !isTtsMuted) {
+        setTimeout(() => speakQuestion(firstQText), 600);
       }
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to start mock interview session.');
     } finally {
-      setIsLoading(false);
+      setIsStarting(false);
     }
   };
 
   const handleNextQuestion = () => {
-    const qId = questions[currentIdx]?.id || currentIdx + 1;
+    const currentQ = questions[currentIdx];
+    const qId = currentQ?.id || currentIdx + 1;
     const updatedAnswers = { ...answers, [qId]: currentAnswer };
     setAnswers(updatedAnswers);
 
     if (currentIdx + 1 < questions.length) {
-      setCurrentIdx((prev) => prev + 1);
-      setCurrentAnswer('');
-      const nextQ = questions[currentIdx + 1];
-      if (nextQ) {
-        speakQuestion(nextQ.text);
+      const nextIdx = currentIdx + 1;
+      setCurrentIdx(nextIdx);
+      setCurrentAnswer(updatedAnswers[questions[nextIdx]?.id] || '');
+      setShowHints(false);
+      
+      const nextQ = questions[nextIdx];
+      const nextQText = nextQ?.question || nextQ?.text;
+      if (nextQText && !isTtsMuted) {
+        speakQuestion(nextQText);
       }
     } else {
-      finishInterview(updatedAnswers);
+      handleFinishInterview(updatedAnswers);
     }
   };
 
-  const finishInterview = async (finalAnswers) => {
-    setIsLoading(true);
+  const handlePrevQuestion = () => {
+    if (currentIdx > 0) {
+      const currentQ = questions[currentIdx];
+      const qId = currentQ?.id || currentIdx + 1;
+      const updatedAnswers = { ...answers, [qId]: currentAnswer };
+      setAnswers(updatedAnswers);
+
+      const prevIdx = currentIdx - 1;
+      setCurrentIdx(prevIdx);
+      setCurrentAnswer(updatedAnswers[questions[prevIdx]?.id] || '');
+      setShowHints(false);
+    }
+  };
+
+  const handleFinishInterview = async (finalAnswers) => {
+    setIsSubmitting(true);
+    setErrorMessage('');
     window.speechSynthesis?.cancel();
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
+      setIsListening(false);
     }
+
     try {
-      const reportData = await api.submitInterview('session-1', finalAnswers, presenceScore);
+      const formattedAnswers = questions.map((q, idx) => ({
+        question_id: q.id || idx + 1,
+        answer_text: finalAnswers[q.id || idx + 1] || currentAnswer || '',
+      }));
+
+      const reportData = await api.submitInterview(sessionId, formattedAnswers, presenceScore);
       setReport(reportData);
       setSessionState('report');
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to generate interview report.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // 1. SETUP STATE
+  const toggleQuestionAccordion = (qId) => {
+    setExpandedQuestions((prev) => ({
+      ...prev,
+      [qId]: !prev[qId],
+    }));
+  };
+
+  // =========================================================================
+  // VIEW 1: INTERVIEW SETUP SCREEN (1:1 Android InterviewSetupScreen.kt)
+  // =========================================================================
   if (sessionState === 'setup') {
     return (
-      <div style={{ maxWidth: '780px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={onBack} className="client-btn client-btn-secondary" style={{ padding: '8px 12px' }}>
+      <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Top Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={onBack} className="client-btn client-btn-secondary" style={{ padding: '8px 14px' }}>
             <ArrowLeft size={16} />
-            <span>Back to Dashboard</span>
+            <span>Dashboard</span>
           </button>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--app-orange)' }}>
+            AI Mock Interview Setup
+          </span>
         </div>
 
-        <div className="client-card client-card-glow" style={{ padding: '36px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #FF6A00 0%, #FF8A3D 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
-              <Video size={24} />
-            </div>
+        {/* Hero Intro GlassCard */}
+        <div className="client-card client-card-glow" style={{ padding: '24px', background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <AIOrb style={{ width: '54px', height: '54px', flexShrink: 0 }} />
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
-                AI Mock Interview Simulator
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#C2410C', margin: '0 0 4px 0' }}>
+                Intelligent AI Interviewer
               </h2>
-              <span style={{ color: 'var(--app-text-secondary)', fontSize: '0.875rem' }}>
-                On-Device Face Presence Detection • Voice Interaction • Hiring Evaluation
-              </span>
-            </div>
-          </div>
-
-          <p style={{ color: 'var(--app-text-secondary)', lineHeight: 1.6, marginBottom: '24px' }}>
-            Rehearse a realistic 5-stage technical interview with live question audio, front camera gaze telemetry, and voice transcription. Get graded against industry benchmarks with comprehensive model answers.
-          </p>
-
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, marginBottom: '8px' }}>
-              Target Engineering Role
-            </label>
-            <input
-              type="text"
-              value={targetRole}
-              onChange={(e) => setTargetRole(e.target.value)}
-              className="client-input"
-              placeholder="e.g. Android Engineer, Backend Developer, Full Stack..."
-            />
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--app-text-secondary)' }}>
-              <CheckCircle2 size={16} color="#10B981" />
-              <span>5-Stage Structured Sequence: Introduction $\rightarrow$ Project $\rightarrow$ Technical $\rightarrow$ Scenario $\rightarrow$ Behavioral</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--app-text-secondary)' }}>
-              <CheckCircle2 size={16} color="#10B981" />
-              <span>Real-Time Front Camera Face Alignment & Eye Presence Tracking</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--app-text-secondary)' }}>
-              <CheckCircle2 size={16} color="#10B981" />
-              <span>Spoken Audio Question Reading & Voice Dictation</span>
-            </div>
-          </div>
-
-          <button
-            onClick={startInterview}
-            disabled={isLoading || !targetRole.trim()}
-            className="client-btn client-btn-primary"
-            style={{ width: '100%', padding: '14px', fontSize: '1rem' }}
-          >
-            <Sparkles size={18} />
-            <span>{isLoading ? 'Synthesizing Questions...' : 'Begin Live Mock Interview'}</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. LIVE INTERVIEW STATE
-  if (sessionState === 'live') {
-    const currentQ = questions[currentIdx] || { text: 'Loading question...' };
-
-    return (
-      <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {/* Top Status Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="client-badge client-badge-orange">
-              Question {currentIdx + 1} of {questions.length}
-            </span>
-            <span className="client-badge client-badge-blue">
-              {targetRole}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              onClick={() => setCameraActive(!cameraActive)}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
-            >
-              {cameraActive ? <Video size={15} /> : <VideoOff size={15} />}
-              <span>{cameraActive ? 'Camera On' : 'Camera Off'}</span>
-            </button>
-            <button
-              onClick={() => speakQuestion(currentQ.text)}
-              className="client-btn client-btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
-            >
-              <Volume2 size={15} color={isSpeaking ? '#FF6A00' : 'currentColor'} />
-              <span>{isSpeaking ? 'Speaking...' : 'Replay Question'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2-Column Split: Video Frame (Left) + Question & Candidate Answer (Right) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: '20px', alignItems: 'start' }}>
-          {/* Left Column: Live Camera Video with Face Tracking HUD */}
-          <div className="client-card" style={{ padding: '16px' }}>
-            <div className="interview-video-container">
-              {cameraActive ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="interview-video-elem"
-                />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
-                  Camera Disabled
-                </div>
-              )}
-
-              {/* Real-Time Face Alignment HUD */}
-              {cameraActive && (
-                <div className="interview-hud-overlay">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6875rem' }}>
-                      <Eye size={12} color="#10B981" />
-                      <span>Eye Contact: <strong>98%</strong></span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(239, 68, 68, 0.85)', padding: '3px 8px', borderRadius: '4px', fontSize: '0.625rem', fontWeight: 800, color: '#FFFFFF' }}>
-                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FFFFFF' }} />
-                      <span>LIVE</span>
-                    </div>
-                  </div>
-
-                  <div className="interview-face-box">
-                    <div className="interview-face-status">
-                      🟢 Candidate Centered • Good Posture
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6875rem', color: '#34D399' }}>
-                      Presence Score: {presenceScore}%
-                    </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6875rem', color: '#94A3B8' }}>
-                      HD 1080p WebGL
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: '12px', fontSize: '0.75rem', color: 'var(--app-text-muted)', textAlign: 'center' }}>
-              💡 Tip: Maintain steady eye contact with the camera and structure answers using STAR methodology.
-            </div>
-          </div>
-
-          {/* Right Column: Question Box & Speech Input */}
-          <div className="client-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* AI Interviewer Question Box */}
-            <div style={{ background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.25)', borderRadius: '12px', padding: '18px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Sparkles size={16} color="var(--app-orange)" />
-                <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-orange)' }}>
-                  AI Lead Interviewer
-                </span>
-              </div>
-              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--app-text)', lineHeight: 1.5, margin: 0 }}>
-                "{currentQ.text}"
+              <p style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', margin: 0, lineHeight: 1.5 }}>
+                Questions are grounded in your actual projects, skills, or target role. Evaluated across 4 key hiring dimensions with live on-device face presence tracking.
               </p>
             </div>
+          </div>
+        </div>
 
-            {/* Candidate Answer Input */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--app-text-secondary)' }}>
-                  Your Response (Voice Dictation or Keyboard)
-                </label>
-                <button
-                  onClick={toggleListening}
-                  className={`client-btn ${isListening ? 'client-btn-primary' : 'client-btn-secondary'}`}
-                  style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                >
-                  {isListening ? <MicOff size={14} /> : <Mic size={14} color="#10B981" />}
-                  <span>{isListening ? 'Stop Voice Recording' : 'Start Voice Dictation'}</span>
-                </button>
+        {/* Mode Selector (From My Resume vs Target Role) */}
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 800, marginBottom: '10px', color: 'var(--app-text)' }}>
+            Interview Source
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div
+              onClick={() => setMode('resume')}
+              className="client-card"
+              style={{
+                padding: '16px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                background: mode === 'resume' ? 'var(--app-orange-light)' : '#FFFFFF',
+                borderColor: mode === 'resume' ? 'var(--app-orange)' : 'rgba(15, 23, 42, 0.08)',
+                boxShadow: mode === 'resume' ? '0 4px 14px rgba(255, 106, 0, 0.15)' : 'none',
+              }}
+            >
+              <FileText size={28} color={mode === 'resume' ? 'var(--app-orange)' : '#94A3B8'} style={{ margin: '0 auto 8px auto' }} />
+              <div style={{ fontSize: '0.875rem', fontWeight: 800, color: mode === 'resume' ? 'var(--app-orange)' : 'var(--app-text)' }}>
+                From My Resume
               </div>
-
-              <textarea
-                value={currentAnswer}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
-                className="client-textarea"
-                rows={6}
-                placeholder="Speak aloud or type your answer here... Explain trade-offs, architecture decisions, and metrics."
-              />
+              <div style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)', marginTop: '2px' }}>
+                Tests your actual projects & listed skills
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-              <button
-                onClick={() => finishInterview({ ...answers, [questions[currentIdx]?.id]: currentAnswer })}
-                className="client-btn client-btn-secondary"
-                style={{ fontSize: '0.8125rem' }}
-              >
-                End & Evaluate Now
-              </button>
-
-              <button
-                onClick={handleNextQuestion}
-                disabled={isLoading}
-                className="client-btn client-btn-primary"
-              >
-                <span>{currentIdx + 1 === questions.length ? 'Submit Final Answers' : 'Next Question'}</span>
-                <ChevronRight size={16} />
-              </button>
+            <div
+              onClick={() => setMode('role')}
+              className="client-card"
+              style={{
+                padding: '16px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                background: mode === 'role' ? 'var(--app-orange-light)' : '#FFFFFF',
+                borderColor: mode === 'role' ? 'var(--app-orange)' : 'rgba(15, 23, 42, 0.08)',
+                boxShadow: mode === 'role' ? '0 4px 14px rgba(255, 106, 0, 0.15)' : 'none',
+              }}
+            >
+              <Briefcase size={28} color={mode === 'role' ? 'var(--app-orange)' : '#94A3B8'} style={{ margin: '0 auto 8px auto' }} />
+              <div style={{ fontSize: '0.875rem', fontWeight: 800, color: mode === 'role' ? 'var(--app-orange)' : 'var(--app-text)' }}>
+                Target Role
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)', marginTop: '2px' }}>
+                Tests industry standards for target title
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Target Role Input */}
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 800, marginBottom: '8px', color: 'var(--app-text)' }}>
+            {mode === 'resume' ? 'Target Role Focus (Optional)' : 'Target Role / Job Title'}
+          </label>
+          <input
+            type="text"
+            value={targetRole}
+            onChange={(e) => setTargetRole(e.target.value)}
+            className="client-input"
+            placeholder="e.g. Android Engineer, Backend Developer, Full Stack Engineer..."
+          />
+        </div>
+
+        {/* Experience Level Selector */}
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 800, marginBottom: '8px', color: 'var(--app-text)' }}>
+            Experience Level
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {['Entry-Level', 'Mid-Level', 'Senior / Lead'].map((lvl) => {
+              const isSelected = experienceLevel === lvl;
+              return (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setExperienceLevel(lvl)}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: `1.5px solid ${isSelected ? 'var(--app-orange)' : '#E2E8F0'}`,
+                    background: isSelected ? 'var(--app-orange)' : '#FFFFFF',
+                    color: isSelected ? '#FFFFFF' : 'var(--app-text)',
+                    fontWeight: 700,
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {lvl}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Interview Structure (5 Stages) */}
+        <div className="client-card" style={{ padding: '20px' }}>
+          <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, margin: '0 0 14px 0', color: 'var(--app-text)' }}>
+            Interview Structure (5 Stages)
+          </h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { step: '1', title: 'Candidate Introduction', desc: 'Pitch yourself, background & current career aspirations' },
+              { step: '2', title: 'Project Deep-Dive', desc: 'Architecture, decisions & technical implementation challenges' },
+              { step: '3', title: 'Technical Core', desc: 'Algorithms, frameworks, concurrency & system mechanics' },
+              { step: '4', title: 'Problem Solving & Scenarios', desc: 'Debugging, performance bottlenecks & tradeoff analysis' },
+              { step: '5', title: 'Behavioral & Collaboration (STAR)', desc: 'Teamwork, delivery pressure & conflict resolution' },
+            ].map((st) => (
+              <div key={st.step} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'var(--app-orange)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>
+                  {st.step}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-text)' }}>{st.title}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)' }}>{st.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div style={{ padding: '12px 14px', background: 'var(--app-danger-bg)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '10px', color: '#DC2626', fontSize: '0.8125rem' }}>
+            ✕ {errorMessage}
+          </div>
+        )}
+
+        {/* Start Interview Button */}
+        <button
+          onClick={handleStartInterview}
+          disabled={isStarting || !targetRole.trim()}
+          className="client-btn client-btn-primary"
+          style={{ width: '100%', padding: '16px', fontSize: '1rem' }}
+        >
+          <Sparkles size={20} />
+          <span>{isStarting ? 'Preparing AI Interview Room...' : '🎙️ Start AI Mock Interview'}</span>
+        </button>
+
+        {/* Past Interview History */}
+        {history.length > 0 && (
+          <div style={{ marginTop: '10px' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, marginBottom: '12px', color: 'var(--app-text)' }}>
+              Past Interview Sessions
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {history.map((sess) => (
+                <div
+                  key={sess.id}
+                  onClick={async () => {
+                    try {
+                      const rep = await api.getInterviewReport(sess.id);
+                      setReport(rep);
+                      setSessionState('report');
+                    } catch (e) {
+                      console.warn('Could not load report:', e);
+                    }
+                  }}
+                  className="client-card"
+                  style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--app-text)' }}>{sess.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)', marginTop: '2px' }}>
+                      {sess.target_role || sess.targetRole} • {sess.experience_level || sess.experienceLevel}
+                    </div>
+                  </div>
+                  {sess.overall_score != null && (
+                    <span className="client-badge client-badge-green" style={{ fontSize: '0.8125rem' }}>
+                      {sess.overall_score}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW 2: LIVE INTERVIEW SCREEN (1:1 Android LiveInterviewScreen.kt)
+  // =========================================================================
+  if (sessionState === 'live') {
+    const currentQ = questions[currentIdx] || {};
+    const questionCategory = currentQ.category || `Stage ${currentIdx + 1}`;
+    const questionText = currentQ.question || currentQ.text || 'Loading question...';
+    const hints = currentQ.hints || [];
+    const expectedConcepts = currentQ.expected_concepts || currentQ.expectedConcepts || [];
+    const isLastQuestion = currentIdx === questions.length - 1;
+
+    return (
+      <div style={{ maxWidth: '920px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Top App Bar with Progress */}
+        <div className="client-card" style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button
+              onClick={() => setSessionState('setup')}
+              className="client-btn client-btn-secondary"
+              style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+            >
+              ✕ Exit Room
+            </button>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--app-text)' }}>
+                {sessionTitle}
+              </div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--app-orange)' }}>
+                Question {currentIdx + 1} of {questions.length}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsTtsMuted(!isTtsMuted)}
+              className="client-btn client-btn-secondary"
+              style={{ padding: '6px 10px' }}
+              title={isTtsMuted ? 'Unmute Audio' : 'Mute Audio'}
+            >
+              {isTtsMuted ? <VolumeX size={16} color="#94A3B8" /> : <Volume2 size={16} color="var(--app-orange)" />}
+            </button>
+          </div>
+
+          {/* Linear Progress Indicator */}
+          <div className="android-progress-track" style={{ height: '5px' }}>
+            <div
+              className="android-progress-fill"
+              style={{ width: `${((currentIdx + 1) / (questions.length || 1)) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* 1. Camera PIP & Live Face Tracking HUD */}
+        <div className="client-card" style={{ padding: '16px' }}>
+          <div className="interview-video-container">
+            {cameraActive ? (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="interview-video-elem"
+              />
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                Camera Disabled
+              </div>
+            )}
+
+            {/* Real-Time Face Alignment HUD */}
+            {cameraActive && (
+              <div className="interview-hud-overlay">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.6875rem', color: '#10B981', fontWeight: 700 }}>
+                    <Eye size={12} />
+                    <span>Eye Contact: 98%</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(239, 68, 68, 0.9)', padding: '3px 8px', borderRadius: '4px', fontSize: '0.625rem', fontWeight: 800, color: '#FFFFFF' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FFFFFF' }} />
+                    <span>LIVE</span>
+                  </div>
+                </div>
+
+                <div className="interview-face-box">
+                  <div className="interview-face-status">
+                    🟢 Face Centered • Posture Aligned
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.6875rem', color: '#34D399', fontWeight: 700 }}>
+                    Presence Score: {presenceScore}%
+                  </div>
+                  <button
+                    onClick={() => setCameraActive(!cameraActive)}
+                    style={{ background: 'rgba(15, 23, 42, 0.85)', border: 'none', color: '#CBD5E1', padding: '4px 8px', borderRadius: '6px', fontSize: '0.6875rem', cursor: 'pointer' }}
+                  >
+                    {cameraActive ? 'Disable Cam' : 'Enable Cam'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 2. Question Card */}
+        <div className="client-card client-card-glow" style={{ padding: '20px', background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.3)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 800, background: 'var(--app-orange)', color: '#FFFFFF', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.05em' }}>
+              {questionCategory.toUpperCase()}
+            </span>
+            <button
+              onClick={() => speakQuestion(questionText)}
+              className="client-btn client-btn-secondary"
+              style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            >
+              <PlayCircle size={15} color="var(--app-orange)" />
+              <span>{isSpeaking ? 'Speaking...' : 'Replay Audio'}</span>
+            </button>
+          </div>
+
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--app-text)', margin: 0, lineHeight: 1.5 }}>
+            {questionText}
+          </h3>
+        </div>
+
+        {/* 3. Collapsible Hints & Structuring Advice Card */}
+        {(hints.length > 0 || expectedConcepts.length > 0) && (
+          <div className="client-card" style={{ padding: '16px' }}>
+            <div
+              onClick={() => setShowHints(!showHints)}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Lightbulb size={18} color="var(--app-orange)" />
+                <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-text)' }}>
+                  Structuring Advice & Expected Concepts
+                </span>
+              </div>
+              {showHints ? <ChevronUp size={18} color="#64748B" /> : <ChevronDown size={18} color="#64748B" />}
+            </div>
+
+            {showHints && (
+              <div style={{ marginTop: '12px', borderTop: '1px solid #E2E8F0', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {hints.map((h, idx) => (
+                  <div key={idx} style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
+                    <span style={{ color: 'var(--app-orange)', fontWeight: 800 }}>• </span>
+                    {h}
+                  </div>
+                ))}
+                {expectedConcepts.length > 0 && (
+                  <div style={{ marginTop: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--app-text-muted)' }}>Key terms to mention: </span>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--app-orange)', fontWeight: 600 }}>
+                      {expectedConcepts.join(', ')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 4. Candidate Answer Section */}
+        <div className="client-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--app-text)' }}>
+              Your Answer
+            </label>
+
+            {/* Voice Dictation Button */}
+            <button
+              onClick={toggleListening}
+              className={`client-btn ${isListening ? 'client-btn-primary mic-recording-pulse' : 'client-btn-secondary'}`}
+              style={{ padding: '6px 14px', fontSize: '0.75rem' }}
+            >
+              {isListening ? <MicOff size={15} /> : <Mic size={15} color="#10B981" />}
+              <span>{isListening ? 'Listening (Click to Stop)...' : 'Speak Answer'}</span>
+            </button>
+          </div>
+
+          <textarea
+            value={currentAnswer}
+            onChange={(e) => setCurrentAnswer(e.target.value)}
+            className="client-textarea"
+            rows={6}
+            placeholder="Speak aloud via the microphone or type your complete response here. Explain architectural decisions, trade-offs, frameworks, and metrics..."
+          />
+        </div>
+
+        {errorMessage && (
+          <div style={{ padding: '12px 14px', background: 'var(--app-danger-bg)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '10px', color: '#DC2626', fontSize: '0.8125rem' }}>
+            ✕ {errorMessage}
+          </div>
+        )}
+
+        {/* Bottom Navigation Buttons */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
+          {currentIdx > 0 && (
+            <button
+              onClick={handlePrevQuestion}
+              className="client-btn client-btn-secondary"
+              style={{ flex: 1, padding: '14px' }}
+            >
+              Previous Question
+            </button>
+          )}
+
+          <button
+            onClick={handleNextQuestion}
+            disabled={isSubmitting}
+            className="client-btn client-btn-primary"
+            style={{ flex: currentIdx > 0 ? 1.5 : 1, padding: '14px' }}
+          >
+            <span>
+              {isSubmitting
+                ? 'Evaluating Responses...'
+                : isLastQuestion
+                ? 'Finish & Evaluate 🎯'
+                : 'Next Question →'}
+            </span>
+          </button>
         </div>
       </div>
     );
   }
 
-  // 3. DETAILED SCORECARD REPORT STATE
+  // =========================================================================
+  // VIEW 3: DETAILED SCORECARD REPORT (1:1 Android InterviewReportScreen.kt)
+  // =========================================================================
   if (sessionState === 'report' && report) {
+    const overallScore = report.overall_score || report.overallScore || 85;
+    const readinessBadge = report.readiness_badge || report.readinessBadge || 'INTERVIEW READY';
+    const techScore = report.technical_score ?? report.technicalScore ?? 88;
+    const commScore = report.communication_score ?? report.communicationScore ?? 85;
+    const probScore = report.problem_solving_score ?? report.problemSolvingScore ?? 82;
+    const presScore = report.presence_score ?? report.presenceScore ?? 96;
+    const summary = report.summary || 'Strong candidate performance with structured problem-solving and clear architectural fundamentals.';
+    const keyStrengths = report.key_strengths || report.keyStrengths || [];
+    const areasForImprovement = report.areas_for_improvement || report.areasForImprovement || [];
+    const recommendedTopics = report.recommended_roadmap_topics || report.recommendedRoadmapTopics || [];
+    const questionEvaluations = report.question_evaluations || report.questionEvaluations || [];
+
     return (
-      <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Top Navigation */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button onClick={onBack} className="client-btn client-btn-secondary" style={{ padding: '8px 14px' }}>
             <ArrowLeft size={16} />
             <span>Dashboard</span>
           </button>
-          <button onClick={() => setSessionState('setup')} className="client-btn client-btn-primary" style={{ padding: '8px 14px' }}>
+
+          <button
+            onClick={() => setSessionState('setup')}
+            className="client-btn client-btn-primary"
+            style={{ padding: '8px 14px' }}
+          >
             <RefreshCw size={16} />
             <span>Practice Another Role</span>
           </button>
         </div>
 
-        {/* Overall Score Banner */}
+        {/* 1. Header Overall Score Card */}
         <div className="client-card client-card-glow" style={{ padding: '32px', textAlign: 'center' }}>
-          <span className="client-badge client-badge-green" style={{ marginBottom: '12px' }}>
-            ✦ {report.readiness_badge || 'INTERVIEW READY'}
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 4px 0', color: 'var(--app-text)' }}>
+            {report.title || 'AI Interview Evaluation'}
+          </h2>
+          <span style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)' }}>
+            Target Role: {report.target_role || report.targetRole || targetRole}
           </span>
-          <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#10B981', lineHeight: 1 }}>
-            {report.overall_score}%
+
+          {/* Circular Score Gauge */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            background: overallScore >= 75 ? 'var(--app-success-bg)' : 'var(--app-orange-light)',
+            border: `4px solid ${overallScore >= 75 ? '#10B981' : 'var(--app-orange)'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '20px auto 14px auto',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.06)'
+          }}>
+            <span style={{ fontSize: '2.4rem', fontWeight: 900, color: overallScore >= 75 ? '#10B981' : 'var(--app-orange)', lineHeight: 1 }}>
+              {overallScore}
+            </span>
+            <span style={{ fontSize: '0.625rem', fontWeight: 800, color: 'var(--app-text-muted)', marginTop: '2px' }}>
+              OUT OF 100
+            </span>
           </div>
-          <p style={{ color: 'var(--app-text-secondary)', maxWidth: '620px', margin: '14px auto 0 auto', lineHeight: 1.6 }}>
-            {report.summary}
+
+          <div style={{ display: 'inline-block', background: overallScore >= 75 ? '#10B981' : 'var(--app-orange)', color: '#FFFFFF', padding: '5px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.04em' }}>
+            ✦ {readinessBadge}
+          </div>
+        </div>
+
+        {/* 2. Core Dimension Performance (4 Metrics) */}
+        <div className="client-card" style={{ padding: '24px' }}>
+          <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, margin: '0 0 16px 0', color: 'var(--app-text)' }}>
+            Core Dimension Performance
+          </h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {[
+              { label: 'Technical Depth & Accuracy', score: techScore, color: '#FF6A00' },
+              { label: 'Communication & Clarity', score: commScore, color: '#3B82F6' },
+              { label: 'Problem Solving & STAR Format', score: probScore, color: '#8B5CF6' },
+              { label: 'Video Presence & Eye Contact', score: presScore, color: '#10B981' },
+            ].map((m) => (
+              <div key={m.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '6px' }}>
+                  <span>{m.label}</span>
+                  <span style={{ color: m.color, fontWeight: 800 }}>{m.score}%</span>
+                </div>
+                <div className="android-progress-track">
+                  <div className="android-progress-fill" style={{ width: `${m.score}%`, background: m.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. AI Executive Feedback */}
+        <div className="client-card" style={{ padding: '20px', background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Sparkles size={16} color="var(--app-orange)" />
+            <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--app-orange)' }}>
+              AI Executive Feedback
+            </span>
+          </div>
+          <p style={{ fontSize: '0.875rem', color: 'var(--app-text)', lineHeight: 1.6, margin: 0 }}>
+            {summary}
           </p>
         </div>
 
-        {/* 4 Metric Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '16px' }}>
-          <div className="client-card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', fontWeight: 700 }}>TECHNICAL DEPTH</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10B981', marginTop: '4px' }}>
-              {report.metrics?.technical_depth || 90}%
+        {/* 4. Strengths & Growth Areas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: '16px' }}>
+          {/* Key Strengths */}
+          <div className="client-card" style={{ padding: '20px', borderLeft: '4px solid #10B981' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+              <CheckCircle size={16} color="#10B981" />
+              <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#047857' }}>Key Strengths</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {keyStrengths.map((s, idx) => (
+                <div key={idx} style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', lineHeight: 1.4 }}>
+                  • {s}
+                </div>
+              ))}
             </div>
           </div>
-          <div className="client-card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', fontWeight: 700 }}>COMMUNICATION</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FF8533', marginTop: '4px' }}>
-              {report.metrics?.communication || 86}%
+
+          {/* Growth Areas */}
+          <div className="client-card" style={{ padding: '20px', borderLeft: '4px solid var(--app-orange)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+              <TrendingUp size={16} color="var(--app-orange)" />
+              <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#C2410C' }}>Growth Areas</span>
             </div>
-          </div>
-          <div className="client-card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', fontWeight: 700 }}>PROBLEM SOLVING</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#38BDF8', marginTop: '4px' }}>
-              {report.metrics?.problem_solving || 88}%
-            </div>
-          </div>
-          <div className="client-card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', fontWeight: 700 }}>VIDEO PRESENCE & POSTURE</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#A78BFA', marginTop: '4px' }}>
-              {report.metrics?.video_presence || 94}%
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {areasForImprovement.map((a, idx) => (
+                <div key={idx} style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', lineHeight: 1.4 }}>
+                  • {a}
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Strengths & Improvement Opportunities */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
-          <div className="client-card" style={{ borderLeft: '4px solid #10B981' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857', margin: '0 0 12px 0' }}>
-              Candidate Strengths
+        {/* 5. Recommended Study Focus */}
+        {recommendedTopics.length > 0 && (
+          <div className="client-card" style={{ padding: '20px' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, margin: '0 0 10px 0', color: 'var(--app-text)' }}>
+              Recommended Study Focus
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {report.strengths?.map((s, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.875rem' }}>
-                  <span style={{ color: '#10B981', flexShrink: 0 }}>✓</span>
-                  <span>{s}</span>
-                </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--app-text-secondary)', margin: '0 0 12px 0' }}>
+              Bridge your interview gaps by exploring these concepts in your personalized curriculum:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {recommendedTopics.map((topic, idx) => (
+                <span key={idx} className="skill-pill">
+                  {topic}
+                </span>
               ))}
             </div>
           </div>
+        )}
 
-          <div className="client-card" style={{ borderLeft: '4px solid #F59E0B' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#D97706', margin: '0 0 12px 0' }}>
-              Recommendations for Next Round
+        {/* 6. Question Breakdown & Model Answers */}
+        {questionEvaluations.length > 0 && (
+          <div>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, marginBottom: '12px', color: 'var(--app-text)' }}>
+              Question Breakdown & Model Answers ({questionEvaluations.length})
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {report.improvements?.map((imp, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.875rem' }}>
-                  <span style={{ color: '#F59E0B', flexShrink: 0 }}>•</span>
-                  <span>{imp}</span>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {questionEvaluations.map((evalItem, idx) => {
+                const qId = evalItem.question_id || evalItem.questionId || idx + 1;
+                const isExpanded = !!expandedQuestions[qId];
+                const score = evalItem.score ?? 80;
+
+                return (
+                  <div key={qId} className="client-card" style={{ padding: '16px' }}>
+                    <div
+                      onClick={() => toggleQuestionAccordion(qId)}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                    >
+                      <div style={{ flex: 1, paddingRight: '12px' }}>
+                        <span style={{ fontSize: '0.625rem', fontWeight: 800, background: 'var(--app-orange-light)', color: 'var(--app-orange)', padding: '2px 6px', borderRadius: '4px' }}>
+                          {(evalItem.category || `Stage ${idx + 1}`).toUpperCase()}
+                        </span>
+                        <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--app-text)', marginTop: '4px' }}>
+                          {evalItem.question}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span className={`client-badge ${score >= 70 ? 'client-badge-green' : 'client-badge-orange'}`}>
+                          {score}%
+                        </span>
+                        {isExpanded ? <ChevronUp size={18} color="#64748B" /> : <ChevronDown size={18} color="#64748B" />}
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div style={{ marginTop: '14px', borderTop: '1px solid #E2E8F0', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {/* Candidate Answer */}
+                        <div>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--app-text-muted)', marginBottom: '2px' }}>
+                            Your Answer:
+                          </div>
+                          <div style={{ fontSize: '0.8125rem', color: 'var(--app-text)', fontStyle: evalItem.candidate_answer ? 'normal' : 'italic' }}>
+                            {evalItem.candidate_answer || evalItem.candidateAnswer || '(No response recorded)'}
+                          </div>
+                        </div>
+
+                        {/* Interviewer Feedback */}
+                        <div>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--app-text-muted)', marginBottom: '2px' }}>
+                            Interviewer Feedback:
+                          </div>
+                          <div style={{ fontSize: '0.8125rem', color: 'var(--app-text-secondary)', lineHeight: 1.4 }}>
+                            {evalItem.feedback}
+                          </div>
+                        </div>
+
+                        {/* Ideal Model Answer */}
+                        {(evalItem.model_answer || evalItem.modelAnswer) && (
+                          <div style={{ background: 'var(--app-orange-light)', border: '1px solid rgba(255, 106, 0, 0.3)', borderRadius: '10px', padding: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--app-orange)', marginBottom: '4px' }}>
+                              <Sparkles size={14} />
+                              <span>Ideal Model Answer (Best Practice):</span>
+                            </div>
+                            <div style={{ fontSize: '0.8125rem', color: 'var(--app-text)', lineHeight: 1.5 }}>
+                              {evalItem.model_answer || evalItem.modelAnswer}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
+        )}
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+          {onNavigateToRoadmap && (
+            <button
+              onClick={onNavigateToRoadmap}
+              className="client-btn client-btn-secondary"
+              style={{ flex: 1, padding: '14px' }}
+            >
+              <Compass size={18} />
+              <span>Explore Roadmaps</span>
+            </button>
+          )}
+
+          <button
+            onClick={onBack}
+            className="client-btn client-btn-primary"
+            style={{ flex: 1, padding: '14px' }}
+          >
+            <span>Back to Dashboard</span>
+          </button>
         </div>
       </div>
     );

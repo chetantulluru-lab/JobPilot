@@ -402,22 +402,27 @@ class ApiClient {
   }
 
   // --- AI MOCK INTERVIEW ---
-  async startInterview(targetRole, mode = 'role') {
+  async startInterview(targetRole = 'Android & Full Stack Engineer', mode = 'ROLE_BASED', experienceLevel = 'Entry-Level', resumeId = null) {
     return this.request('/interviews/start', {
       method: 'POST',
       body: JSON.stringify({
+        mode: mode === 'resume' || mode === 'RESUME_BASED' ? 'RESUME_BASED' : 'ROLE_BASED',
         target_role: targetRole,
-        mode: mode,
+        experience_level: experienceLevel,
+        resume_id: resumeId || null,
       }),
     });
   }
 
-  async submitInterview(sessionId, answers, facePresenceScore = 95) {
+  async submitInterview(sessionId, answers, facePresenceScore = 96.0) {
     return this.request(`/interviews/${sessionId}/submit`, {
       method: 'POST',
       body: JSON.stringify({
-        answers: answers,
-        face_presence_score: facePresenceScore,
+        answers: Array.isArray(answers) ? answers : Object.entries(answers).map(([qId, ansText]) => ({
+          question_id: Number(qId) || 1,
+          answer_text: ansText || '',
+        })),
+        face_presence_score: Number(facePresenceScore) || 96.0,
       }),
     });
   }

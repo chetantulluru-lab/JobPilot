@@ -144,7 +144,10 @@ export default function ClientShell() {
 
           {/* Sub-Screens */}
           {currentScreen === 'interview' && (
-            <ClientMockInterview onBack={() => setCurrentScreen('home')} />
+            <ClientMockInterview
+              onBack={() => setCurrentScreen('home')}
+              onNavigateToRoadmap={() => setCurrentScreen('roadmap')}
+            />
           )}
           {currentScreen === 'coach' && (
             <ClientAICoach
