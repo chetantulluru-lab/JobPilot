@@ -282,6 +282,25 @@ class ApiClient {
     });
   }
 
+  async getPhaseResources(phaseId, language = 'English') {
+    return this.request(`/roadmaps/phases/${phaseId}/resources?language=${encodeURIComponent(language)}`);
+  }
+
+  async askCurriculumAssistant(dayId, question) {
+    return this.request('/roadmaps/assistant/ask', {
+      method: 'POST',
+      body: JSON.stringify({ day_id: dayId, question }),
+    });
+  }
+
+  async getBookmarks() {
+    return this.request('/roadmaps/user/bookmarks');
+  }
+
+  async toggleDayBookmark(dayId) {
+    return this.request(`/roadmaps/days/${dayId}/bookmark`, { method: 'POST' });
+  }
+
   // --- RESUMES & ATS ---
   async auditMissingFields() {
     return this.request('/resumes/audit/missing-fields');
@@ -391,14 +410,53 @@ class ApiClient {
     return this.request('/assistant/conversations');
   }
 
-  async chat(message, conversationId = null) {
+  async getConversation(id) {
+    return this.request(`/assistant/conversations/${id}`);
+  }
+
+  async deleteConversation(id) {
+    return this.request(`/assistant/conversations/${id}`, { method: 'DELETE' });
+  }
+
+  async chat(message, conversationId = null, jobId = null) {
     return this.request('/assistant/chat', {
       method: 'POST',
       body: JSON.stringify({
         message,
         conversation_id: conversationId,
+        job_id: jobId,
       }),
     });
+  }
+
+  async sendChatMessage(message, conversationId = null) {
+    const res = await this.chat(message, conversationId);
+    return {
+      response: res.reply || res.content || '',
+      reply: res.reply || res.content || '',
+      conversation_id: res.conversation_id,
+      model: res.model,
+      is_fallback: res.is_fallback,
+      tokens_used: res.tokens_used,
+    };
+  }
+
+  async quickCoach(message, jobId = null) {
+    const res = await this.request('/assistant/quick-coach', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        job_id: jobId,
+      }),
+    });
+    return {
+      response: res.reply || res.content || '',
+      reply: res.reply || res.content || '',
+      conversation_id: res.conversation_id,
+      model: res.model,
+      is_fallback: res.is_fallback,
+      tokens_used: res.tokens_used,
+    };
   }
 
   // --- AI MOCK INTERVIEW ---
